@@ -12,7 +12,7 @@ describe('routes plugin test', () => {
       routePaths.push(element.path)
     })
     expect(routePaths).toEqual([
-      '/accessibility', '/cookies', '/healthy', '/healthz', '/org-review', '/privacy-policy', '/terms', '/view-all', '/', '/assets/{path*}', '/terms/v1', '/terms/v2', '/terms/v3', '/view-application/{reference}', '/cookies', '/org-review'
+      '/accessibility', '/cookies', '/healthy', '/healthz', '/org-review', '/privacy-policy', '/signin-oidc', '/terms', '/view-all', '/', '/assets/{path*}', '/terms/v1', '/terms/v2', '/terms/v3', '/view-application/{reference}', '/cookies', '/org-review'
     ])
   })
 })

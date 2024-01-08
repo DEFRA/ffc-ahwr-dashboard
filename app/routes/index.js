@@ -6,7 +6,6 @@ module.exports = {
   method: 'GET',
   path: '/',
   options: {
-    auth: false,
     handler: async (request, h) => {
       await crumbCache.generateNewCrumb(request, h)
       return h.view(viewTemplate, await new ViewModel(request, viewTemplate)) // NOSONAR
