@@ -50,7 +50,7 @@
     "nunjucks": "^3.2.3",
     "pg-promise": "^11.5.4",
     "uuid": "^8.3.2",
-    "webdriverio": "^8.16.12"
+    "webdriverio": "^8.29.1"
   },
   "overrides": {
     "notifications-node-client": {
