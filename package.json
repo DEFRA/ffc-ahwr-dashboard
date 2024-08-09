@@ -48,7 +48,7 @@
     "mssql": "^10.0.2",
     "notifications-node-client": "^8.1.0",
     "nunjucks": "^3.2.3",
-    "pg-promise": "^11.5.5",
+    "pg-promise": "^11.9.1",
     "uuid": "^8.3.2",
     "webdriverio": "^8.16.12"
   },
