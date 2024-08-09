@@ -39,7 +39,7 @@
     "crypto-js": "^4.2.0",
     "ffc-ahwr-event-publisher": "1.0.2",
     "ffc-messaging": "^2.9.1",
-    "govuk-frontend": "5.4.0",
+    "govuk-frontend": "5.4.1",
     "hapi-pino": "^9.1.2",
     "http-status-codes": "^2.3.0",
     "joi": "17.11.0",
