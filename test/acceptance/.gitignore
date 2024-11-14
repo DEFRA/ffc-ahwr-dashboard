@@ -5,3 +5,8 @@ reporter
 /.env.dev
 /.env.test
 /.env.pre
+reports/
+accessibility-report/
+.tmp/
+wdio-report/
+app/

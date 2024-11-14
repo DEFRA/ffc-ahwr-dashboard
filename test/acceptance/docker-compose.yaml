@@ -1,35 +1,85 @@
-version: "3.7"
+version: "3.8"
+
 services:
-  wdio-cucumber:
-    build: .
-    image: ffc-ahwr-farmer-apply-acceptance
-    container_name: webdriver-cuke
+
+  ffc-ahwr-dashboard:
+    build:
+      target: production
+      context: ../../
+      dockerfile: Dockerfile
     environment:
-      TEST_ENVIRONMENT_ROOT_URL: ${TEST_ENVIRONMENT_ROOT_URL}
-      CHROME_ARGS: "--headless --ignore-certificate-errors"
-      BROWSERSTACK_USERNAME: ${BROWSERSTACK_USERNAME}
-      BROWSERSTACK_ACCESS_KEY: ${BROWSERSTACK_ACCESS_KEY}
-      BROWSERSTACK_PARALLEL_RUNS: ${BROWSERSTACK_PARALLEL_RUNS}
-      NODE_TLS_REJECT_UNAUTHORIZED: 0
-      CRN_USERNAME: ${FFC_AHWR_CRN_USERNAME}
-      CRN_PASSWORD: ${FFC_AHWR_CRN_PASSWORD}
-      CRN_MULTI_USERNAME: ${FFC_AHWR_CRN_MULTI_USERNAME}
-      CRN_EXCEPTION_USERNAME: ${FFC_AHWR_CRN_EXCEPTION_USERNAME}
-      CRN_EXCEPTION_USERNAME_NOCPH: ${FFC_AHWR_CRN_EXCEPTION_USERNAME_NOCPH}
-      CRN_EXCEPTION_USERNAME_MB_NP: ${FFC_EXCEPTION_USERNAME_MB_NP}
-      CRN_EXCEPTION_USERNAME_MB_NOCPH: ${FFC_AHWR_CRN_EXCEPTION_USERNAME_MB_NOCPH}
-      DB_PASSWORD: ${FFC_AHWR_DB_PASSWORD}
-
-      FFC_AHWR_AUTOMATION_ENABLED: ${FFC_AHWR_AUTOMATION_ENABLED}
+      NODE_ENV: test
+      APPINSIGHTS_CLOUDROLE: ffc-ahwr-dashboard-local
+      APPLICATIONINSIGHTS_CONNECTION_STRING: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
+      COOKIE_PASSWORD: who-likes-cookies-i-like-cookies-everybody-likes-cookies
+      EVENT_QUEUE_ADDRESS: ${EVENT_QUEUE_ADDRESS:-ffc-ahwr-event}${MESSAGE_QUEUE_SUFFIX}
+      GOOGLE_TAG_MANAGER_KEY: ${GOOGLE_TAG_MANAGER_KEY}
+      MESSAGE_QUEUE_HOST: ${MESSAGE_QUEUE_HOST:-notset}
+      MESSAGE_QUEUE_PASSWORD: ${MESSAGE_QUEUE_PASSWORD:-notset}
+      MESSAGE_QUEUE_USER: ${MESSAGE_QUEUE_USER:-notset}
+      SERVICE_URI: http://localhost:3003/
+      CLAIM_SERVICE_URI: http://localhost:3004/claim
+      APPLY_SERVICE_URI: http://localhost:3000/apply
+      APPLICATION_API_URI: http://host.docker.internal:3001/api
+      DEFRA_ID_TENANT: ${DEFRA_ID_TENANT:-azdcuspoc5}
+      DEFRA_ID_POLICY: ${DEFRA_ID_POLICY:-B2C_1A_SIGNUPSIGNINSFI}
+      DEFRA_ID_REDIRECT_URI: ${DEFRA_ID_REDIRECT_URI:-http://localhost:3003/signin-oidc}
+      DEFRA_ID_JWT_ISSUER_ID: ${DEFRA_ID_JWT_ISSUER_ID:-64c9d4f5-a560-4b65-9004-6d1e5ccee51d}
+      DEFRA_ID_CLIENT_ID: ${DEFRA_ID_CLIENT_ID:-83d2b160-74ce-4356-9709-3f8da7868e35}
+      DEFRA_ID_CLIENT_SECRET: ${DEFRA_ID_CLIENT_SECRET:-changeme}
+      DEFRA_ID_SERVICE_ID: ${DEFRA_ID_SERVICE_ID:-2a672ee6-7750-ed11-bba3-000d3adf7047}
+      RPA_HOST_NAME: ${RPA_HOST_NAME:-https://dev-internal-gateway.trade.azure.defra.cloud}
+      RPA_GET_PERSON_SUMMARY_URL: ${RPA_GET_PERSON_SUMMARY_URL:-/rural-payments-vet-visits/v1/person/3337243/summary}
+      RPA_GET_ORGANISATION_PERMISSIONS_URL: ${RPA_GET_ORGANISATION_PERMISSIONS_URL:-/rural-payments-vet-visits/v1/SitiAgriApi/authorisation/organisation/organisationId/authorisation}
+      RPA_GET_ORGANISATION_URL: ${RPA_GET_ORGANISATION_URL:-/rural-payments-vet-visits/v1/organisation/organisationId}
+      RPA_GET_CPH_NUMBERS_URL: ${RPA_GET_CPH_NUMBERS_URL:-/rural-payments-vet-visits/v1/SitiAgriApi/cph/organisation/organisationId/cph-numbers}
+      APIM_OCP_SUBSCRIPTION_KEY: ${APIM_OCP_SUBSCRIPTION_KEY:-changeme}
+      APIM_HOST_NAME: ${APIM_HOST_NAME:-https://login.microsoftonline.com}
+      APIM_OAUTH_PATH: ${APIM_OAUTH_PATH:-/c9d74090-b4e6-4b04-981d-e6757a160812/oauth2/v2.0/token}
+      APIM_CLIENT_ID: ${APIM_CLIENT_ID:-changeme}
+      APIM_CLIENT_SECRET: ${APIM_CLIENT_SECRET:-changeme}
+      APIM_SCOPE: ${APIM_SCOPE:-api://dev-futuretrade-int.defra.gov.uk/.default}
+      TERMS_AND_CONDITIONS_URL: ${TERMS_AND_CONDITIONS_URL:-http://localhost:3003/terms/v3}
+      ENDEMICS_ENABLED: ${ENDEMICS_ENABLED:-false}
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING:-not-used-due-to-AZURE_STORAGE_USE_CONNECTION_STRING-false}
+      AZURE_STORAGE_ACCOUNT_NAME: ${AZURE_STORAGE_ACCOUNT_NAME:-ffcahwr}
+      AZURE_STORAGE_APPLICATION_CONTAINER: ${AZURE_STORAGE_APPLICATION_CONTAINER:-documents}
+      AZURE_STORAGE_USE_CONNECTION_STRING: ${AZURE_STORAGE_USE_CONNECTION_STRING:-false}
+    ports:
+      - "3003:3000"
+      - "9232:9229"
     volumes:
-      - ./features/:/home/node/features/
-      - ./pageobjects/:/home/node/pageobjects/
-      - ./scratch/:/home/node/scratch/
-      - ./steps/:/home/node/steps/
-      - ./support/:/home/node/support/
-      - ./babel.config.js:/home/node/babel.config.js
-      - ./wdio.conf:/home/node/wdio.conf
-      - ./package.json:/home/node/package.json
-      - ./html-reports/:/home/node/html-reports/
-      - ./allure-report/:/home/node/allure-report/index.html
+      - ../../app:/home/node/app:rw
+      - ../../package.json:/home/node/package.json
+    networks:
+      ffc-ahwr:
 
+
+  acceptance-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: ${TARGETPLATFORM:-linux/amd64}
+    depends_on:
+      - ffc-ahwr-dashboard
+    environment:
+      ENV: ${ENV:-ci}
+      BASE_URL: ${BASE_URL:-http://ffc-ahwr-dashboard:3000/}
+      CRN_USERNAME: "1103043659"
+      CRN_PASSWORD: "Password456"
+      HEADLESS: true
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./wdio-report:/app/reports
+    command: [ "start-tests.sh" ]
+    networks:
+      - ffc-ahwr
+
+networks:
+  ffc-ahwr:
+
+
+volumes:
+  azurite_data:

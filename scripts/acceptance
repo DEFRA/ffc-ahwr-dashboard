@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+set -e
+projectRoot="$(a="/$0"; a=${a%/*}; a=${a:-.}; a=${a#/}/; cd "$a/.." || return; pwd)"
+
+cd "${projectRoot}"
+
+cd test/acceptance
+
+if [ -z "$(docker network ls --filter name=^ffc-ahwr$ --format={{.Name}})" ]; then
+  echo "Creating ffc-ahwr Docker network"
+  docker network create ffc-ahwr
+fi
+
+docker-compose down -v
+docker-compose -f docker-compose.yaml up --build --abort-on-container-exit
