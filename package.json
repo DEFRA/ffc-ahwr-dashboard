@@ -19,9 +19,6 @@
     "start:nodemon": "nodemon --inspect=0.0.0.0 --ext css,js,njk --legacy-watch app/index.js"
   },
   "author": "Defra",
-  "contributors": [
-    "Satish Chatap <govTechSatish>"
-  ],
   "license": "OGL-UK-3.0",
   "dependencies": {
     "@azure/identity": "^4.2.1",

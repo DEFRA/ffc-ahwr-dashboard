@@ -40,4 +40,6 @@ data:
   AZURE_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.azureStorageAccountName }}
   AZURE_STORAGE_APPLICATION_CONTAINER: {{ quote .Values.container.azureStorageApplicationDocumentsContainerName }}
   AZURE_STORAGE_USE_CONNECTION_STRING: {{ quote .Values.container.azureStorageUseConnectionString }}
+  MULTI_SPECIES_ENABLED: {{ quote .Values.container.multiSpeciesEnabled }}
+  MULTI_SPECIES_RELEASE_DATE: {{ quote .Values.container.multiSpeciesReleaseDate }}
 {{- end -}}

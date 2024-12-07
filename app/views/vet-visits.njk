@@ -20,10 +20,22 @@
   <hr/>
   <div class="govuk-grid-row govuk-width-container govuk-!-static-margin-top-6">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
+      {% if showNotificationBanner %}
+        {% set html %}
+          <p class="govuk-notification-banner__heading">
+            You can now claim for more than one species.
+          </p>
+        {% endset %}
+
+        {{ govukNotificationBanner({
+          html: html
+        }) }}
+      {% endif %}
+
       <h1 class="govuk-heading-xl">Manage your claims</h1>
-        <p class="govuk-caption-l govuk-!-static-margin-bottom-4">
-          Agreement number:{{ reference }}  
-        </p>
+      <p class="govuk-caption-l govuk-!-static-margin-bottom-4">
+        Agreement number: <span class="govuk-!-font-weight-bold">{{ reference }}</span>
+      </p>
 
       {{ govukButton({
         text: "Start a new claim",
@@ -34,7 +46,7 @@
       {% if checkReviewIsPaidOrReadyToPay %}
         <p class="govuk-body-m">Your review has been approved. You can now claim for a follow-up.</p>
       {% endif %}
-      
+
       <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h2>
       <hr/>
       {% if claims | length %}
@@ -47,15 +59,17 @@
         <hr/>
       {% endif %}
       <h2 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h2>
-      <p class="govuk-body">
-        <a class="govuk-link" rel="external" href={{ latestTermsAndConditionsUri }}>Terms and conditions</a>
-      </p>
-      <p class="govuk-body">
-        <a  class="govuk-link" rel="external" href="https://www.gov.uk/government/collections/funding-to-improve-animal-health-and-welfare-guidance-for-farmers-and-vets">Guidance for funding to improve animal health and welfare</a>
-      </p>
-      <p class="govuk-body">
-        <a class="govuk-link" rel="external" target=”_blank”  href={{ downloadedDocument }}>Agreement summary</a>
-      </p>
+      <ul class="govuk-list">
+        <li>
+          <a class="govuk-link" rel="external" href={{ latestTermsAndConditionsUri }}>Terms and conditions</a>
+        </li>
+        <li>
+          <a  class="govuk-link" rel="external" href="https://www.gov.uk/government/collections/funding-to-improve-animal-health-and-welfare-guidance-for-farmers-and-vets">Guidance for funding to improve animal health and welfare</a>
+        </li>
+        <li>
+          <a class="govuk-link" rel="external" target=”_blank”  href={{ downloadedDocument }}>Agreement summary</a>
+        </li>
+      </ul>
     </div>
   </div>
 {% endblock %}

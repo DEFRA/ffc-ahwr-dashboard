@@ -6,6 +6,7 @@ const {
 const {
   getClaimsByApplicationReference
 } = require('../../../../app/api-requests/claim-api')
+const { multiSpecies } = require('../../../../app/config/index')
 const cheerio = require('cheerio')
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/api-requests/application-api')
@@ -247,9 +248,9 @@ describe('Claim vet-visits', () => {
       attachedToMultipleBusinesses: true
     })
 
-    await getLatestApplicationsBySbi.mockReturnValueOnce(applications)
+    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
 
-    await getClaimsByApplicationReference.mockReturnValueOnce(claims)
+    getClaimsByApplicationReference.mockReturnValueOnce(claims)
 
     const response = await global.__SERVER__.inject(options)
     const $ = cheerio.load(response.payload)
@@ -304,9 +305,9 @@ describe('Claim vet-visits', () => {
       attachedToMultipleBusinesses: true
     })
 
-    await getLatestApplicationsBySbi.mockReturnValueOnce(applications)
+    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
 
-    await getClaimsByApplicationReference.mockReturnValueOnce()
+    getClaimsByApplicationReference.mockReturnValueOnce()
 
     const response = await global.__SERVER__.inject(options)
     const $ = cheerio.load(response.payload)
@@ -337,7 +338,7 @@ describe('Claim vet-visits', () => {
       attachedToMultipleBusinesses: false
     })
 
-    await getLatestApplicationsBySbi.mockReturnValueOnce([
+    getLatestApplicationsBySbi.mockReturnValueOnce([
       {
         reference: 'AHWR-2470-6BA9',
         type: 'EE'
@@ -356,9 +357,7 @@ describe('Claim vet-visits', () => {
     const latestEndemicsApplication = {
       reference: 'AHWR-B136-76A0'
     }
-
-    await getClaimsByApplicationReference.mockReturnValueOnce()
-
+    getClaimsByApplicationReference.mockReturnValueOnce()
     await global.__SERVER__.inject(options)
 
     expect(getClaimsByApplicationReference)
@@ -435,5 +434,67 @@ describe('Claim vet-visits', () => {
       const sortedClaims = sortByCreatedAt(claims)
       expect(sortedClaims).toEqual(claims.sort(claims?.createdAt))
     })
+  })
+
+  test('shows notification banner when enabled', async () => {
+    jest.resetAllMocks()
+    jest.replaceProperty(multiSpecies, 'releaseDate', '2024-12-04')
+    jest.replaceProperty(multiSpecies, 'enabled', true)
+
+    const application = {
+      type: 'EE',
+      createdAt: '2024-12-03'
+    }
+
+    const options = {
+      method: 'GET',
+      url,
+      auth: {
+        strategy: 'cookie',
+        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
+      }
+    }
+
+    getEndemicsClaim.mockReturnValueOnce({ organisation: {} })
+    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses: false })
+    getLatestApplicationsBySbi.mockReturnValueOnce([application])
+    getClaimsByApplicationReference.mockReturnValueOnce([])
+
+    const response = await global.__SERVER__.inject(options)
+    const $ = cheerio.load(response.payload)
+
+    expect($('.govuk-notification-banner__heading').text().trim())
+      .toBe('You can now claim for more than one species.')
+  })
+
+  test('hides notification banner for old world applications', async () => {
+    jest.resetAllMocks()
+    jest.replaceProperty(multiSpecies, 'releaseDate', '2024-12-04')
+    jest.replaceProperty(multiSpecies, 'enabled', true)
+
+    const application = {
+      type: 'VV',
+      createdAt: '2024-12-03'
+    }
+
+    const options = {
+      method: 'GET',
+      url,
+      auth: {
+        strategy: 'cookie',
+        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
+      }
+    }
+
+    getEndemicsClaim.mockReturnValueOnce({ organisation: {} })
+    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses: false })
+    getLatestApplicationsBySbi.mockReturnValueOnce([application])
+    getClaimsByApplicationReference.mockReturnValueOnce([])
+
+    const response = await global.__SERVER__.inject(options)
+    const $ = cheerio.load(response.payload)
+
+    expect($('.govuk-notification-banner__heading').length)
+      .toBe(0)
   })
 })
