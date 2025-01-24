@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-dashboard",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Dashboard service for AHWP service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-dashboard",
   "main": "app/index.js",
@@ -65,7 +65,6 @@
     "@types/hapi__hapi": "^20.0.10",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.19",
-    "blipp": "^4.0.2",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "7.1.2",
     "dotenv": "^16.0.3",
