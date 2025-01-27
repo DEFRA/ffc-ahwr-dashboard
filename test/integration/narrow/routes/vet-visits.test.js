@@ -1,11 +1,12 @@
-const { http, HttpResponse } = require('msw')
-const globalJsdom = require('global-jsdom')
-const { setupServer } = require('msw/node')
-const { getByRole, queryByRole } = require('@testing-library/dom')
-const config = require('../../../../app/config')
-const createServer = require('../../../../app/server')
-const { setServerState } = require('../../../helpers/set-server-state')
-const { getTableCells } = require('../../../helpers/get-table-cells')
+import { setServerState } from '../../../helpers/set-server-state.js'
+import { config } from '../../../../app/config/index.js'
+import { createServer } from '../../../../app/server'
+import { getTableCells } from '../../../helpers/get-table-cells.js'
+import { setupServer } from 'msw/node'
+import globalJsdom from 'global-jsdom'
+import { getByRole, queryByRole } from '@testing-library/dom'
+import { http, HttpResponse } from 'msw'
+import { authConfig } from '../../../../app/config/auth.js'
 
 const nunJucksInternalTimerMethods = ['nextTick']
 
@@ -37,7 +38,7 @@ test('get /vet-visits: new world, multiple businesses', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const applicationReference = 'AHWR-TEST-NEW1'
   const newWorldApplications = [{
@@ -94,7 +95,7 @@ test('get /vet-visits: new world, multiple businesses', async () => {
     .toHaveProperty('href', `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`)
 
   expect(getByRole(document.body, 'link', { name: 'Claim for a different business' }))
-    .toHaveProperty('href', expect.stringContaining(config.authConfig.defraId.hostname))
+    .toHaveProperty('href', expect.stringContaining(authConfig.defraId.hostname))
 })
 
 test('get /vet-visits: new world, no claims made, show banner', async () => {
@@ -116,7 +117,7 @@ test('get /vet-visits: new world, no claims made, show banner', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const beforeMultiSpeciesReleaseDate = '2024-12-03'
   const newWorldApplications = [{
@@ -171,7 +172,7 @@ test('get /vet-visits: old world application only', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const sbi = '106354662'
   const almostTenMonthsBefore = new Date('2024-03-03')

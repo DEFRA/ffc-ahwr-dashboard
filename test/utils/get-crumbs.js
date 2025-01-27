@@ -1,4 +1,4 @@
-module.exports = async (server, options = { url: '/cookies', crumbKey: 'crumb' }, mockForRequest = () => {}) => {
+export const getCrumbs = async (server, options = { url: '/cookies', crumbKey: 'crumb' }, mockForRequest = () => {}) => {
   mockForRequest()
   const { crumbKey, url } = options
   const res = await server.inject({ method: 'GET', url })

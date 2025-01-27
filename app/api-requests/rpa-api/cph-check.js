@@ -1,5 +1,5 @@
-const NoEligibleCphError = require('../../exceptions/NoEligibleCphError')
-const getCphNumbers = require('./cph-numbers')
+import { NoEligibleCphError } from '../../exceptions/NoEligibleCphError.js'
+import { getCphNumbers } from './cph-numbers.js'
 
 const between = (x, min, max) => {
   return x >= min && x <= max
@@ -29,13 +29,9 @@ const containAtLeastOneValidCph = (cphNumbers) => cphNumbers
     cphNumber => inEngland(cphNumber) && restrictedToCattlePigAndSheepLivestock(cphNumber)
   )
 
-const customerMustHaveAtLeastOneValidCph = async (request, apimAccessToken) => {
+export const customerMustHaveAtLeastOneValidCph = async (request, apimAccessToken) => {
   const cphNumbers = await getCphNumbers(request, apimAccessToken)
   if (!containAtLeastOneValidCph(cphNumbers)) {
     throw new NoEligibleCphError('Customer must have at least one valid CPH')
   }
-}
-
-module.exports = {
-  customerMustHaveAtLeastOneValidCph
 }

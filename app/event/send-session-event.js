@@ -1,8 +1,8 @@
-const raiseEvent = require('./raise-event')
+import { raiseEvent } from './raise-event.js'
 
 const renameClaimEntryKeyForEventReporting = (entryKey) => entryKey === 'endemicsClaim' ? 'claim' : entryKey
 
-const sendSessionEvent = (organisation, sessionId, entryKey, key, value, ip) => {
+export const sendSessionEvent = (organisation, sessionId, entryKey, key, value, ip) => {
   entryKey = renameClaimEntryKeyForEventReporting(entryKey)
 
   if (sessionId && organisation) {
@@ -20,5 +20,3 @@ const sendSessionEvent = (organisation, sessionId, entryKey, key, value, ip) => 
     raiseEvent(event)
   }
 }
-
-module.exports = sendSessionEvent

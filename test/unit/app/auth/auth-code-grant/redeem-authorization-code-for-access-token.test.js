@@ -1,3 +1,11 @@
+import { getPkcecodes } from '../../../../../app/session/index.js'
+import wreck from '@hapi/wreck'
+import {
+  redeemAuthorizationCodeForAccessToken
+} from '../../../../../app/auth/auth-code-grant/redeem-authorization-code-for-access-token.js'
+import { authConfig } from '../../../../../app/config/auth.js'
+import FormData from 'form-data'
+
 jest.mock('@hapi/wreck')
 jest.mock('form-data')
 jest.mock('applicationinsights', () => ({
@@ -5,44 +13,38 @@ jest.mock('applicationinsights', () => ({
   dispose: jest.fn()
 }))
 
-jest.mock('../../../../../app/config', () => ({
-  ...jest.requireActual('../../../../../app/config'),
-  authConfig: {
-    defraId: {
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
-      scope: 'test-scope',
-      redirectUri: 'test-redirect-uri',
-      hostname: 'https://test.auth.hostname',
-      policy: 'test-policy'
-    },
-    ruralPaymentsAgency: {
-      hostname: 'dummy-host-name',
-      getPersonSummaryUrl: 'dummy-get-person-summary-url',
-      getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
-      getOrganisationUrl: 'dummy-get-organisation-url'
-    }
+jest.mock('../../../../../app/config/auth', () => ({
+  ...jest.requireActual('../../../../../app/config/auth'),
+  defraId: {
+    clientId: 'test-client-id',
+    clientSecret: 'test-client-secret',
+    scope: 'test-scope',
+    redirectUri: 'test-redirect-uri',
+    hostname: 'https://test.auth.hostname',
+    policy: 'test-policy'
+  },
+  ruralPaymentsAgency: {
+    hostname: 'dummy-host-name',
+    getPersonSummaryUrl: 'dummy-get-person-summary-url',
+    getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
+    getOrganisationUrl: 'dummy-get-organisation-url'
   }
 }))
 jest.mock('../../../../../app/session', () => ({
   getPkcecodes: jest.fn()
 }))
 jest.mock('../../../../../app/session/keys', () => ({
-  pkcecodes: {
-    verifier: 'test-verifier'
-  },
-  endemicsClaim: {
-    organisation: {
-      organisationKey: 1234567
+  keys: {
+    pkcecodes: {
+      verifier: 'test-verifier'
+    },
+    endemicsClaim: {
+      organisation: {
+        organisationKey: 1234567
+      }
     }
   }
 }))
-
-const wreck = require('@hapi/wreck')
-const FormData = require('form-data')
-const config = require('../../../../../app/config')
-const session = require('../../../../../app/session')
-const redeemAuthorizationCodeForAccessToken = require('../../../../../app/auth/auth-code-grant/redeem-authorization-code-for-access-token')
 
 describe('redeemAuthorizationCodeForAccessToken', () => {
   const mockRequest = {
@@ -55,7 +57,7 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
   }
 
   beforeEach(() => {
-    session.getPkcecodes.mockReturnValue('test-code-verifier')
+    getPkcecodes.mockReturnValue('test-code-verifier')
     FormData.prototype.append = jest.fn() // Mock append method of form-data
   })
 
@@ -69,7 +71,7 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
     const result = await redeemAuthorizationCodeForAccessToken(mockRequest)
     expect(result).toEqual(mockResponsePayload)
     expect(wreck.post).toHaveBeenCalledWith(
-      `${config.authConfig.defraId.hostname}/${config.authConfig.defraId.policy}/oauth2/v2.0/token`,
+      `${authConfig.defraId.hostname}/${authConfig.defraId.policy}/oauth2/v2.0/token`,
       expect.anything()
     )
     expect(FormData.prototype.append).toHaveBeenCalledWith('code', 'test-code')
@@ -96,12 +98,12 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
     await redeemAuthorizationCodeForAccessToken(mockRequest)
 
     // Assuming FormData.append was mocked as shown previously
-    expect(FormData.prototype.append).toHaveBeenCalledWith('client_id', config.authConfig.defraId.clientId)
-    expect(FormData.prototype.append).toHaveBeenCalledWith('client_secret', config.authConfig.defraId.clientSecret)
-    expect(FormData.prototype.append).toHaveBeenCalledWith('scope', config.authConfig.defraId.scope)
+    expect(FormData.prototype.append).toHaveBeenCalledWith('client_id', authConfig.defraId.clientId)
+    expect(FormData.prototype.append).toHaveBeenCalledWith('client_secret', authConfig.defraId.clientSecret)
+    expect(FormData.prototype.append).toHaveBeenCalledWith('scope', authConfig.defraId.scope)
     expect(FormData.prototype.append).toHaveBeenCalledWith('code', mockRequest.query.code)
     expect(FormData.prototype.append).toHaveBeenCalledWith('grant_type', 'authorization_code')
-    expect(FormData.prototype.append).toHaveBeenCalledWith('redirect_uri', config.authConfig.defraId.redirectUri)
+    expect(FormData.prototype.append).toHaveBeenCalledWith('redirect_uri', authConfig.defraId.redirectUri)
     expect(FormData.prototype.append).toHaveBeenCalledWith('code_verifier', 'test-code-verifier')
   })
   it('handles network or other errors during HTTP request', async () => {

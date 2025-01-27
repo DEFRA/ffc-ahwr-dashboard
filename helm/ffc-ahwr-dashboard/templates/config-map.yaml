@@ -35,7 +35,6 @@ data:
   APIM_SCOPE: {{ quote .Values.container.apimScope }}
   WRECK_HTTP_TIMEOUT_MILLISECONDS: {{ quote .Values.wreckHttp.timeoutMilliseconds }}
   TERMS_AND_CONDITIONS_URL: {{ quote .Values.container.termsAndConditionsUrl }}
-  ENDEMICS_ENABLED: {{ quote .Values.container.endemicsEnabled }}
   AZURE_STORAGE_CONNECTION_STRING: {{ quote .Values.container.azureStorageConnectionString }}
   AZURE_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.azureStorageAccountName }}
   AZURE_STORAGE_APPLICATION_CONTAINER: {{ quote .Values.container.azureStorageApplicationDocumentsContainerName }}

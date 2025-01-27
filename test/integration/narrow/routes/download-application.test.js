@@ -1,13 +1,13 @@
-const globalJsdom = require('global-jsdom')
-const { getByRole } = require('@testing-library/dom')
-const config = require('../../../../app/config')
-const createServer = require('../../../../app/server')
-const { setServerState } = require('../../../helpers/set-server-state')
+import { setServerState } from '../../../helpers/set-server-state.js'
+import { createServer } from '../../../../app/server.js'
+import { storageConfig } from '../../../../app/config/storage.js'
+import globalJsdom from 'global-jsdom'
+import { getByRole } from '@testing-library/dom'
 
 test('get /download-application', async () => {
   const server = await createServer()
 
-  jest.replaceProperty(config.storage, 'useConnectionString', false)
+  jest.replaceProperty(storageConfig, 'useConnectionString', false)
 
   const sbi = '106354662'
   const reference = 'RESH-A89F-7776'
@@ -20,7 +20,7 @@ test('get /download-application', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const res = await server.inject({
     url: `/download-application/${sbi}/${reference}`,
@@ -48,7 +48,7 @@ test('get /download-application, reference mismatch', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const res = await server.inject({
     url: `/download-application/${sbi}/${reference}`,
@@ -80,7 +80,7 @@ test('get /download-application, sbi mismatch', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const res = await server.inject({
     url: `/download-application/${sbi}/${reference}`,

@@ -1,15 +1,23 @@
-const schema = require('./application-api.config.schema')
+import joi from 'joi'
 
-const config = {
-  uri: process.env.APPLICATION_API_URI
-}
-
-const result = schema.validate(config, {
-  abortEarly: false
+export const applicationApiConfigSchema = joi.object({
+  uri: joi.string().uri().required()
 })
 
-if (result.error) {
-  throw new Error(`The config is invalid: ${result.error.message}`)
+const getApplicationApiConfig = () => {
+  const config = {
+    uri: process.env.APPLICATION_API_URI
+  }
+
+  const { error } = applicationApiConfigSchema.validate(config, {
+    abortEarly: false
+  })
+
+  if (error) {
+    throw new Error(`The config is invalid: ${error.message}`)
+  }
+
+  return config
 }
 
-module.exports = result.value
+export const applicationApiConfig = getApplicationApiConfig()

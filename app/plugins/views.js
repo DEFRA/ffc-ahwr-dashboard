@@ -1,10 +1,12 @@
-const path = require('path')
-const nunjucks = require('nunjucks')
-const { googleTagManagerKey, isLocal, serviceName } = require('../config')
-const { version } = require('../../package.json')
+import path from 'path'
+import nunjucks from 'nunjucks'
+import { config } from '../config/index.js'
+import vision from '@hapi/vision'
 
-module.exports = {
-  plugin: require('@hapi/vision'),
+const { googleTagManagerKey, isLocal, serviceName } = config
+
+export const viewsPlugin = {
+  plugin: vision,
   options: {
     engines: {
       njk: {
@@ -30,10 +32,10 @@ module.exports = {
       }
     },
     path: '../views',
-    relativeTo: __dirname,
+    relativeTo: './app/views',
     isCached: !isLocal,
     context: {
-      appVersion: version,
+      appVersion: '1.0.0',
       assetPath: '/assets',
       pageTitle: serviceName,
       googleTagManagerKey

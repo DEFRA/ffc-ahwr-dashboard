@@ -1,8 +1,8 @@
-const globalJsdom = require('global-jsdom')
-const { getByRole } = require('@testing-library/dom')
-const { userEvent } = require('@testing-library/user-event')
-const createServer = require('../../../../app/server')
-const { captureFormData } = require('../../../helpers/capture-form-data')
+import { captureFormData } from '../../../helpers/capture-form-data.js'
+import { userEvent } from '@testing-library/user-event'
+import { createServer } from '../../../../app/server.js'
+import { getByRole } from '@testing-library/dom'
+import globalJsdom from 'global-jsdom'
 
 test('get /cookies', async () => {
   const server = await createServer()

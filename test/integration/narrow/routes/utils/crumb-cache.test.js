@@ -1,4 +1,4 @@
-const { lookupSubmissionCrumb, cacheSubmissionCrumb, generateNewCrumb } = require('../../../../../app/routes/utils/crumb-cache')
+import { lookupSubmissionCrumb, cacheSubmissionCrumb, generateNewCrumb } from '../../../../../app/routes/utils/crumb-cache'
 
 describe('Crumb Functions', () => {
   let request

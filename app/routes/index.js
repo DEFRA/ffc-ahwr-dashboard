@@ -1,4 +1,4 @@
-module.exports = {
+export const entryPointHandlers = [{
   method: 'GET',
   path: '/',
   options: {
@@ -6,4 +6,4 @@ module.exports = {
       return h.redirect('/vet-visits')
     }
   }
-}
+}]

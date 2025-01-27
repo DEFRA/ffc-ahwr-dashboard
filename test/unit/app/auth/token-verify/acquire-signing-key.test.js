@@ -1,4 +1,5 @@
-const wreck = require('@hapi/wreck')
+import wreck from '@hapi/wreck'
+import { acquireSigningKey } from '../../../../../app/auth/token-verify/acquire-signing-key.js'
 
 jest.mock('@hapi/wreck', () => ({
   get: jest.fn()
@@ -28,9 +29,7 @@ describe('acquireSigningKey error scenario', () => {
     }
     wreck.get.mockRejectedValueOnce(response)
 
-    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key')
-
-    expect(async () => {
+    await expect(async () => {
       await acquireSigningKey()
     }).rejects.toEqual(response)
   })
@@ -55,9 +54,6 @@ describe('acquireSigningKey success scenario', () => {
       },
       payload: mockSigningKeys
     })
-
-    // Import the module after mocking its dependencies
-    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key')
 
     const result = await acquireSigningKey()
 

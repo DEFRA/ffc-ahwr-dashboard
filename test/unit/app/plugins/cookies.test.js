@@ -1,6 +1,6 @@
-const Hapi = require('@hapi/hapi')
-const HttpStatus = require('http-status-codes')
-const { plugin } = require('../../../../app/plugins/cookies')
+import Hapi from '@hapi/hapi'
+import HttpStatus from 'http-status-codes'
+import { cookiePlugin } from '../../../../app/plugins/cookies'
 jest.mock('../../../../app/config', () => ({
   ...jest.requireActual('../../../../app/config'),
   cookie: {
@@ -31,7 +31,7 @@ describe('Cookie plugin', () => {
 
   beforeEach(async () => {
     server = Hapi.server()
-    await server.register({ plugin })
+    await server.register(cookiePlugin)
   })
 
   describe('onPreResponse', () => {
@@ -58,7 +58,7 @@ describe('Cookie plugin', () => {
         method: 'GET',
         url: '/abc'
       })
-      expect(response.statusCode).toEqual(HttpStatus.StatusCodes.NOT_FOUND)
+      expect(response.statusCode).toEqual(HttpStatus.NOT_FOUND)
     })
 
     test('should apply cookie policy for non-error, view responses', async () => {
@@ -69,7 +69,7 @@ describe('Cookie plugin', () => {
         url: '/blah'
       }
       const response = await server.inject(request)
-      expect(response.statusCode).toEqual(HttpStatus.StatusCodes.OK)
+      expect(response.statusCode).toEqual(HttpStatus.OK)
     })
   })
 })

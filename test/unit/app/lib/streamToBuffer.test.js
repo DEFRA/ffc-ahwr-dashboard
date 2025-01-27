@@ -1,5 +1,5 @@
-const { streamToBuffer } = require('../../../../app/lib/streamToBuffer')
-const { Readable } = require('stream')
+import { streamToBuffer } from '../../../../app/lib/streamToBuffer.js'
+import { Readable } from 'stream'
 
 describe('streamToBuffer', () => {
   test('should convert a readable stream to a buffer', async () => {

@@ -1,17 +1,19 @@
-const HttpStatus = require('http-status-codes')
-const Joi = require('joi')
-const boom = require('@hapi/boom')
-const session = require('../session')
-const config = require('../config')
-const { organisation: organisationKey, confirmCheckDetails: confirmCheckDetailsKey } = require('../session/keys').endemicsClaim
-const getOrganisation = require('./models/organisation')
+import { getOrganisation } from './models/organisation.js'
+import { keys } from '../session/keys.js'
+import { config } from '../config/index.js'
+import boom from '@hapi/boom'
+import joi from 'joi'
+import HttpStatus from 'http-status-codes'
+import { getEndemicsClaim, setEndemicsClaim } from '../session/index.js'
 
-module.exports = [{
+const { organisation: organisationKey, confirmCheckDetails: confirmCheckDetailsKey } = keys.endemicsClaim
+
+export const checkDetailsHandlers = [{
   method: 'GET',
   path: '/check-details',
   options: {
     handler: async (request, h) => {
-      const organisation = session.getEndemicsClaim(request, organisationKey)
+      const organisation = getEndemicsClaim(request, organisationKey)
       if (!organisation) {
         return boom.notFound()
       }
@@ -24,24 +26,24 @@ module.exports = [{
   path: '/check-details',
   options: {
     validate: {
-      payload: Joi.object({
-        confirmCheckDetails: Joi.string().valid('yes', 'no').required()
+      payload: joi.object({
+        confirmCheckDetails: joi.string().valid('yes', 'no').required()
       }),
       failAction: (request, h, err) => {
         request.logger.setBindings({ err })
-        const organisation = session.getEndemicsClaim(request, organisationKey)
+        const organisation = getEndemicsClaim(request, organisationKey)
         if (!organisation) {
           return boom.notFound()
         }
         return h.view('check-details', {
           errorMessage: { text: 'Select if these details are correct' },
           ...getOrganisation(request, organisation, 'Select if these details are correct')
-        }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
+        }).code(HttpStatus.BAD_REQUEST).takeover()
       }
     },
     handler: async (request, h) => {
       const { confirmCheckDetails } = request.payload
-      session.setEndemicsClaim(request, confirmCheckDetailsKey, confirmCheckDetails)
+      setEndemicsClaim(request, confirmCheckDetailsKey, confirmCheckDetails)
 
       if (confirmCheckDetails === 'yes') {
         return h.redirect('/vet-visits')

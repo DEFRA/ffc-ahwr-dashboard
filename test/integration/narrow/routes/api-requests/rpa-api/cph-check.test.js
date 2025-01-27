@@ -1,7 +1,7 @@
-const { http, HttpResponse } = require('msw')
-const { setupServer } = require('msw/node')
-const { authConfig } = require('../../../../../../app/config')
-const { customerMustHaveAtLeastOneValidCph } = require('../../../../../../app/api-requests/rpa-api/cph-check')
+import { authConfig } from '../../../../../../app/config/auth.js'
+import { customerMustHaveAtLeastOneValidCph } from '../../../../../../app/api-requests/rpa-api/cph-check'
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
 
 const mswServer = setupServer()
 mswServer.listen()

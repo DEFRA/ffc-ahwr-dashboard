@@ -1,7 +1,7 @@
-const { generateKeyPairSync } = require('crypto')
-const parseASN1 = require('parse-asn1')
+import { generateKeyPairSync } from 'crypto'
+import parseASN1 from 'parse-asn1'
 
-const generateKeys = () => {
+export const generateKeys = () => {
   const { publicKey, privateKey } = generateKeyPairSync('rsa', {
     modulusLength: 2048,
     publicKeyEncoding: {
@@ -17,7 +17,7 @@ const generateKeys = () => {
   return { publicKey, privateKey }
 }
 
-const generateJWK = (pem) => {
+export const generateJWK = (pem) => {
   const parsed = parseASN1(pem)
   const n = Buffer
     .from(parsed.modulus.toArray())
@@ -37,5 +37,3 @@ const generateJWK = (pem) => {
 
   return jwk
 }
-
-module.exports = { generateKeys, generateJWK }

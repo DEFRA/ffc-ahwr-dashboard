@@ -1,6 +1,4 @@
-const config = require('../config')
+import { config } from './index.js'
 
-module.exports = {
-  claimServiceUri: config.claimServiceUri,
-  vetVisits: 'vet-visits'
-}
+export const claimServiceUri = config.claimServiceUri
+export const vetVisits = 'vet-visits'

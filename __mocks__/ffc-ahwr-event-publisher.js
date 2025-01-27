@@ -1,5 +1,3 @@
-class PublishEvent {
+export class PublishEvent {
   sendEvent () {}
 }
-
-module.exports = { PublishEvent }

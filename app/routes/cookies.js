@@ -1,9 +1,11 @@
-const Joi = require('joi')
-const ViewModel = require('./models/cookies-policy')
-const { updatePolicy } = require('../cookies')
-const { cookie: { cookieNameCookiePolicy } } = require('../config')
+import joi from 'joi'
+import { config } from '../config/index.js'
+import { ViewModel } from './models/cookies-policy.js'
+import { updatePolicy } from '../cookies.js'
 
-module.exports = [{
+const { cookie: { cookieNameCookiePolicy } } = config
+
+export const cookieHandlers = [{
   method: 'GET',
   path: '/cookies',
   options: {
@@ -21,9 +23,9 @@ module.exports = [{
       crumb: false
     },
     validate: {
-      payload: Joi.object({
-        analytics: Joi.boolean(),
-        async: Joi.boolean().default(false)
+      payload: joi.object({
+        analytics: joi.boolean(),
+        async: joi.boolean().default(false)
       })
     },
     handler: (request, h) => {

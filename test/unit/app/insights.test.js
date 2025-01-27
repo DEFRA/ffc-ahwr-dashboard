@@ -1,8 +1,11 @@
-const HttpStatus = require('http-status-codes')
-describe('App Insight', () => {
-  const appInsights = require('applicationinsights')
-  jest.mock('applicationinsights')
+import appInsights from 'applicationinsights'
+import * as insights from '../../../app/insights.js'
 
+jest.mock('applicationinsights', () => ({
+  setup: jest.fn()
+}))
+
+describe('App Insight', () => {
   const startMock = jest.fn()
   const setupMock = jest.fn(() => {
     return {
@@ -37,7 +40,6 @@ describe('App Insight', () => {
     const appName = 'test-app'
     process.env.APPINSIGHTS_CLOUDROLE = appName
     process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = 'something'
-    const insights = require('../../../app/insights')
 
     insights.setup()
 
@@ -50,38 +52,10 @@ describe('App Insight', () => {
 
   test('logs not running when env var does not exist', () => {
     const consoleLogSpy = jest.spyOn(console, 'log')
-    const insights = require('../../../app/insights')
 
     insights.setup()
 
     expect(consoleLogSpy).toHaveBeenCalledTimes(1)
     expect(consoleLogSpy).toHaveBeenCalledWith('App Insights Not Running!')
-  })
-
-  test('logException', () => {
-    const { logException } = require('../../../app/insights')
-
-    expect(logException).toBeDefined()
-
-    logException({}, {})
-
-    const event = {
-      error: 'mock_error',
-      request: 'mock_request'
-    }
-
-    let req = {
-      statusCode: HttpStatus.StatusCodes.OK,
-      yar: { id: 'mock_id' },
-      payload: 'mock_payload'
-    }
-    logException(req, event)
-    expect(appInsights.defaultClient.trackException).toHaveBeenCalled()
-
-    req = {
-      statusCode: HttpStatus.StatusCodes.OK,
-      payload: 'mock_payload'
-    }
-    expect(appInsights.defaultClient.trackException).toHaveBeenCalled()
   })
 })

@@ -1,8 +1,6 @@
-class InvalidPermissionsError extends Error {
+export class InvalidPermissionsError extends Error {
   constructor (message) {
     super(message)
     this.name = 'InvalidPermissionsError'
   }
 }
-
-module.exports = InvalidPermissionsError

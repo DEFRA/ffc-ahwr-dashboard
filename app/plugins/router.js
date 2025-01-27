@@ -1,24 +1,26 @@
-const config = require('../config')
+import { healthHandlers } from '../routes/health.js'
+import { assetsRouteHandlers } from '../routes/assets.js'
+import { cookieHandlers } from '../routes/cookies.js'
+import { entryPointHandlers } from '../routes/index.js'
+import { checkDetailsHandlers } from '../routes/check-details.js'
+import { updateDetailsHandlers } from '../routes/update-details.js'
+import { signinRouteHandlers } from '../routes/signin-oidc.js'
+import { downloadApplicationHandlers } from '../routes/download-application.js'
+import { vetVisitsHandlers } from '../routes/vet-visits.js'
 
-let routes = [].concat(
-  require('../routes/healthy'),
-  require('../routes/healthz')
-)
+const routes = [
+  healthHandlers,
+  assetsRouteHandlers,
+  cookieHandlers,
+  entryPointHandlers,
+  checkDetailsHandlers,
+  updateDetailsHandlers,
+  signinRouteHandlers,
+  downloadApplicationHandlers,
+  vetVisitsHandlers
+].flat()
 
-if (config.endemics.enabled) {
-  routes = routes.concat(
-    require('../routes/assets'),
-    require('../routes/cookies'),
-    require('../routes/index'),
-    require('../routes/check-details'),
-    require('../routes/update-details'),
-    require('../routes/signin-oidc'),
-    require('../routes/vet-visits'),
-    require('../routes/download-application')
-  )
-}
-
-module.exports = {
+export const routerPlugin = {
   plugin: {
     name: 'router',
     register: (server, _) => {

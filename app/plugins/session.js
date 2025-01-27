@@ -1,7 +1,8 @@
-const config = require('../config')
+import { config } from '../config/index.js'
+import yar from '@hapi/yar'
 
-module.exports = {
-  plugin: require('@hapi/yar'),
+export const sessionPlugin = {
+  plugin: yar,
   options: {
     name: config.cookie.cookieNameSession,
     maxCookieSize: config.useRedis ? 0 : 1024, // Non-zero cookie size required when not using redis e.g for testing

@@ -1,4 +1,4 @@
-const parseRoles = (rolesToParse) => {
+export const parseRoles = (rolesToParse) => {
   const roleNames = []
   const roles = rolesToParse.map(x => {
     const parseRoles = x.split(':')
@@ -8,5 +8,3 @@ const parseRoles = (rolesToParse) => {
 
   return { roles, roleNames }
 }
-
-module.exports = parseRoles

@@ -1,10 +1,10 @@
-const wreck = require('@hapi/wreck')
-const config = require('../config')
+import Wreck from '@hapi/wreck'
+import { config } from '../config/index.js'
 
-async function getClaimsByApplicationReference (applicationReference, logger) {
+export async function getClaimsByApplicationReference (applicationReference, logger) {
   const endpoint = `${config.applicationApiUri}/claim/get-by-application-reference/${applicationReference}`
   try {
-    const { payload } = await wreck.get(
+    const { payload } = await Wreck.get(
       endpoint,
       { json: true }
     )
@@ -16,7 +16,7 @@ async function getClaimsByApplicationReference (applicationReference, logger) {
   }
 }
 
-function isWithinLastTenMonths (date) {
+export function isWithinLastTenMonths (date) {
   if (!date) {
     return false // Date of visit was introduced more than 10 months ago
   }
@@ -28,9 +28,4 @@ function isWithinLastTenMonths (date) {
   end.setHours(23, 59, 59, 999) // set to midnight of the agreement end day
 
   return Date.now() <= end
-}
-
-module.exports = {
-  isWithinLastTenMonths,
-  getClaimsByApplicationReference
 }

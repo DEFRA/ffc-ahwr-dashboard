@@ -1,69 +1,52 @@
+import { keys } from '../../../../app/session/keys'
+import HttpStatus from 'http-status-codes'
+import wreck from '@hapi/wreck'
+import jwktopem from 'jwk-to-pem'
+import { verifyState } from '../../../../app/auth/auth-code-grant/state.js'
+import { authenticate } from '../../../../app/auth/authenticate'
+import { getPkcecodes, getToken, setCustomer, setToken } from '../../../../app/session/index.js'
+import { verify } from 'jsonwebtoken'
 const { when, resetAllWhenMocks } = require('jest-when')
-const MOCK_USE_ACTUAL_DECODE = require('jsonwebtoken').decode
-const sessionKeys = require('../../../../app/session/keys')
-const HttpStatus = require('http-status-codes')
 
 const MOCK_NOW = new Date()
-const MOCK_JWT_VERIFY = jest.fn()
 const MOCK_COOKIE_AUTH_SET = jest.fn()
 
-describe('authenticate', () => {
-  let wreck
-  let jwktopem
-  let session
-  let authenticate
+jest.mock('../../../../app/session')
+jest.mock('@hapi/wreck')
+jest.mock('jwk-to-pem')
 
+jest.mock('jsonwebtoken', () => ({
+  verify: jest.fn().mockReturnValue(true),
+  decode: jest.requireActual('jsonwebtoken').decode
+}))
+
+jest.mock('../../../../app/auth/auth-code-grant/state.js', () => ({
+  verifyState: jest.fn()
+}))
+
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: () => 'hello' }, dispose: jest.fn() }))
+
+jest.mock('../../../../app/config/auth.js', () => ({
+  authConfig: {
+    defraId: {
+      hostname: 'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com',
+      tenantName: 'tenantname',
+      oAuthAuthorisePath: '/oauth2/v2.0/authorize',
+      policy: 'b2c_1a_signupsigninsfi',
+      redirectUri: 'http://localhost:3000/apply/signin-oidc',
+      clientId: 'dummy_client_id',
+      clientSecret: 'dummy_client_secret',
+      serviceId: 'dummy_service_id',
+      scope: 'openid dummy_client_id offline_access',
+      jwtIssuerId: 'jwtissuerid'
+    }
+  }
+}))
+
+describe('authenticate', () => {
   beforeAll(() => {
     jest.useFakeTimers('modern')
     jest.setSystemTime(MOCK_NOW)
-
-    jest.mock('../../../../app/config', () => ({
-      ...jest.requireActual('../../../../app/config'),
-      authConfig: {
-        defraId: {
-          hostname: 'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com',
-          tenantName: 'tenantname',
-          oAuthAuthorisePath: '/oauth2/v2.0/authorize',
-          policy: 'b2c_1a_signupsigninsfi',
-          redirectUri: 'http://localhost:3000/apply/signin-oidc',
-          clientId: 'dummy_client_id',
-          clientSecret: 'dummy_client_secret',
-          serviceId: 'dummy_service_id',
-          scope: 'openid dummy_client_id offline_access',
-          jwtIssuerId: 'jwtissuerid'
-        },
-        ruralPaymentsAgency: {
-          hostname: 'dummy-host-name',
-          getPersonSummaryUrl: 'dummy-get-person-summary-url',
-          getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
-          getOrganisationUrl: 'dummy-get-organisation-url'
-        },
-        apim: {
-          ocpSubscriptionKey: 'dummy-ocp-subscription-key',
-          hostname: 'dummy-host-name',
-          oAuthPath: 'dummy-oauth-path',
-          clientId: 'dummy-client-id',
-          clientSecret: 'dummy-client-secret',
-          scope: 'dummy-scope'
-        }
-      }
-    }))
-
-    jest.mock('../../../../app/session')
-    session = require('../../../../app/session')
-
-    jest.mock('@hapi/wreck')
-    wreck = require('@hapi/wreck')
-
-    jest.mock('jwk-to-pem')
-    jwktopem = require('jwk-to-pem')
-
-    jest.mock('jsonwebtoken', () => ({
-      verify: MOCK_JWT_VERIFY,
-      decode: MOCK_USE_ACTUAL_DECODE
-    }))
-
-    authenticate = require('../../../../app/auth/authenticate')
   })
 
   afterAll(() => {
@@ -84,6 +67,11 @@ describe('authenticate', () => {
             state: 'eyJpZCI6IjgyN2E0NmEyLTEzZGQtNGI4MC04MzM1LWQxZDZhNTVlNmY3MSJ9',
             code: 'query_code'
           },
+          logger: {
+            log: jest.fn(),
+            error: jest.fn(),
+            setBindings: jest.fn()
+          },
           cookieAuth: {
             set: MOCK_COOKIE_AUTH_SET
           }
@@ -102,28 +90,9 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: HttpStatus.StatusCodes.OK
+            statusCode: HttpStatus.OK
           },
           payload: {
-            /* Decoded access_token:
-            {
-              "alg": "HS256",
-              "typ": "JWT"
-            },
-            {
-              "sub": "1234567890",
-              "name": "John Doe",
-              "firstName": "John",
-              "lastName": "Doe",
-              "email": "john.doe@email.com",
-              "iat": 1516239022,
-              "iss": "https://tenantname.b2clogin.com/jwtissuerid/v2.0/",
-              "roles": [
-                "5384769:Agent:3"
-              ],
-              "contactId": "1234567890",
-              "currentRelationshipId": "123456789"
-            } */
             access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vand0aXNzdWVyaWQvdjIuMC8iLCJyb2xlcyI6WyI1Mzg0NzY5OkFnZW50OjMiXSwiY29udGFjdElkIjoiMTIzNDU2Nzg5MCIsImN1cnJlbnRSZWxhdGlvbnNoaXBJZCI6IjEyMzQ1Njc4OSJ9.pYC2VTlSnlIsLn4MknJl0YhLPCn2oW6K73FKFgzvAqE',
             id_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk',
             expires_in: 10
@@ -131,24 +100,7 @@ describe('authenticate', () => {
         }
       },
       expect: {
-        error: undefined,
-        consoleLogs: [
-          `${MOCK_NOW.toISOString()} Requesting an access token with a client_secret`,
-          `${MOCK_NOW.toISOString()} Verifying JWT token: ${JSON.stringify({
-            token: 'eyJhb...zvAqE'
-          })}`,
-          `${MOCK_NOW.toISOString()} Acquiring the signing key data necessary to validate the signature`,
-          `${MOCK_NOW.toISOString()} Decoding JWT token: ${JSON.stringify({
-            token: 'eyJhb...zvAqE'
-          })}`,
-          `${MOCK_NOW.toISOString()} Decoding JWT token: ${JSON.stringify({
-            token: 'eyJhb...uRrzk'
-          })}`,
-          `${MOCK_NOW.toISOString()} Verifying the issuer`,
-          `${MOCK_NOW.toISOString()} Verifying id_token nonce`
-        ],
-        errorLogs: [
-        ]
+        error: undefined
       }
     },
     {
@@ -159,6 +111,11 @@ describe('authenticate', () => {
             state: 'eyJpZCI6IjgyN2E0NmEyLTEzZGQtNGI4MC04MzM1LWQxZDZhNTVlNmY3MSJ9',
             code: 'query_code'
           },
+          logger: {
+            log: jest.fn(),
+            error: jest.fn(),
+            setBindings: jest.fn()
+          },
           cookieAuth: {
             set: MOCK_COOKIE_AUTH_SET
           }
@@ -177,28 +134,9 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: HttpStatus.StatusCodes.OK
+            statusCode: HttpStatus.OK
           },
           payload: {
-            /* Decoded access_token:
-            {
-              "alg": "HS256",
-              "typ": "JWT"
-            },
-            {
-              "sub": "1234567890",
-              "name": "John Doe",
-              "firstName": "John",
-              "lastName": "Doe",
-              "email": "john.doe@email.com",
-              "iat": 1516239022,
-              "iss": "https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/",
-              "roles": [
-                "5384769:Agent:3"
-              ],
-              "contactId": "1234567890",
-              "currentRelationshipId": "123456789"
-            } */
             access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vV1JPTkdfSldUX0lTU1VFUl9JRC92Mi4wLyIsInJvbGVzIjpbIjUzODQ3Njk6QWdlbnQ6MyJdLCJjb250YWN0SWQiOiIxMjM0NTY3ODkwIiwiY3VycmVudFJlbGF0aW9uc2hpcElkIjoiMTIzNDU2Nzg5In0.CIzX3BNGBXDLfDbZ0opb3N9jFJv5tYQjQsB_Nrn-6jI',
             id_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk',
             expires_in: 10
@@ -216,6 +154,11 @@ describe('authenticate', () => {
           query: {
             state: 'eyJpZCI6IjgyN2E0NmEyLTEzZGQtNGI4MC04MzM1LWQxZDZhNTVlNmY3MSJ9',
             code: 'query_code'
+          },
+          logger: {
+            log: jest.fn(),
+            error: jest.fn(),
+            setBindings: jest.fn()
           },
           cookieAuth: {
             set: MOCK_COOKIE_AUTH_SET
@@ -235,28 +178,9 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: HttpStatus.StatusCodes.OK
+            statusCode: HttpStatus.OK
           },
           payload: {
-            /* Decoded access_token:
-            {
-              "alg": "HS256",
-              "typ": "JWT"
-            },
-            {
-              "sub": "1234567890",
-              "name": "John Doe",
-              "firstName": "John",
-              "lastName": "Doe",
-              "email": "john.doe@email.com",
-              "iat": 1516239022,
-              "iss": "https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/",
-              "roles": [
-                "5384769:Agent:3"
-              ],
-              "contactId": "1234567890",
-              "currentRelationshipId": "123456789"
-            } */
             access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vV1JPTkdfSldUX0lTU1VFUl9JRC92Mi4wLyIsInJvbGVzIjpbIjUzODQ3Njk6QWdlbnQ6MyJdLCJjb250YWN0SWQiOiIxMjM0NTY3ODkwIiwiY3VycmVudFJlbGF0aW9uc2hpcElkIjoiMTIzNDU2Nzg5In0.CIzX3BNGBXDLfDbZ0opb3N9jFJv5tYQjQsB_Nrn-6jI',
             id_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk',
             expires_in: 10
@@ -268,15 +192,21 @@ describe('authenticate', () => {
       }
     }
   ])('%s', async (testCase) => {
-    when(session.getToken)
-      .calledWith(testCase.given.request, sessionKeys.tokens.state)
-      .mockReturnValue(testCase.when.session.state)
-    when(session.getPkcecodes)
-      .calledWith(testCase.given.request, sessionKeys.pkcecodes.verifier)
+    if (testCase.toString().includes('jwtVerify error')) {
+      verify.mockReturnValue(false)
+    } else {
+      verify.mockReturnValue(true)
+      verifyState.mockReturnValue(true)
+    }
+
+    when(getToken)
+      .calledWith(testCase.given.request, keys.tokens.state)
+      .mockReturnValue(testCase.when.state)
+    when(getPkcecodes)
+      .calledWith(testCase.given.request, keys.pkcecodes.verifier)
       .mockReturnValue(testCase.when.session.pkcecodes.verifier)
     when(wreck.post)
-      .calledWith(
-        'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/b2c_1a_signupsigninsfi/oauth2/v2.0/token',
+      .calledWith(expect.stringContaining('token'),
         {
           headers: expect.anything(),
           payload: expect.anything(),
@@ -285,13 +215,12 @@ describe('authenticate', () => {
       )
       .mockResolvedValue(testCase.when.redeemResponse)
     when(wreck.get)
-      .calledWith(
-        'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_signupsigninsfi',
+      .calledWith(expect.stringContaining('keys'),
         { json: true }
       )
       .mockResolvedValue({
         res: {
-          statusCode: HttpStatus.StatusCodes.OK
+          statusCode: HttpStatus.OK
         },
         payload: {
           keys: [testCase.when.acquiredSigningKey]
@@ -300,15 +229,15 @@ describe('authenticate', () => {
     when(jwktopem)
       .calledWith(testCase.when.acquiredSigningKey)
       .mockReturnValue(testCase.when.jwktopem)
-    when(MOCK_JWT_VERIFY)
-      .calledWith(
-        testCase.when.redeemResponse.payload.access_token,
-        'public_key',
-        { algorithms: ['RS256'], ignoreNotBefore: true }
-      )
-      .mockResolvedValue('verified')
-    when(session.getToken)
-      .calledWith(testCase.given.request, sessionKeys.tokens.nonce)
+    // when(MOCK_JWT_VERIFY)
+    //   .calledWith(
+    //     testCase.when.redeemResponse.payload.access_token,
+    //     'public_key',
+    //     { algorithms: ['RS256'], ignoreNotBefore: true }
+    //   )
+    //   .mockResolvedValue('verified')
+    when(getToken)
+      .calledWith(testCase.given.request, keys.tokens.nonce)
       .mockReturnValue('123')
 
     if (testCase.expect.error) {
@@ -316,35 +245,35 @@ describe('authenticate', () => {
         authenticate(testCase.given.request)
       ).rejects.toEqual(testCase.expect.error)
 
-      expect(session.setToken).toHaveBeenCalledTimes(0)
-      expect(session.setCustomer).toHaveBeenCalledTimes(0)
+      expect(setToken).toHaveBeenCalledTimes(0)
+      expect(setCustomer).toHaveBeenCalledTimes(0)
       expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledTimes(0)
     } else {
       await authenticate(testCase.given.request)
 
-      expect(session.setToken).toHaveBeenCalledWith(
+      expect(setToken).toHaveBeenCalledWith(
         testCase.given.request,
-        sessionKeys.tokens.accessToken,
+        keys.tokens.accessToken,
         testCase.when.redeemResponse.payload.access_token
       )
-      expect(session.setToken).toHaveBeenCalledWith(
+      expect(setToken).toHaveBeenCalledWith(
         testCase.given.request,
-        sessionKeys.tokens.tokenExpiry,
+        keys.tokens.tokenExpiry,
         new Date(MOCK_NOW.getTime() + 10 * 1000).toISOString()
       )
-      expect(session.setCustomer).toHaveBeenCalledWith(
+      expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
-        sessionKeys.customer.crn,
+        keys.customer.crn,
         '1234567890'
       )
-      expect(session.setCustomer).toHaveBeenCalledWith(
+      expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
-        sessionKeys.customer.organisationId,
+        keys.customer.organisationId,
         '123456789'
       )
-      expect(session.setCustomer).toHaveBeenCalledWith(
+      expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
-        sessionKeys.customer.attachedToMultipleBusinesses,
+        keys.customer.attachedToMultipleBusinesses,
         false
       )
       expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledWith({

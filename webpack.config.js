@@ -1,13 +1,17 @@
-const path = require('path')
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+
+const __filename = fileURLToPath(import.meta.url) // get the resolved path to the file
+const __dirname = path.dirname(__filename) // get the name of the directory
 
 const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
 console.log(`Running webpack in ${isDev ? 'development' : 'production'} mode`)
 
-module.exports = {
+export default {
   entry: './app/frontend/src/entry.js',
   mode: isDev ? 'development' : 'production',
   module: {

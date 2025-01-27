@@ -1,13 +1,14 @@
-const globalJsdom = require('global-jsdom')
-const { userEvent } = require('@testing-library/user-event')
-const {
+import { createServer } from '../../../../app/server.js'
+import globalJsdom from 'global-jsdom'
+import {
   getAllByRole,
   getByRole
-} = require('@testing-library/dom')
-const createServer = require('../../../../app/server')
-const { getCrumb, getCrumbFromSetCookie } = require('../../../helpers/get-crumb')
-const { setServerState } = require('../../../helpers/set-server-state')
-const { captureFormData } = require('../../../helpers/capture-form-data')
+} from '@testing-library/dom'
+
+import { getCrumb, getCrumbFromSetCookie } from '../../../helpers/get-crumb'
+import { setServerState } from '../../../helpers/set-server-state'
+import { captureFormData } from '../../../helpers/capture-form-data'
+import { userEvent } from '@testing-library/user-event'
 
 test('get /check-details', async () => {
   const server = await createServer()
@@ -34,7 +35,7 @@ test('get /check-details', async () => {
     }
   }
 
-  setServerState(server, state)
+  await setServerState(server, state)
 
   const res = await server.inject({
     url: '/check-details',

@@ -5,11 +5,12 @@ import './css/contents-list.scss'
 import './css/print-link.scss'
 import './css/govspeak.scss'
 import './css/organisation-logo.scss'
-import './js/cookies'
-import './js/handleDuplicateFormSubmissions'
+import './js/cookies.js'
+import './js/handleDuplicateFormSubmissions.js'
+import jquery from 'jquery'
+import moj from '@ministryofjustice/frontend'
 
-window.$ = require('jquery')
-const moj = require('@ministryofjustice/frontend')
+window.$ = jquery
 
 const $sortableTables = document.querySelectorAll('[data-module="moj-sortable-table"]')
 moj.nodeListForEach(

@@ -1,3 +1,7 @@
+import { generate, verify } from '../../../../../app/auth/id-token/nonce.js'
+import { keys as sessionKeys } from '../../../../../app/session/keys.js'
+import { getToken, setToken } from '../../../../../app/session/index.js'
+
 jest.mock('node:crypto', () => ({
   randomUUID: jest.fn()
 }))
@@ -6,10 +10,6 @@ jest.mock('../../../../../app/session', () => ({
   setToken: jest.fn(),
   getToken: jest.fn()
 }))
-
-const { generate, verify } = require('../../../../../app/auth/id-token/nonce')
-const session = require('../../../../../app/session')
-const sessionKeys = require('../../../../../app/session/keys')
 const { randomUUID } = require('node:crypto')
 
 describe('Nonce handling', () => {
@@ -19,8 +19,8 @@ describe('Nonce handling', () => {
 
   beforeEach(() => {
     randomUUID.mockReturnValueOnce(mockNonce)
-    session.setToken.mockClear()
-    session.getToken.mockClear()
+    setToken.mockClear()
+    getToken.mockClear()
   })
 
   describe('generate', () => {
@@ -28,7 +28,7 @@ describe('Nonce handling', () => {
       const nonce = generate(request)
 
       expect(randomUUID).toHaveBeenCalled()
-      expect(session.setToken).toHaveBeenCalledWith(request, sessionKeys.tokens.nonce, mockNonce)
+      expect(setToken).toHaveBeenCalledWith(request, sessionKeys.tokens.nonce, mockNonce)
       expect(nonce).toBe(mockNonce)
     })
   })
@@ -39,17 +39,17 @@ describe('Nonce handling', () => {
     })
 
     test('should throw an error if session contains no nonce', () => {
-      session.getToken.mockReturnValueOnce(null)
+      getToken.mockReturnValueOnce(null)
       expect(() => verify(request, idToken)).toThrow('HTTP Session contains no nonce')
     })
 
     test('should throw an error if nonce does not match', () => {
-      session.getToken.mockReturnValueOnce('different-nonce')
+      getToken.mockReturnValueOnce('different-nonce')
       expect(() => verify(request, idToken)).toThrow('Nonce mismatch')
     })
 
     test('should not throw an error if nonce matches', () => {
-      session.getToken.mockReturnValueOnce(mockNonce)
+      getToken.mockReturnValueOnce(mockNonce)
       expect(() => verify(request, idToken)).not.toThrow()
     })
   })

@@ -1,5 +1,7 @@
-const { userNeedsNotification } = require('../../../../../app/routes/utils/user-needs-notification')
-const { multiSpecies } = require('../../../../../app/config/index')
+import { userNeedsNotification } from '../../../../../app/routes/utils/user-needs-notification'
+import { config } from '../../../../../app/config/index.js'
+
+const { multiSpecies } = config
 
 jest.mock('../../../../../app/config/index')
 beforeEach(() => {

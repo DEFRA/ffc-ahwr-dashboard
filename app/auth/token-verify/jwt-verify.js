@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken')
-const jwktopem = require('jwk-to-pem')
-const acquireSigningKey = require('./acquire-signing-key')
+import jwt from 'jsonwebtoken'
+import jwktopem from 'jwk-to-pem'
+import { acquireSigningKey } from './acquire-signing-key.js'
 
-const jwtVerify = async (token) => {
+export const jwtVerify = async (token) => {
   const jwk = await acquireSigningKey()
   const publicKey = jwktopem(jwk)
   const decoded = await jwt.verify(token, publicKey, { algorithms: ['RS256'], ignoreNotBefore: true })
@@ -10,5 +10,3 @@ const jwtVerify = async (token) => {
     throw new Error('The token has not been verified')
   }
 }
-
-module.exports = jwtVerify

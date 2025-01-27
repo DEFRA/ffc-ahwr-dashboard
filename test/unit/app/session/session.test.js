@@ -1,6 +1,6 @@
-const session = require('../../../../app/session')
+import * as session from '../../../../app/session/index.js'
+import { sendSessionEvent } from '../../../../app/event/send-session-event.js'
 
-const sendSessionEvent = require('../../../../app/event/send-session-event')
 jest.mock('../../../../app/event/send-session-event')
 
 const yarMock = {

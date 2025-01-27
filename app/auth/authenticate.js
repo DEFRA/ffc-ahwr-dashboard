@@ -1,35 +1,33 @@
-const state = require('./auth-code-grant/state')
-const redeemAuthorizationCodeForAccessToken = require('./auth-code-grant/redeem-authorization-code-for-access-token')
-const jwtVerify = require('./token-verify/jwt-verify')
-const jwtDecode = require('./token-verify/jwt-decode')
-const jwtVerifyIss = require('./token-verify/jwt-verify-iss')
-const nonce = require('./id-token/nonce')
-const expiresIn = require('./auth-code-grant/expires-in')
-const session = require('../session')
-const sessionKeys = require('../session/keys')
-const cookieAuth = require('./cookie-auth/cookie-auth')
-const { InvalidStateError } = require('../exceptions')
+import { InvalidStateError } from '../exceptions/InvalidStateError.js'
+import { verifyState } from './auth-code-grant/state.js'
+import { verify as verifyNonce } from './id-token/nonce.js'
+import { jwtVerify } from './token-verify/jwt-verify.js'
+import { decodeJwt } from './token-verify/jwt-decode.js'
+import { toISOString } from './auth-code-grant/expires-in.js'
+import { jwtVerifyIss } from './token-verify/jwt-verify-iss.js'
+import { redeemAuthorizationCodeForAccessToken } from './auth-code-grant/redeem-authorization-code-for-access-token.js'
+import { setCustomer, setToken } from '../session/index.js'
+import { set as setCookieAuth } from './cookie-auth/cookie-auth.js'
+import { keys } from '../session/keys.js'
 
-const authenticate = async (request) => {
-  if (!state.verify(request)) {
+export const authenticate = async (request) => {
+  if (!verifyState(request)) {
     throw new InvalidStateError('Invalid state')
   }
   const redeemResponse = await redeemAuthorizationCodeForAccessToken(request)
   await jwtVerify(redeemResponse.access_token)
-  const accessToken = jwtDecode(redeemResponse.access_token)
-  const idToken = jwtDecode(redeemResponse.id_token)
+  const accessToken = decodeJwt(redeemResponse.access_token)
+  const idToken = decodeJwt(redeemResponse.id_token)
   await jwtVerifyIss(accessToken.iss)
-  nonce.verify(request, idToken)
+  verifyNonce(request, idToken)
 
-  session.setToken(request, sessionKeys.tokens.accessToken, redeemResponse.access_token)
-  session.setToken(request, sessionKeys.tokens.tokenExpiry, expiresIn.toISOString(redeemResponse.expires_in))
-  session.setCustomer(request, sessionKeys.customer.crn, accessToken.contactId)
-  session.setCustomer(request, sessionKeys.customer.organisationId, accessToken.currentRelationshipId)
-  session.setCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses, typeof accessToken.enrolmentCount !== 'undefined' && accessToken.enrolmentCount > 1)
+  setToken(request, keys.tokens.accessToken, redeemResponse.access_token)
+  setToken(request, keys.tokens.tokenExpiry, toISOString(redeemResponse.expires_in))
+  setCustomer(request, keys.customer.crn, accessToken.contactId)
+  setCustomer(request, keys.customer.organisationId, accessToken.currentRelationshipId)
+  setCustomer(request, keys.customer.attachedToMultipleBusinesses, typeof accessToken.enrolmentCount !== 'undefined' && accessToken.enrolmentCount > 1)
 
-  cookieAuth.set(request, accessToken)
+  setCookieAuth(request, accessToken)
 
   return accessToken
 }
-
-module.exports = authenticate

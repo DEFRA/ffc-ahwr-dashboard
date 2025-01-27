@@ -1,4 +1,4 @@
-const { getYesNoRadios } = require('../../../../../../app/routes/models/form-component/yes-no-radios')
+import { getYesNoRadios } from '../../../../../../app/routes/models/form-component/yes-no-radios.js'
 
 describe('getYesNoRadios', () => {
   const legendText = 'Do you agree?'

@@ -1,7 +1,12 @@
-const { http, HttpResponse } = require('msw')
-const { setupServer } = require('msw/node')
-const { applicationApi } = require('../../../../../app/config')
-const { changeContactHistory } = require('../../../../../app/api-requests/contact-history-api')
+import { setupServer } from 'msw/node'
+import { config } from '../../../../../app/config/index.js'
+import { http, HttpResponse } from 'msw'
+import { changeContactHistory } from '../../../../../app/api-requests/contact-history-api.js'
+
+jest.mock('applicationinsights', () => ({
+  defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
+  dispose: jest.fn()
+}))
 
 const mswServer = setupServer()
 mswServer.listen()
@@ -20,7 +25,7 @@ test('changeContactHistory, throws returned errors', async () => {
   }
 
   const appService = http.put(
-    `${applicationApi.uri}/application/contact-history`,
+    `${config.applicationApi.uri}/application/contact-history`,
     () => new HttpResponse(null, {
       status: 400,
       statusText: 'Bad Request'

@@ -1,11 +1,7 @@
-const { BlobServiceClient } = require('@azure/storage-blob')
-const { DefaultAzureCredential } = require('@azure/identity')
-const { storage } = require('./config')
-const { streamToBuffer } = require('./lib/streamToBuffer')
-
-const {
-  applicationDocumentsContainer
-} = storage
+import { BlobServiceClient } from '@azure/storage-blob'
+import { DefaultAzureCredential } from '@azure/identity'
+import { storageConfig } from './config/storage.js'
+import { streamToBuffer } from './lib/streamToBuffer.js'
 
 let blobServiceClient
 function initialiseClient () {
@@ -14,7 +10,7 @@ function initialiseClient () {
       connectionString,
       useConnectionString,
       storageAccount
-    } = storage
+    } = storageConfig
 
     if (useConnectionString === true) {
       blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
@@ -25,15 +21,11 @@ function initialiseClient () {
   }
 }
 
-const getBlob = async (filename) => {
+export const getBlob = async (filename) => {
   initialiseClient()
 
-  const container = blobServiceClient.getContainerClient(applicationDocumentsContainer)
+  const container = blobServiceClient.getContainerClient(storageConfig.applicationDocumentsContainer)
   const blobClient = container.getBlobClient(filename)
   const downloadResponse = await blobClient.download()
   return await streamToBuffer(downloadResponse.readableStreamBody)
-}
-
-module.exports = {
-  getBlob
 }

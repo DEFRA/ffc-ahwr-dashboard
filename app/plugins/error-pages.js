@@ -1,4 +1,4 @@
-module.exports = {
+export const errorPagesPlugin = {
   plugin: {
     name: 'error-pages',
     register: (server, _) => {

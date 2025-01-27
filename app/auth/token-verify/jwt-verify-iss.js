@@ -1,15 +1,13 @@
-const config = require('../../config')
+import { authConfig } from '../../config/auth.js'
 
 const jwtTrustedIssuers = [
-  `https://${config.authConfig.defraId.tenantName}.b2clogin.com/${config.authConfig.defraId.jwtIssuerId}/v2.0/`
+  `https://${authConfig.defraId.tenantName}.b2clogin.com/${authConfig.defraId.jwtIssuerId}/v2.0/`
 ]
 
-const jwtVerifyIss = async (iss) => {
+export const jwtVerifyIss = async (iss) => {
   if (!jwtTrustedIssuers.includes(iss)) {
     throw new Error(`Issuer not trusted: ${iss}`)
   }
 
   return true
 }
-
-module.exports = jwtVerifyIss

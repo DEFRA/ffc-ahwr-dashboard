@@ -1,62 +1,37 @@
+import { requestAuthorizationCodeUrl } from '../../../../app/auth/auth-code-grant/request-authorization-code-url.js'
+import { authenticate } from '../../../../app/auth/authenticate.js'
+import { verifyState } from '../../../../app/auth/auth-code-grant/state.js'
+
+jest.mock('../../../../app/session')
+jest.mock('../../../../app/auth/auth-code-grant/state')
+
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn() }, dispose: jest.fn() }))
+
 describe('Generate authentication url test', () => {
-  let auth
-  let sessionMock
-  const MOCK_VERIFY = jest.fn()
-
-  beforeAll(() => {
-    jest.resetModules()
-
-    sessionMock = require('../../../../app/session')
-    jest.mock('../../../../app/session')
-
-    jest.mock('../../../../app/auth/auth-code-grant/state', () => ({
-      ...jest.requireActual('../../../../app/auth/auth-code-grant/state'),
-      verify: MOCK_VERIFY
-    }))
-
-    auth = require('../../../../app/auth')
-  })
-
-  beforeEach(() => {
+  afterEach(() => {
     jest.resetAllMocks()
   })
 
   test('when requestAuthorizationCodeUrl with pkce true challenge parameter added', async () => {
-    const setPkcecodesMock = jest.fn()
-    const setTokenMock = jest.fn()
-    const session = {
-      setPkcecodes: setPkcecodesMock,
-      setToken: setTokenMock
-    }
-    const result = auth.requestAuthorizationCodeUrl(session, undefined)
+    const result = requestAuthorizationCodeUrl(undefined)
     const params = new URL(result).searchParams
     expect(params.get('code_challenge')).not.toBeNull()
   })
 
   test('when requestAuthorizationCodeUrl with pkce false no challenge parameter is added', async () => {
-    const setPkcecodesMock = jest.fn()
-    const setTokenMock = jest.fn()
-    const session = {
-      setPkcecodes: setPkcecodesMock,
-      setToken: setTokenMock
-    }
-    const result = auth.requestAuthorizationCodeUrl(session, undefined, undefined, false)
+    const result = requestAuthorizationCodeUrl(undefined, undefined, false)
     const params = new URL(result).searchParams
     expect(params.get('code_challenge')).toBeNull()
   })
 
-  test('when authenticate successfull returns access token', async () => {
-    MOCK_VERIFY.mockReturnValueOnce(true)
-    // const result = await auth.authenticate({}, sessionMock)
-    // expect(result).toEqual('dummy_access_token')
-  })
-
   test('when invalid state error is thrown', async () => {
-    MOCK_VERIFY.mockReturnValueOnce(false)
+    verifyState.mockReturnValueOnce(false)
+    const request = { yar: { id: '33' }, logger: { setBindings: jest.fn() } }
     try {
-      await auth.authenticate({ yar: { id: '33' } }, sessionMock)
+      await authenticate(request)
     } catch (e) {
       expect(e.message).toBe('Invalid state')
+      expect(verifyState).toHaveBeenCalledWith(request)
     }
   })
 })

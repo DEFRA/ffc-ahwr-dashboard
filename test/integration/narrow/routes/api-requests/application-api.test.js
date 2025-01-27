@@ -1,7 +1,7 @@
-const { http, HttpResponse } = require('msw')
-const { setupServer } = require('msw/node')
-const { applicationApi } = require('../../../../../app/config')
-const { getLatestApplicationsBySbi } = require('../../../../../app/api-requests/application-api')
+import { setupServer } from 'msw/node'
+import { config } from '../../../../../app/config/index.js'
+import { getLatestApplicationsBySbi } from '../../../../../app/api-requests/application-api.js'
+import { http, HttpResponse } from 'msw'
 
 const mswServer = setupServer()
 mswServer.listen()
@@ -20,7 +20,7 @@ test('getLatestApplicationsBySbi: throws returned errors', async () => {
   }
 
   const appService = http.get(
-    `${applicationApi.uri}/applications/latest`,
+    `${config.applicationApi.uri}/applications/latest`,
     () => new HttpResponse(null, {
       status: 400,
       statusText: 'Bad Request'

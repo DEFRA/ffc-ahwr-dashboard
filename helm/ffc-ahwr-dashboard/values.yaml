@@ -70,7 +70,6 @@ container:
   apimClientId:
   apimClientSecret:
   apimScope:
-  endemicsEnabled:
   azureStorageConnectionString:
   azureStorageAccountName:
   azureStorageApplicationDocumentsContainerName:

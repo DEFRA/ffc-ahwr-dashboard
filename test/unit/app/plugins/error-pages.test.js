@@ -1,6 +1,6 @@
-const Hapi = require('@hapi/hapi')
-const Boom = require('@hapi/boom')
-const errorPagesPlugin = require('../../../../app/plugins/error-pages')
+import Hapi from '@hapi/hapi'
+import Boom from '@hapi/boom'
+import { errorPagesPlugin } from '../../../../app/plugins/error-pages.js'
 
 describe('Error Pages Plugin', () => {
   let server

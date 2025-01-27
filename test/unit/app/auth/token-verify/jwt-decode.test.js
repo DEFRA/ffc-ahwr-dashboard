@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken')
-const decodeJwt = require('../../../../../app/auth/token-verify/jwt-decode')
+import jwt from 'jsonwebtoken'
+import { decodeJwt } from '../../../../../app/auth/token-verify/jwt-decode.js'
 
 describe('decodeJwt function', () => {
   const mockToken = 'mock.jwt.token'

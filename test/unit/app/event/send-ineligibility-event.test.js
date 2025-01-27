@@ -1,7 +1,7 @@
-jest.mock('../../../../app/event/raise-event')
-const raiseEvent = require('../../../../app/event/raise-event')
+import { raiseIneligibilityEvent } from '../../../../app/event/raise-ineligibility-event'
+import { raiseEvent } from '../../../../app/event/raise-event.js'
 
-const sendIneligibilityEvent = require('../../../../app/event/raise-ineligibility-event')
+jest.mock('../../../../app/event/raise-event')
 
 let event
 const sessionId = '9e016c50-046b-4597-b79a-ebe4f0bf8505'
@@ -19,7 +19,7 @@ describe('Send event on inegibile', () => {
   })
 
   test('should call raiseEvent when a valid event is received', async () => {
-    await sendIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', exception)
+    await raiseIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', exception)
     expect(raiseEvent).toHaveBeenCalled()
   })
 
@@ -42,17 +42,17 @@ describe('Send event on inegibile', () => {
       status: 'alert'
     }
 
-    await sendIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', exception)
+    await raiseIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', exception)
     expect(raiseEvent).toHaveBeenCalledWith(event, 'alert')
   })
 
   test('should not call raiseEvent when an event with a null sessionId is received', async () => {
-    await sendIneligibilityEvent(null, sbi, crn, 'random@email.com', exception)
+    await raiseIneligibilityEvent(null, sbi, crn, 'random@email.com', exception)
     expect(raiseEvent).not.toHaveBeenCalled()
   })
 
   test('should not call raiseEvent when an event with a null exception is received', async () => {
-    await sendIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', null)
+    await raiseIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', null)
     expect(raiseEvent).not.toHaveBeenCalled()
   })
 })

@@ -1,27 +1,22 @@
-const { get } = require('./base')
-const session = require('../../session')
-const { tokens } = require('../../session/keys')
-const config = require('../../config')
-const jwtDecode = require('../../auth/token-verify/jwt-decode')
+import { getToken } from '../../session/index.js'
+import { get } from './base.js'
+import { keys } from '../../session/keys.js'
+import { authConfig } from '../../config/auth.js'
+import { decodeJwt } from '../../auth/token-verify/jwt-decode.js'
 
-function getPersonName (personSummary) {
+export function getPersonName (personSummary) {
   return [personSummary.firstName, personSummary.middleName, personSummary.lastName].filter(Boolean).join(' ')
 }
 
 function parsedAccessToken (request) {
-  const accessToken = session.getToken(request, tokens.accessToken)
-  return jwtDecode(accessToken)
+  const accessToken = getToken(request, keys.tokens.accessToken)
+  return decodeJwt(accessToken)
 }
 
-const getPersonSummary = async (request, apimAccessToken) => {
-  const { hostname, getPersonSummaryUrl } = config.authConfig.ruralPaymentsAgency
+export const getPersonSummary = async (request, apimAccessToken) => {
+  const { hostname, getPersonSummaryUrl } = authConfig.ruralPaymentsAgency
 
   const crn = parsedAccessToken(request).contactId
   const response = await get(hostname, getPersonSummaryUrl, request, { crn, Authorization: apimAccessToken })
   return response._data
-}
-
-module.exports = {
-  getPersonSummary,
-  getPersonName
 }

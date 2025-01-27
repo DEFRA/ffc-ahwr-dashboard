@@ -7,7 +7,7 @@ services:
     volumes:
       - ./app:/home/node/app
       - ./test:/home/node/test
-      - ./jest.config.js:/home/node/jest.config.js
+      - ./jest.config.cjs:/home/node/jest.config.cjs
       - ./webpack.config.js:/home/node/webpack.config.js
 
 volumes:

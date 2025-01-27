@@ -1,21 +1,20 @@
+import { raiseEvent } from '../../../../app/event/raise-event.js'
+import { PublishEvent } from 'ffc-ahwr-event-publisher'
+
 jest.mock('ffc-ahwr-event-publisher', () => ({
   PublishEvent: jest.fn().mockImplementation(() => ({
     sendEvent: jest.fn()
   }))
 }))
 
-jest.mock('../../../../app/config', () => ({
-  ...jest.requireActual('../../../../app/config'),
-  mqConfig: {
-    eventQueue: {
-      address: 'test-queue',
-      type: 'queue'
-    }
+jest.mock('../../../../app/config/messaging', () => ({
+  ...jest.requireActual('../../../../app/config/messaging'),
+  eventQueue: {
+    address: 'test-queue',
+    type: 'queue'
   }
 }))
 
-const raiseEvent = require('../../../../app/event/raise-event')
-const { PublishEvent } = require('ffc-ahwr-event-publisher')
 // Mock `PublishEvent` with a constructor that returns an object containing a mock `sendEvent` method
 jest.mock('ffc-ahwr-event-publisher', () => ({
   PublishEvent: jest.fn().mockImplementation(() => ({

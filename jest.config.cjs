@@ -15,7 +15,7 @@ module.exports = {
     '<rootDir>/test-output/',
     '<rootDir>/test/',
     '<rootDir>/rename.js',
-    '<rootDir>/jest.config.js',
+    '<rootDir>/jest.config.cjs',
     '<rootDir>/webpack.config.js'
   ],
   modulePathIgnorePatterns: [
@@ -38,5 +38,8 @@ module.exports = {
   verbose: true,
   setupFilesAfterEnv: [
     '<rootDir>/test/setup.js'
-  ]
+  ],
+  transform: {
+    '^.+\\.[j]sx?$': 'babel-jest'
+  }
 }
