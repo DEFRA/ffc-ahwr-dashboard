@@ -25,10 +25,9 @@ export class BlobServiceClient {
     return new Container()
   }
 
-  static fromConnectionString () {}
+  static fromConnectionString () {
+    return new BlobServiceClient()
+  }
 }
 
-BlobServiceClient.fromConnectionString = jest.fn()
-  .mockImplementation(() => {
-    return new BlobServiceClient()
-  })
+module.exports = { BlobServiceClient }
