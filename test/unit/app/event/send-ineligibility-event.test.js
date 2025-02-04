@@ -14,10 +14,6 @@ describe('Send event on inegibile', () => {
   jest.useFakeTimers('modern')
   jest.setSystemTime(MOCK_NOW)
 
-  afterEach(async () => {
-    jest.resetAllMocks()
-  })
-
   test('should call raiseEvent when a valid event is received', async () => {
     await raiseIneligibilityEvent(sessionId, sbi, crn, 'random@email.com', exception)
     expect(raiseEvent).toHaveBeenCalled()
