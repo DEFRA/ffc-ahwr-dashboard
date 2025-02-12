@@ -23,14 +23,16 @@ import { changeContactHistory } from '../api-requests/contact-history-api.js'
 import { customerMustHaveAtLeastOneValidCph } from '../api-requests/rpa-api/cph-check.js'
 import { getLatestApplicationsBySbi } from '../api-requests/application-api.js'
 
-function setOrganisationSessionData (request, personSummary, org) {
+function setOrganisationSessionData (request, personSummary, org, crn) {
   const organisation = {
     sbi: org.sbi?.toString(),
     farmerName: getPersonName(personSummary),
     name: org.name,
     orgEmail: org.email,
     email: personSummary.email ? personSummary.email : org.email,
-    address: getOrganisationAddress(org.address)
+    address: getOrganisationAddress(org.address),
+    crn,
+    frn: org.businessReference
   }
 
   setEndemicsClaim(
@@ -133,14 +135,16 @@ export const signinRouteHandlers = [{
         })
 
         await changeContactHistory(personSummary, organisation, request.logger)
-        setOrganisationSessionData(request, personSummary, organisation)
+
+        const crn = getCustomer(request, sessionKeys.customer.crn)
+        setOrganisationSessionData(request, personSummary, organisation, crn)
 
         setAuthCookie(request, personSummary.email, farmerApply)
         appInsights.defaultClient.trackEvent({
           name: 'login',
           properties: {
             sbi: organisation.sbi,
-            crn: getCustomer(request, sessionKeys.customer.crn),
+            crn,
             email: personSummary.email
           }
         })

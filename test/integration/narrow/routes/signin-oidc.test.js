@@ -9,6 +9,7 @@ import { setServerState } from '../../../helpers/set-server-state.js'
 import globalJsdom from 'global-jsdom'
 import { getByRole } from '@testing-library/dom'
 import { applicationStatus } from '../../../../app/constants/constants.js'
+import * as session from '../../../../app/session/index.js'
 
 const mswServer = setupServer()
 mswServer.listen()
@@ -29,6 +30,11 @@ jest.mock('form-data', () => class Formdata {
 jest.mock('applicationinsights', () => ({
   defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
   dispose: jest.fn()
+}))
+
+jest.mock('../../../../app/session/index.js', () => ({
+  ...jest.requireActual('../../../../app/session/index.js'),
+  setFarmerApplyData: jest.fn()
 }))
 
 const commonAuthHandlers = (crn, organisationId, nonce) => {
@@ -88,7 +94,10 @@ const commonRPAHandlers = (personId, privilegeNames, organisation, cphNumbers) =
     () => HttpResponse.json({
       _data: {
         id: personId,
-        email: 'farmer@farm.com'
+        email: 'farmer@farm.com',
+        firstName: 'John',
+        middleName: 'Jane',
+        lastName: 'Doe'
       }
     })
   )
@@ -178,7 +187,16 @@ test('get /signin-oidc: approved application', async () => {
   const privilegeNames = ['Full permission - business']
   const organisation = {
     id: organisationId,
-    sbi
+    sbi,
+    email: 'johndoe@gmail.com',
+    businessReference: '107262457',
+    name: 'Willow Farm',
+    address: {
+      address1: 'Flat 2 Fiona Overpass',
+      address2: 'City Simpsonfort',
+      city: 'Huntbury',
+      postalCode: 'SA71 5BP'
+    }
   }
   const cphNumbers = [{ cphNumber: '29/004/0005' }]
   const {
@@ -222,6 +240,10 @@ test('get /signin-oidc: approved application', async () => {
     url: `/signin-oidc?state=${encodedState}&code=123`
   })
 
+  expect(session.setFarmerApplyData).toHaveBeenCalledWith(
+    expect.any(Object),
+    'organisation',
+    { address: 'Flat 2 Fiona Overpass,City Simpsonfort,Huntbury,SA71 5BP', crn: '1100021396', email: 'farmer@farm.com', farmerName: 'John Jane Doe', frn: '107262457', name: 'Willow Farm', orgEmail: 'johndoe@gmail.com', sbi: '106354662' })
   expect(res.statusCode).toBe(302)
   expect(res.headers.location).toBe('/check-details')
 })
