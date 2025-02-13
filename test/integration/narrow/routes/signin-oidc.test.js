@@ -23,8 +23,8 @@ afterAll(() => {
 })
 
 jest.mock('form-data', () => class Formdata {
-  append () {}
-  getHeaders () {}
+  append () { }
+  getHeaders () { }
 })
 
 jest.mock('applicationinsights', () => ({
@@ -243,7 +243,17 @@ test('get /signin-oidc: approved application', async () => {
   expect(session.setFarmerApplyData).toHaveBeenCalledWith(
     expect.any(Object),
     'organisation',
-    { address: 'Flat 2 Fiona Overpass,City Simpsonfort,Huntbury,SA71 5BP', crn: '1100021396', email: 'farmer@farm.com', farmerName: 'John Jane Doe', frn: '107262457', name: 'Willow Farm', orgEmail: 'johndoe@gmail.com', sbi: '106354662' })
+    {
+      address: 'Flat 2 Fiona Overpass,City Simpsonfort,Huntbury,SA71 5BP',
+      crn: '1100021396',
+      email: 'farmer@farm.com',
+      farmerName: 'John Jane Doe',
+      frn: '107262457',
+      name: 'Willow Farm',
+      orgEmail: 'johndoe@gmail.com',
+      sbi: '106354662'
+    }
+  )
   expect(res.statusCode).toBe(302)
   expect(res.headers.location).toBe('/check-details')
 })
