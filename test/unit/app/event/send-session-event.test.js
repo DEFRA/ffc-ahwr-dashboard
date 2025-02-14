@@ -26,10 +26,6 @@ describe('Send event on session set', () => {
     }
   })
 
-  afterEach(async () => {
-    jest.resetAllMocks()
-  })
-
   test('should call raiseEvent when a valid event is received', () => {
     sendSessionEvent(organisation, sessionId, entryKey, key, value, ip)
     expect(raiseEvent).toHaveBeenCalled()

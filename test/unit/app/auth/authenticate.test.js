@@ -24,8 +24,6 @@ jest.mock('../../../../app/auth/auth-code-grant/state.js', () => ({
   verifyState: jest.fn()
 }))
 
-jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: () => 'hello' }, dispose: jest.fn() }))
-
 jest.mock('../../../../app/config/auth.js', () => ({
   authConfig: {
     defraId: {
@@ -54,7 +52,6 @@ describe('authenticate', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
     resetAllWhenMocks()
   })
 
@@ -192,11 +189,12 @@ describe('authenticate', () => {
       }
     }
   ])('%s', async (testCase) => {
+    verifyState.mockReturnValue(true)
+
     if (testCase.toString().includes('jwtVerify error')) {
       verify.mockReturnValue(false)
     } else {
       verify.mockReturnValue(true)
-      verifyState.mockReturnValue(true)
     }
 
     when(getToken)
@@ -229,13 +227,6 @@ describe('authenticate', () => {
     when(jwktopem)
       .calledWith(testCase.when.acquiredSigningKey)
       .mockReturnValue(testCase.when.jwktopem)
-    // when(MOCK_JWT_VERIFY)
-    //   .calledWith(
-    //     testCase.when.redeemResponse.payload.access_token,
-    //     'public_key',
-    //     { algorithms: ['RS256'], ignoreNotBefore: true }
-    //   )
-    //   .mockResolvedValue('verified')
     when(getToken)
       .calledWith(testCase.given.request, sessionKeys.tokens.nonce)
       .mockReturnValue('123')
