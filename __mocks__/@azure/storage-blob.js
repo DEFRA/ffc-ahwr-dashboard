@@ -29,5 +29,3 @@ export class BlobServiceClient {
     return new BlobServiceClient()
   }
 }
-
-module.exports = { BlobServiceClient }
