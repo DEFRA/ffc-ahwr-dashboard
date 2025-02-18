@@ -31,8 +31,7 @@ function setOrganisationSessionData (request, personSummary, org, crn) {
     orgEmail: org.email,
     email: personSummary.email ? personSummary.email : org.email,
     address: getOrganisationAddress(org.address),
-    crn,
-    frn: org.businessReference
+    crn
   }
 
   setEndemicsClaim(
