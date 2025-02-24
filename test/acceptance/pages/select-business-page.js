@@ -132,7 +132,7 @@ const AGREEMENT_SUMMARY_ACTUAL='//a[text()="Agreement summary"]'
 const AGREEMENT_SUMMARY_EXPECTED='Agreement summary'
 const FEEDBACK_LINK_ACTUAL='//a[text()="feedback"]'
 const FEEDBACK_LINK_EXPECTED='feedback'
-const SURVEY_LINK='https://defragroup.eu.qualtrics.com/jfe/form/SV_0lxBrd2XeDnn2hU'
+const SURVEY_LINK='https://forms.office.com/Pages/ResponsePage.aspx?id=UCQKdycCYkyQx044U38RAsIdAEqqafZCk2LjifrI4h1UOVJKOVRUWlBLMEpFQVdERzA3QVRFWUM2NS4u'
 
 
 
