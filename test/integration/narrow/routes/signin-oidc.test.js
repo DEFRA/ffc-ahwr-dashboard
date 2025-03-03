@@ -248,7 +248,6 @@ test('get /signin-oidc: approved application', async () => {
       crn: '1100021396',
       email: 'farmer@farm.com',
       farmerName: 'John Jane Doe',
-      frn: '107262457',
       name: 'Willow Farm',
       orgEmail: 'johndoe@gmail.com',
       sbi: '106354662'
