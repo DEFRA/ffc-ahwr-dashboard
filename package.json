@@ -37,7 +37,7 @@
     "@ministryofjustice/frontend": "3.2.1",
     "applicationinsights": "^2.9.6",
     "ffc-ahwr-event-publisher": "1.0.2",
-    "ffc-messaging": "^2.10.1",
+    "ffc-messaging": "^2.10.2",
     "form-data": "^4.0.1",
     "govuk-frontend": "^5.8.0",
     "hapi-pino": "11.0.1",
