@@ -1,40 +1,45 @@
-import { config } from '../../../../../app/config/index.js'
-import { getClaimsByApplicationReference, isWithinLastTenMonths } from '../../../../../app/api-requests/claim-api.js'
-import { setupServer } from 'msw/node'
-import { http, HttpResponse } from 'msw'
+import { config } from "../../../../../app/config/index.js";
+import {
+  getClaimsByApplicationReference,
+  isWithinLastTenMonths,
+} from "../../../../../app/api-requests/claim-api.js";
+import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw";
 
-const mswServer = setupServer()
-mswServer.listen()
+const mswServer = setupServer();
+mswServer.listen();
 
 afterEach(() => {
-  mswServer.resetHandlers()
-})
+  mswServer.resetHandlers();
+});
 
 afterAll(() => {
-  mswServer.close()
-})
+  mswServer.close();
+});
 
-test('getClaimsByApplicationReference: throws returned errors', async () => {
+test("getClaimsByApplicationReference: throws returned errors", async () => {
   const logger = {
-    setBindings: jest.fn()
-  }
+    setBindings: jest.fn(),
+  };
 
-  const reference = 'AHWR-1010-1010'
+  const reference = "AHWR-1010-1010";
 
   const appService = http.get(
     `${config.applicationApi.uri}/claim/get-by-application-reference/${reference}`,
-    () => new HttpResponse(null, {
-      status: 400,
-      statusText: 'Bad Request'
-    })
-  )
+    () =>
+      new HttpResponse(null, {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+  );
 
-  mswServer.use(appService)
+  mswServer.use(appService);
 
-  await expect(getClaimsByApplicationReference(reference, logger))
-    .rejects.toThrow('Response Error: 400 Bad Request')
-})
+  await expect(
+    getClaimsByApplicationReference(reference, logger),
+  ).rejects.toThrow("Response Error: 400 Bad Request");
+});
 
-test('isWithinLastTenMonths: returns false if given no date', () => {
-  expect(isWithinLastTenMonths()).toBe(false)
-})
+test("isWithinLastTenMonths: returns false if given no date", () => {
+  expect(isWithinLastTenMonths()).toBe(false);
+});

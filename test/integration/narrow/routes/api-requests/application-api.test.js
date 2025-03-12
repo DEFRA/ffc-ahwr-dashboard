@@ -1,34 +1,36 @@
-import { setupServer } from 'msw/node'
-import { config } from '../../../../../app/config/index.js'
-import { getLatestApplicationsBySbi } from '../../../../../app/api-requests/application-api.js'
-import { http, HttpResponse } from 'msw'
+import { setupServer } from "msw/node";
+import { config } from "../../../../../app/config/index.js";
+import { getLatestApplicationsBySbi } from "../../../../../app/api-requests/application-api.js";
+import { http, HttpResponse } from "msw";
 
-const mswServer = setupServer()
-mswServer.listen()
+const mswServer = setupServer();
+mswServer.listen();
 
 afterEach(() => {
-  mswServer.resetHandlers()
-})
+  mswServer.resetHandlers();
+});
 
 afterAll(() => {
-  mswServer.close()
-})
+  mswServer.close();
+});
 
-test('getLatestApplicationsBySbi: throws returned errors', async () => {
+test("getLatestApplicationsBySbi: throws returned errors", async () => {
   const logger = {
-    setBindings: jest.fn()
-  }
+    setBindings: jest.fn(),
+  };
 
   const appService = http.get(
     `${config.applicationApi.uri}/applications/latest`,
-    () => new HttpResponse(null, {
-      status: 400,
-      statusText: 'Bad Request'
-    })
-  )
+    () =>
+      new HttpResponse(null, {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+  );
 
-  mswServer.use(appService)
+  mswServer.use(appService);
 
-  await expect(getLatestApplicationsBySbi('101010101', logger))
-    .rejects.toThrow('Response Error: 400 Bad Request')
-})
+  await expect(getLatestApplicationsBySbi("101010101", logger)).rejects.toThrow(
+    "Response Error: 400 Bad Request",
+  );
+});

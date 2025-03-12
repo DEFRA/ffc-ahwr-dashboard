@@ -1,5 +1,5 @@
-import { config } from '../config/index.js'
-import yar from '@hapi/yar'
+import { config } from "../config/index.js";
+import yar from "@hapi/yar";
 
 export const sessionPlugin = {
   plugin: yar,
@@ -9,14 +9,14 @@ export const sessionPlugin = {
     storeBlank: true,
     cache: {
       cache: config.cache.name,
-      expiresIn: config.cache.expiresIn
+      expiresIn: config.cache.expiresIn,
     },
     cookieOptions: {
       isHttpOnly: true,
       isSameSite: config.cookie.isSameSite,
       isSecure: config.cookie.isSecure,
       password: config.cookie.password,
-      ttl: config.cache.expiresIn
-    }
-  }
-}
+      ttl: config.cache.expiresIn,
+    },
+  },
+};

@@ -1,19 +1,19 @@
-import { createServer } from '../../../../app/server.js'
+import { createServer } from "../../../../app/server.js";
 
-test('get /healthy', async () => {
-  const server = await createServer()
+test("get /healthy", async () => {
+  const server = await createServer();
   const res = await server.inject({
-    url: '/healthy'
-  })
+    url: "/healthy",
+  });
 
-  expect(res.statusCode).toBe(200)
-})
+  expect(res.statusCode).toBe(200);
+});
 
-test('get /healthz', async () => {
-  const server = await createServer()
+test("get /healthz", async () => {
+  const server = await createServer();
   const res = await server.inject({
-    url: '/healthz'
-  })
+    url: "/healthz",
+  });
 
-  expect(res.statusCode).toBe(200)
-})
+  expect(res.statusCode).toBe(200);
+});

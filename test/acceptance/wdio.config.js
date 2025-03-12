@@ -1,21 +1,18 @@
 //import allureReporter from '@wdio/allure-reporter'
-const allureReporter = require('@wdio/allure-reporter').default
-const allure = require('allure-commandline')
+const allureReporter = require("@wdio/allure-reporter").default;
+const allure = require("allure-commandline");
 //import cucumberJson from 'wdio-cucumberjs-json-reporter'
 //import { ReportAggregator, HtmlReporter} from '@rpii/wdio-html-reporter' ;
-require('dotenv').config({ path: `.env.${process.env.ENV}` })
-const envRoot = (process.env.TEST_ENVIRONMENT_ROOT_URL)
-
+require("dotenv").config({ path: `.env.${process.env.ENV}` });
+const envRoot = process.env.TEST_ENVIRONMENT_ROOT_URL;
 
 const allure_config = {
-  outputDir: 'allure-results',
+  outputDir: "allure-results",
   disableWebdriverStepsReporting: true,
   disableWebdriverScreenshotsReporting: false,
   useCucumberStepReporter: true,
-  addConsoleLogs: true
-}
-
-
+  addConsoleLogs: true,
+};
 
 exports.config = {
   //
@@ -39,7 +36,7 @@ exports.config = {
   // then the current working directory is where your `package.json` resides, so `wdio`
   // will be called from there.
   //
-  specs: ['./features/**/*.feature'],
+  specs: ["./features/**/*.feature"],
   // Patterns to exclude.
   exclude: [
     // 'path/to/excluded/files'
@@ -52,16 +49,16 @@ exports.config = {
     {
       maxInstances: 1,
       acceptInsecureCerts: true,
-      browserName: 'chrome',
-      'goog:chromeOptions': {
+      browserName: "chrome",
+      "goog:chromeOptions": {
         args: [
-          '--no-sandbox',
-          '--disable-gpu',
-          '--disable-dev-shm-usage',
-          '--window-size=1920,1080'
-        ]
-      }
-    }
+          "--no-sandbox",
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--window-size=1920,1080",
+        ],
+      },
+    },
   ],
   //
   // ===================
@@ -70,7 +67,7 @@ exports.config = {
   // Define all options that are relevant for the WebdriverIO instance here
   //
   // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: 'debug',
+  logLevel: "debug",
   //
   // Set specific log levels per logger
   // loggers:
@@ -110,12 +107,12 @@ exports.config = {
   // Services take over a specific job you don't want to take care of. They enhance
   // your test setup with almost no effort. Unlike plugins, they don't add new
   // commands. Instead, they hook themselves up into the test process.
-  services: ['chromedriver'],
+  services: ["chromedriver"],
   // services: [],
-  hostname: process.env.HOST_NAME || 'localhost',
+  hostname: process.env.HOST_NAME || "localhost",
   port: 4444,
-  path: '/wd/hub/',
-  protocol: 'http',
+  path: "/wd/hub/",
+  protocol: "http",
 
   // Framework you want to run your specs with.
   // The following are supported: Mocha, Jasmine, and Cucumber
@@ -123,7 +120,7 @@ exports.config = {
   //
   // Make sure you have the wdio adapter package for the specific framework installed
   // before running any tests.
-  framework: 'cucumber',
+  framework: "cucumber",
   //
   // The number of times to retry the entire specfile when it fails as a whole
   // specFileRetries: 1,
@@ -137,24 +134,27 @@ exports.config = {
   // Test reporter for stdout.
   // The only one supported by default is 'dot'
   // see also: https://webdriver.io/docs/dot-reporter
-  
-    // ...
-    reporters: [['allure', {
-      outputDir: 'allure-results',
-      disableWebdriverStepsReporting: false,
-      disableWebdriverScreenshotsReporting: false,
-  }],'spec'],
-   
-    // ...
 
+  // ...
+  reporters: [
+    [
+      "allure",
+      {
+        outputDir: "allure-results",
+        disableWebdriverStepsReporting: false,
+        disableWebdriverScreenshotsReporting: false,
+      },
+    ],
+    "spec",
+  ],
 
- 
+  // ...
 
   //
   // If you are using Cucumber you need to specify the location of your step definitions.
   cucumberOpts: {
     // <string[]> (file/dir) require files before executing features
-    require: ['./steps/**/*.js'],
+    require: ["./steps/**/*.js"],
     // <boolean> show full backtrace for errors
     backtrace: false,
     // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -164,7 +164,7 @@ exports.config = {
     // <boolean> abort the run on first failure
     failFast: false,
     // <string[]> (type[:path]) specify the output format, optionally supply PATH to redirect formatter output (repeatable)
-    format: ['pretty'],
+    format: ["pretty"],
     // <boolean> hide step definition snippets for pending steps
     snippets: true,
     // <boolean> hide source uris
@@ -174,11 +174,11 @@ exports.config = {
     // <boolean> fail if there are any undefined or pending steps
     strict: false,
     // <string> (expression) only execute the features or scenarios with tags matching the expression
-    tagExpression: '',
+    tagExpression: "",
     // <number> timeout for step definitions
     timeout: 120000,
     // <boolean> Enable this config to treat undefined definitions as warnings.
-    ignoreUndefinedDefinitions: false
+    ignoreUndefinedDefinitions: false,
   },
 
   //
@@ -243,9 +243,9 @@ exports.config = {
    * @param {GherkinDocument.IFeature} feature  Cucumber feature object
    */
   beforeFeature: async function (uri, feature) {
-   allureReporter.addStep('Starting Fetaure : ' + feature.name)
+    allureReporter.addStep("Starting Fetaure : " + feature.name);
 
-    await browser.maximizeWindow()
+    await browser.maximizeWindow();
   },
   /**
    *
@@ -253,15 +253,12 @@ exports.config = {
    * @param {ITestCaseHookParameter} world world object containing information on pickle and test step
    */
   beforeScenario: async function (world) {
-    
-   //
-   //
-   //
-   //
-   //
-   allureReporter.addFeature(world.name)
-
-
+    //
+    //
+    //
+    //
+    //
+    allureReporter.addFeature(world.name);
   },
   /**
    *
@@ -269,10 +266,7 @@ exports.config = {
    * @param {Pickle.IPickleStep} step     step data
    * @param {IPickle}            scenario scenario pickle
    */
-   beforeStep: function (step, scenario) {
-    
-    
-},
+  beforeStep: function (step, scenario) {},
   /**
    *
    * Runs after a Cucumber Step.
@@ -284,32 +278,30 @@ exports.config = {
    * @param {number}             result.duration duration of scenario in milliseconds
    */
   afterStep: async function (step, scenario, result) {
-      // cucumberJson.attach(await browser.takeScreenshot(), 'image/png')
-   const zoomPercentage = 80;
-   browser.execute((zoom) => {
-     document.body.style.zoom = `${zoom}%`;
- }, zoomPercentage);
-   var date=Date.now();
-   await browser.saveScreenshot('./screenShots/chrome-'+date+'.png')
-   const zoomPercentage1 = 100;
-   browser.execute((zoom) => {
-     document.body.style.zoom = `${zoom}%`;
- }, zoomPercentage1);
- 
+    // cucumberJson.attach(await browser.takeScreenshot(), 'image/png')
+    const zoomPercentage = 80;
+    browser.execute((zoom) => {
+      document.body.style.zoom = `${zoom}%`;
+    }, zoomPercentage);
+    var date = Date.now();
+    await browser.saveScreenshot("./screenShots/chrome-" + date + ".png");
+    const zoomPercentage1 = 100;
+    browser.execute((zoom) => {
+      document.body.style.zoom = `${zoom}%`;
+    }, zoomPercentage1);
   },
-  afterTest: async function (test, context, { error, result, duration, passed, retries }) {
-   
-//     const originalWidth = 1200;  // Replace with your original width
-// const originalHeight = 800;  // Replace with your original height
-// const zoomPercentage = 80;
-
-// const widthWithZoom = (originalWidth * zoomPercentage) / 100;
-// const heightWithZoom = (originalHeight * zoomPercentage) / 100;
-
-// browser.setWindowSize(widthWithZoom, heightWithZoom);
-
-//       await browser.takeScreenshot();
-      
+  afterTest: async function (
+    test,
+    context,
+    { error, result, duration, passed, retries },
+  ) {
+    //     const originalWidth = 1200;  // Replace with your original width
+    // const originalHeight = 800;  // Replace with your original height
+    // const zoomPercentage = 80;
+    // const widthWithZoom = (originalWidth * zoomPercentage) / 100;
+    // const heightWithZoom = (originalHeight * zoomPercentage) / 100;
+    // browser.setWindowSize(widthWithZoom, heightWithZoom);
+    //       await browser.takeScreenshot();
   },
   /**
    *
@@ -365,32 +357,28 @@ exports.config = {
    * @param {Array.<Object>} capabilities list of capabilities details
    * @param {<Object>} results object containing test results
    */
-   onComplete: function(exitCode, config, capabilities, results) {
-   
-        // ...
-     
-            const reportError = new Error('Could not generate Allure report')
-            const generation = allure(['generate', 'allure-results', '--clean'])
-            return new Promise((resolve, reject) => {
-                const generationTimeout = setTimeout(
-                    () => reject(reportError),
-                    5000)
-    
-                generation.on('exit', function(exitCode) {
-                    clearTimeout(generationTimeout)
-    
-                    if (exitCode !== 0) {
-                        return reject(reportError)
-                    }
-    
-                    console.log('Allure report successfully generated')
-                    resolve()
-                })
-            })
-        },
-        // ...
-    
-  
+  onComplete: function (exitCode, config, capabilities, results) {
+    // ...
+
+    const reportError = new Error("Could not generate Allure report");
+    const generation = allure(["generate", "allure-results", "--clean"]);
+    return new Promise((resolve, reject) => {
+      const generationTimeout = setTimeout(() => reject(reportError), 5000);
+
+      generation.on("exit", function (exitCode) {
+        clearTimeout(generationTimeout);
+
+        if (exitCode !== 0) {
+          return reject(reportError);
+        }
+
+        console.log("Allure report successfully generated");
+        resolve();
+      });
+    });
+  },
+  // ...
+
   /**
    * Gets executed when a refresh happens.
    * @param {String} oldSessionId session ID of the old session
@@ -398,4 +386,4 @@ exports.config = {
    */
   // onReload: function(oldSessionId, newSessionId) {
   // }
-  }
+};

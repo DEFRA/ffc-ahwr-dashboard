@@ -76,17 +76,5 @@
     "multiple-cucumber-html-reporter": "^3.7.0",
     "wdio-chromedriver-service": "^8.1.1",
     "webdriverio": "7.33.0"
-  },
-  "standard": {
-    "globals": [
-      "browser",
-      "it",
-      "expect",
-      "describe",
-      "jest",
-      "beforeEach",
-      "assert",
-      "$"
-    ]
   }
 }
