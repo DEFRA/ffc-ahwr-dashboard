@@ -19,7 +19,7 @@ function showBanner(banner) {
 }
 
 function submitPreference(accepted) {
-  const xhr = new XMLHttpRequest(); // eslint-disable-line
+  const xhr = new XMLHttpRequest();
   xhr.open("POST", "/cookies", true);
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.send(
