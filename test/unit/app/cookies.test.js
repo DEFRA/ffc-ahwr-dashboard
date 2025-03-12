@@ -21,10 +21,6 @@ describe('cookies', () => {
     }
   })
 
-  afterEach(() => {
-    jest.resetAllMocks()
-  })
-
   test('getCurrentPolicy returns default cookie if does not exist', () => {
     const result = getCurrentPolicy(request, h)
     expect(result).toStrictEqual(defaultCookie)
