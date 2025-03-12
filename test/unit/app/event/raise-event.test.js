@@ -1,5 +1,26 @@
-const { raiseEvent } = require('../../../../app/event/raise-event')
-const { PublishEvent } = require('ffc-ahwr-event-publisher')
+import { raiseEvent } from '../../../../app/event/raise-event.js'
+import { PublishEvent } from 'ffc-ahwr-event-publisher'
+
+jest.mock('ffc-ahwr-event-publisher', () => ({
+  PublishEvent: jest.fn().mockImplementation(() => ({
+    sendEvent: jest.fn()
+  }))
+}))
+
+jest.mock('../../../../app/config/messaging', () => ({
+  ...jest.requireActual('../../../../app/config/messaging'),
+  eventQueue: {
+    address: 'test-queue',
+    type: 'queue'
+  }
+}))
+
+// Mock `PublishEvent` with a constructor that returns an object containing a mock `sendEvent` method
+jest.mock('ffc-ahwr-event-publisher', () => ({
+  PublishEvent: jest.fn().mockImplementation(() => ({
+    sendEvent: jest.fn().mockResolvedValue(undefined) // Ensure sendEvent is a mock function
+  }))
+}))
 
 describe('raiseEvent function', () => {
   const testEvent = {
@@ -13,9 +34,20 @@ describe('raiseEvent function', () => {
     email: 'test@example.com'
   }
 
-  test('should call sendEvent with the correct event message structure', async () => {
-    jest.spyOn(PublishEvent.prototype, 'sendEvent')
+  beforeEach(() => {
+    // Clear all instances and calls to constructor and all methods:
+    PublishEvent.mockClear()
+  })
+
+  test('should instantiate PublishEvent with the correct queue', async () => {
     await raiseEvent(testEvent)
+
+    expect(PublishEvent).toHaveBeenCalledWith({ address: 'test-queue', type: 'queue' })
+  })
+
+  test('should call sendEvent with the correct event message structure', async () => {
+    await raiseEvent(testEvent)
+    const mockSendEvent = PublishEvent.mock.results[0].value.sendEvent
 
     const expectedMessage = {
       name: testEvent.name,
@@ -34,17 +66,18 @@ describe('raiseEvent function', () => {
       }
     }
 
-    expect(PublishEvent.prototype.sendEvent.mock.calls).toEqual([
-      [expectedMessage]
-    ])
+    expect(mockSendEvent).toHaveBeenCalledWith(expectedMessage)
   })
 
   test('should allow status override', async () => {
-    jest.spyOn(PublishEvent.prototype, 'sendEvent')
     const customStatus = 'failed'
     await raiseEvent(testEvent, customStatus)
+    const mockSendEvent = PublishEvent.mock.results[0].value.sendEvent
 
-    expect(PublishEvent.prototype.sendEvent.mock.calls[0][0].properties.status)
-      .toBe(customStatus)
+    expect(mockSendEvent.mock.calls[0][0].properties.status).toBe(customStatus)
+  })
+  beforeEach(() => {
+    // Clear mocks before each test
+    PublishEvent.mockClear()
   })
 })
