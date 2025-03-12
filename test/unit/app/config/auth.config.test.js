@@ -4,9 +4,9 @@ describe("Auth config", () => {
   const env = process.env;
 
   beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...env }
-  })
+    jest.resetModules();
+    process.env = { ...env };
+  });
 
   test.each([
     {
@@ -98,21 +98,6 @@ describe("Auth config", () => {
       processEnv: {
         redirectUri: "not a uri",
       },
-<<<<<<< HEAD
-      errorMessage: 'The auth config is invalid. "defraId.redirectUri" must be a valid uri'
-    }
-  ])('GIVEN $processEnv EXPECT $errorMessage', (testCase) => {
-    process.env.DEFRA_ID_REDIRECT_URI = testCase.processEnv.redirectUri
-    expect(
-      () => getAuthConfig()
-    ).toThrow(testCase.errorMessage)
-  })
-
-  afterEach(() => {
-    process.env = env
-  })
-})
-=======
       errorMessage:
         'The auth config is invalid. "defraId.redirectUri" must be a valid uri',
     },
@@ -125,4 +110,3 @@ describe("Auth config", () => {
     process.env = env;
   });
 });
->>>>>>> fdbd1fd (build(AHWR-608): upgrade to neostandard for lint)
