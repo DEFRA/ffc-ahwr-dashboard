@@ -5,10 +5,7 @@ describe('Auth config', () => {
 
   beforeEach(() => {
     jest.resetModules()
-  })
-
-  afterEach(() => {
-    process.env = env
+    process.env = { ...env }
   })
 
   test.each([
@@ -100,5 +97,9 @@ describe('Auth config', () => {
     expect(
       () => getAuthConfig()
     ).toThrow(testCase.errorMessage)
+  })
+
+  afterEach(() => {
+    process.env = env
   })
 })

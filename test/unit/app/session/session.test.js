@@ -3,21 +3,18 @@ import { sendSessionEvent } from '../../../../app/event/send-session-event.js'
 
 jest.mock('../../../../app/event/send-session-event')
 
-describe('session', () => {
-  let yarMock
-
-  beforeEach(() => {
-    yarMock = {
-      id: 1,
-      get: jest.fn((entryKey) => {
-        if (entryKey === 'entryKey') {
-          return { key1: 123, key2: 123 }
-        }
-      }),
-      set: jest.fn(),
-      clear: jest.fn()
+const yarMock = {
+  id: 1,
+  get: jest.fn((entryKey) => {
+    if (entryKey === 'entryKey') {
+      return { key1: 123, key2: 123 }
     }
-  })
+  }),
+  set: jest.fn(),
+  clear: jest.fn()
+}
+
+describe('session', () => {
   describe('lacksAny', () => {
     test('correct entryKey and correct key', () => {
       const request = { yar: yarMock }

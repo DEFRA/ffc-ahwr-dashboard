@@ -32,7 +32,6 @@ module.exports = {
       }
     ]
   ],
-  resetMocks: true,
   restoreMocks: true,
   testEnvironment: 'node',
   testPathIgnorePatterns: [],

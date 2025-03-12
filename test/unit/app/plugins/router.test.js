@@ -1,6 +1,17 @@
 import { createServer } from '../../../../app/server.js'
 
 describe('routes plugin test', () => {
+  jest.mock('../../../../app/config', () => ({
+    ...jest.requireActual('../../../../app/config'),
+    endemics: {
+      enabled: false
+    }
+  }))
+
+  beforeEach(() => {
+    jest.resetModules()
+  })
+
   test('routes included', async () => {
     jest.mock('../../../../app/config', () => ({
       ...jest.requireActual('../../../../app/config'),

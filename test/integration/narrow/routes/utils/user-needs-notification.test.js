@@ -4,6 +4,9 @@ import { config } from '../../../../../app/config/index.js'
 const { multiSpecies } = config
 
 jest.mock('../../../../../app/config/index')
+beforeEach(() => {
+  jest.resetAllMocks()
+})
 
 test('no applications', () => {
   const applications = []
