@@ -4,7 +4,7 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 export default [
   ...neostandard({
     env: ["node", "jest"],
-    ignores: ["app/frontend/dist/**/*", "test/acceptance/**/*"],
+    ignores: ["app/frontend/dist/**/*"],
   }),
   eslintConfigPrettier,
 ];
