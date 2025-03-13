@@ -1,8 +1,0 @@
-version: "3.7"
-services:
-  wdio-cucumber:
-    environment:
-      MAX_INSTANCES: 1
-      CHROME_ARGS: "--verbose"
-    ports:
-      - "9228:9229"

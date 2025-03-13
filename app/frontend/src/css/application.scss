@@ -27,7 +27,6 @@ $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sas
 }
 
 .govuk-prose-scope {
-
   // @extend inheritance
 
   // Contextual heading and paragraph combinations are inherited
@@ -102,12 +101,12 @@ $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sas
 .navigation-container {
   padding: 20px 0 20px 0;
   margin-top: 30px;
-  border-top: 1px solid #b1b4b6
+  border-top: 1px solid #b1b4b6;
 }
 
 .list-item--dashed:before {
   content: "—";
-  position: relative ;
+  position: relative;
   left: 0;
   width: 20px;
   padding-right: 10px;
@@ -146,16 +145,16 @@ $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sas
 }
 
 hr.related-content {
-  margin: 0  0 18px 0;
+  margin: 0 0 18px 0;
 }
 
 .related-content a {
-  margin: 0  0 12px 0;
+  margin: 0 0 12px 0;
 }
 
 .bold-paragraph {
   color: #0b0c0c;
-  font-family: "GDS Transport",arial,sans-serif;
+  font-family: "GDS Transport", arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 700;
@@ -164,7 +163,7 @@ hr.related-content {
   line-height: 1.1111111111;
   display: block;
   margin-top: 0;
-  margin-bottom: 15px
+  margin-bottom: 15px;
 }
 
 .scroll-horizontally {
@@ -172,7 +171,8 @@ hr.related-content {
   width: 100%;
   overflow-y: auto;
 
-  th, td {
+  th,
+  td {
     white-space: nowrap;
   }
 }

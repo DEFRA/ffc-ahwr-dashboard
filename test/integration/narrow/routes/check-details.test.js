@@ -1,195 +1,197 @@
-import { createServer } from '../../../../app/server.js'
-import globalJsdom from 'global-jsdom'
-import {
-  getAllByRole,
-  getByRole
-} from '@testing-library/dom'
-import { getCrumb, getCrumbFromSetCookie } from '../../../helpers/get-crumb'
-import { setServerState } from '../../../helpers/set-server-state'
-import { captureFormData } from '../../../helpers/capture-form-data'
-import { userEvent } from '@testing-library/user-event'
+import { createServer } from "../../../../app/server.js";
+import globalJsdom from "global-jsdom";
+import { getAllByRole, getByRole } from "@testing-library/dom";
+import { getCrumb, getCrumbFromSetCookie } from "../../../helpers/get-crumb";
+import { setServerState } from "../../../helpers/set-server-state";
+import { captureFormData } from "../../../helpers/capture-form-data";
+import { userEvent } from "@testing-library/user-event";
 
-test('get /check-details', async () => {
-  const server = await createServer()
+test("get /check-details", async () => {
+  const server = await createServer();
 
   const state = {
     customer: {
-      crn: '1100021396',
-      organisationId: '5501559',
+      crn: "1100021396",
+      organisationId: "5501559",
       attachedToMultipleBusinesses: false,
-      id: 5002139
+      id: 5002139,
     },
     endemicsClaim: {
       organisation: {
-        crn: '1100021396',
-        frn: '1101540710',
-        sbi: '106354662',
-        name: 'PARTRIDGES',
-        email: 'janiceharrisono@nosirrahecinajt.com.test',
-        address: 'Thomanean, Old Great North Road, WILLYS AT HEATH, DERBY, NE5 3HE, United Kingdom',
-        orgEmail: 'partridgesi@segdirtrapu.com.test',
-        userType: 'newUser',
-        farmerName: 'Janice Harrison'
-      }
-    }
-  }
+        crn: "1100021396",
+        frn: "1101540710",
+        sbi: "106354662",
+        name: "PARTRIDGES",
+        email: "janiceharrisono@nosirrahecinajt.com.test",
+        address:
+          "Thomanean, Old Great North Road, WILLYS AT HEATH, DERBY, NE5 3HE, United Kingdom",
+        orgEmail: "partridgesi@segdirtrapu.com.test",
+        userType: "newUser",
+        farmerName: "Janice Harrison",
+      },
+    },
+  };
 
-  await setServerState(server, state)
+  await setServerState(server, state);
 
   const res = await server.inject({
-    url: '/check-details',
+    url: "/check-details",
     auth: {
       credentials: {},
-      strategy: 'cookie'
-    }
-  })
+      strategy: "cookie",
+    },
+  });
 
-  globalJsdom(res.payload)
+  globalJsdom(res.payload);
 
-  const { crumb } = getCrumbFromSetCookie(res.headers['set-cookie'])
-  const user = userEvent.setup({ document })
-  const { formdata } = captureFormData()
+  const { crumb } = getCrumbFromSetCookie(res.headers["set-cookie"]);
+  const user = userEvent.setup({ document });
+  const { formdata } = captureFormData();
 
-  const rows = getAllByRole(document.body, 'definition')
-    .map((row) => row.textContent.trim())
+  const rows = getAllByRole(document.body, "definition").map((row) =>
+    row.textContent.trim(),
+  );
 
   expect(rows).toEqual([
-    'Janice Harrison',
-    'PARTRIDGES',
-    '1100021396',
-    '106354662',
-    'partridgesi@segdirtrapu.com.test',
-    'janiceharrisono@nosirrahecinajt.com.test',
-    'Thomanean Old Great North Road WILLYS AT HEATH DERBY NE5 3HE United Kingdom'
-  ])
+    "Janice Harrison",
+    "PARTRIDGES",
+    "1100021396",
+    "106354662",
+    "partridgesi@segdirtrapu.com.test",
+    "janiceharrisono@nosirrahecinajt.com.test",
+    "Thomanean Old Great North Road WILLYS AT HEATH DERBY NE5 3HE United Kingdom",
+  ]);
 
-  const no = getByRole(document.body, 'radio', { name: 'No' })
-  const yes = getByRole(document.body, 'radio', { name: 'Yes' })
-  const submit = getByRole(document.body, 'button', { name: 'Continue' })
+  const no = getByRole(document.body, "radio", { name: "No" });
+  const yes = getByRole(document.body, "radio", { name: "Yes" });
+  const submit = getByRole(document.body, "button", { name: "Continue" });
 
-  await user.click(submit)
-  expect(formdata()).toEqual({
-    crumb
-  })
-
-  await user.click(no)
-  await user.click(submit)
+  await user.click(submit);
   expect(formdata()).toEqual({
     crumb,
-    confirmCheckDetails: 'no'
-  })
+  });
 
-  await user.click(yes)
-  await user.click(submit)
+  await user.click(no);
+  await user.click(submit);
   expect(formdata()).toEqual({
     crumb,
-    confirmCheckDetails: 'yes'
-  })
-})
+    confirmCheckDetails: "no",
+  });
 
-test('get /check-details: organisation not found', async () => {
-  const server = await createServer()
+  await user.click(yes);
+  await user.click(submit);
+  expect(formdata()).toEqual({
+    crumb,
+    confirmCheckDetails: "yes",
+  });
+});
 
-  const res = await server.inject({
-    url: '/check-details',
-    auth: {
-      credentials: {},
-      strategy: 'cookie'
-    }
-  })
-
-  expect(res.statusCode).toBe(404)
-})
-
-test('post /check-details: confirmed yes', async () => {
-  const server = await createServer()
-  const { crumb } = await getCrumb(server, '/check-details')
+test("get /check-details: organisation not found", async () => {
+  const server = await createServer();
 
   const res = await server.inject({
-    url: '/check-details',
-    method: 'post',
+    url: "/check-details",
     auth: {
       credentials: {},
-      strategy: 'cookie'
+      strategy: "cookie",
+    },
+  });
+
+  expect(res.statusCode).toBe(404);
+});
+
+test("post /check-details: confirmed yes", async () => {
+  const server = await createServer();
+  const { crumb } = await getCrumb(server, "/check-details");
+
+  const res = await server.inject({
+    url: "/check-details",
+    method: "post",
+    auth: {
+      credentials: {},
+      strategy: "cookie",
     },
     headers: { cookie: `crumb=${crumb}` },
     payload: {
       crumb,
-      confirmCheckDetails: 'yes'
-    }
-  })
+      confirmCheckDetails: "yes",
+    },
+  });
 
-  expect(res.statusCode).toBe(302)
-  expect(res.headers.location).toBe('/vet-visits')
-})
+  expect(res.statusCode).toBe(302);
+  expect(res.headers.location).toBe("/vet-visits");
+});
 
-test('post /check-details: confirmed no', async () => {
-  const server = await createServer()
-  const { crumb } = await getCrumb(server, '/check-details')
+test("post /check-details: confirmed no", async () => {
+  const server = await createServer();
+  const { crumb } = await getCrumb(server, "/check-details");
 
   const res = await server.inject({
-    url: '/check-details',
-    method: 'post',
+    url: "/check-details",
+    method: "post",
     auth: {
       credentials: {},
-      strategy: 'cookie'
+      strategy: "cookie",
     },
     headers: { cookie: `crumb=${crumb}` },
     payload: {
       crumb,
-      confirmCheckDetails: 'no'
-    }
-  })
+      confirmCheckDetails: "no",
+    },
+  });
 
-  globalJsdom(res.payload)
+  globalJsdom(res.payload);
 
-  getByRole(document.body, 'heading', { level: 1, name: 'Update your details' })
-})
+  getByRole(document.body, "heading", {
+    level: 1,
+    name: "Update your details",
+  });
+});
 
-test('post /check-details: invalid input', async () => {
-  const server = await createServer()
-  const { crumb } = await getCrumb(server, '/check-details')
+test("post /check-details: invalid input", async () => {
+  const server = await createServer();
+  const { crumb } = await getCrumb(server, "/check-details");
   const state = {
     customer: {},
     endemicsClaim: {
-      organisation: {}
-    }
-  }
+      organisation: {},
+    },
+  };
 
-  await setServerState(server, state)
+  await setServerState(server, state);
 
   const res = await server.inject({
-    url: '/check-details',
-    method: 'post',
+    url: "/check-details",
+    method: "post",
     auth: {
       credentials: {},
-      strategy: 'cookie'
+      strategy: "cookie",
     },
     headers: { cookie: `crumb=${crumb}` },
     payload: {
-      crumb
-    }
-  })
+      crumb,
+    },
+  });
 
-  expect(res.statusCode).toBe(400)
-})
+  expect(res.statusCode).toBe(400);
+});
 
-test('post /check-details: invalid input and no organisation in state', async () => {
-  const server = await createServer()
-  const { crumb } = await getCrumb(server, '/check-details')
+test("post /check-details: invalid input and no organisation in state", async () => {
+  const server = await createServer();
+  const { crumb } = await getCrumb(server, "/check-details");
 
   const res = await server.inject({
-    url: '/check-details',
-    method: 'post',
+    url: "/check-details",
+    method: "post",
     auth: {
       credentials: {},
-      strategy: 'cookie'
+      strategy: "cookie",
     },
     headers: { cookie: `crumb=${crumb}` },
     payload: {
-      crumb
-    }
-  })
+      crumb,
+    },
+  });
 
-  expect(res.statusCode).toBe(404)
-})
+  expect(res.statusCode).toBe(404);
+});

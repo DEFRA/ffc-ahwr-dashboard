@@ -1,21 +1,20 @@
 export const getCrumbFromSetCookie = (setCookie) => {
-  const crumbCookie = setCookie
-    .find((cookie) => cookie.startsWith('crumb='))
+  const crumbCookie = setCookie.find((cookie) => cookie.startsWith("crumb="));
 
-  const [crumbString] = crumbCookie.split(';')
-  const [, crumb] = crumbString.split('=')
+  const [crumbString] = crumbCookie.split(";");
+  const [, crumb] = crumbString.split("=");
 
-  return { crumb }
-}
+  return { crumb };
+};
 
 export const getCrumb = async (server, url) => {
   const res = await server.inject({
     url,
     auth: {
       credentials: {},
-      strategy: 'cookie'
-    }
-  })
+      strategy: "cookie",
+    },
+  });
 
-  return getCrumbFromSetCookie(res.headers['set-cookie'])
-}
+  return getCrumbFromSetCookie(res.headers["set-cookie"]);
+};

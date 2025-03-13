@@ -1,6 +1,6 @@
 export class NoEligibleCphError extends Error {
-  constructor (message) {
-    super(message)
-    this.name = 'NoEligibleCphError'
+  constructor(message) {
+    super(message);
+    this.name = "NoEligibleCphError";
   }
 }

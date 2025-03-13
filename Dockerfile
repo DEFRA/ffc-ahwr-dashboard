@@ -29,5 +29,5 @@ EXPOSE ${PORT}
 
 COPY --from=development /home/node/app/ ./app/
 COPY --from=development /home/node/package*.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --ignore-scripts --omit-dev
 CMD [ "node", "app" ]

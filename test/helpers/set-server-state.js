@@ -1,12 +1,12 @@
 export const setServerState = async (server, state) => {
-  server.ext('onPostAuth', (request, h) => {
-    request.yar.set(state)
-    return h.continue
-  })
+  server.ext("onPostAuth", (request, h) => {
+    request.yar.set(state);
+    return h.continue;
+  });
 
-  await server.initialize()
+  await server.initialize();
 
-  server.ext('onPostResponse', async () => {
-    await server.stop()
-  })
-}
+  server.ext("onPostResponse", async () => {
+    await server.stop();
+  });
+};

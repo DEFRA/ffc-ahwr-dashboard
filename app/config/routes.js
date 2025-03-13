@@ -1,4 +1,4 @@
-import { config } from './index.js'
+import { config } from "./index.js";
 
-export const claimServiceUri = config.claimServiceUri
-export const vetVisits = 'vet-visits'
+export const claimServiceUri = config.claimServiceUri;
+export const vetVisits = "vet-visits";

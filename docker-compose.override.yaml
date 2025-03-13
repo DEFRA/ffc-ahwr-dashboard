@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 # This override file should be used when running this service in isolation
 # to provide dependencies and expose ports for local testing
@@ -13,10 +13,10 @@ services:
       USE_PRETTY_PRINT: ${USE_PRETTY_PRINT:-true}
     ports:
       - "3003:3000"
-      - "9232:9229"    
+      - "9232:9229"
     volumes:
       - ./app:/home/node/app
-      - ./package.json:/home/node/package.json    
+      - ./package.json:/home/node/package.json
 
   redis:
     image: redis:4.0.14

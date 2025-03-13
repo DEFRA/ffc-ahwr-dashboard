@@ -1,17 +1,17 @@
-asyncapi: '2.5.0'
+asyncapi: "2.5.0"
 info:
   title: Apply Service
   version: 0.50.0
-  description: Apply and ROI Journey for Animal Health and Welfare Review 
+  description: Apply and ROI Journey for Animal Health and Welfare Review
 channels:
   ffc-ahwr-application-request:
     subscribe:
       message:
-        $ref: '#/components/messages/ApplicationRequest'
+        $ref: "#/components/messages/ApplicationRequest"
   ffc-ahwr-application-response:
     subscribe:
       message:
-        $ref: '#/components/messages/ApplicationResponse'
+        $ref: "#/components/messages/ApplicationResponse"
 components:
   messages:
     ApplicationRequest:
@@ -77,7 +77,7 @@ components:
               isTest:
                 type: boolean
                 description: Test mode status
-                required: false  
+                required: false
     ApplicationResponse:
       payload:
         type: object

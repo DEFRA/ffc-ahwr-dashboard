@@ -1,35 +1,35 @@
-import { config } from '../config/index.js'
+import { config } from "../config/index.js";
 
-const { serviceName, claimServiceUri, serviceUri, customerSurvey } = config
+const { serviceName, claimServiceUri, serviceUri, customerSurvey } = config;
 
 export const viewContextPlugin = {
   plugin: {
-    name: 'view-context',
+    name: "view-context",
     register: (server, _) => {
-      server.ext('onPreResponse', function (request, h) {
-        const response = request.response
+      server.ext("onPreResponse", function (request, h) {
+        const response = request.response;
 
-        if (response.variety === 'view') {
-          const ctx = response.source.context || {}
+        if (response.variety === "view") {
+          const ctx = response.source.context || {};
 
-          const { path } = request
+          const { path } = request;
 
-          let serviceUrl = '/'
+          let serviceUrl = "/";
 
-          if (path.startsWith('/cookies')) {
-            serviceUrl = '/cookies'
+          if (path.startsWith("/cookies")) {
+            serviceUrl = "/cookies";
           }
-          ctx.serviceName = serviceName
-          ctx.serviceUrl = serviceUrl
-          ctx.claimServiceUri = claimServiceUri
-          ctx.serviceUri = serviceUri
-          ctx.customerSurveyUri = customerSurvey.uri
+          ctx.serviceName = serviceName;
+          ctx.serviceUrl = serviceUrl;
+          ctx.claimServiceUri = claimServiceUri;
+          ctx.serviceUri = serviceUri;
+          ctx.customerSurveyUri = customerSurvey.uri;
 
-          response.source.context = ctx
+          response.source.context = ctx;
         }
 
-        return h.continue
-      })
-    }
-  }
-}
+        return h.continue;
+      });
+    },
+  },
+};

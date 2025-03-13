@@ -1,45 +1,35 @@
 module.exports = {
   collectCoverage: true,
-  collectCoverageFrom: [
-    '**/*.js',
-    '!**/*.test.js'
-  ],
-  coverageDirectory: 'test-output',
-  coverageReporters: [
-    'text-summary',
-    'lcov'
-  ],
+  collectCoverageFrom: ["**/*.js", "!**/*.test.js"],
+  coverageDirectory: "test-output",
+  coverageReporters: ["text-summary", "lcov"],
   coveragePathIgnorePatterns: [
-    '<rootDir>/app/frontend/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/test-output/',
-    '<rootDir>/test/',
-    '<rootDir>/rename.js',
-    '<rootDir>/jest.config.cjs',
-    '<rootDir>/webpack.config.js'
+    "<rootDir>/app/frontend/",
+    "<rootDir>/node_modules/",
+    "<rootDir>/test-output/",
+    "<rootDir>/test/",
+    "<rootDir>/rename.js",
+    "<rootDir>/jest.config.cjs",
+    "<rootDir>/webpack.config.js",
   ],
-  modulePathIgnorePatterns: [
-    'node_modules'
-  ],
+  modulePathIgnorePatterns: ["node_modules"],
   reporters: [
-    'default',
+    "default",
     [
-      'jest-junit',
+      "jest-junit",
       {
-        suiteName: 'jest tests',
-        outputDirectory: 'test-output',
-        outputName: 'junit.xml'
-      }
-    ]
+        suiteName: "jest tests",
+        outputDirectory: "test-output",
+        outputName: "junit.xml",
+      },
+    ],
   ],
   restoreMocks: true,
-  testEnvironment: 'node',
+  testEnvironment: "node",
   testPathIgnorePatterns: [],
   verbose: true,
-  setupFilesAfterEnv: [
-    '<rootDir>/test/setup.js'
-  ],
+  setupFilesAfterEnv: ["<rootDir>/test/setup.js"],
   transform: {
-    '^.+\\.[j]sx?$': 'babel-jest'
-  }
-}
+    "^.+\\.[j]sx?$": "babel-jest",
+  },
+};
