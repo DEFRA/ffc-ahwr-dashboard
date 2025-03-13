@@ -3,7 +3,7 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 export default [
   ...neostandard({
-    env: ["node", "jest"],
+    env: ["node", "jest", "browser"],
     ignores: ["app/frontend/dist/**/*"],
   }),
   eslintConfigPrettier,
