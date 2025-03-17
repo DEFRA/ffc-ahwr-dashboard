@@ -37,7 +37,7 @@ while :; do
     -d|--debug)
       debug="true"
       ;;
-    
+
     -f|--fix)
       fix_lint="true" # Fix linting issues rather than just fail and stop tests running
       ;;
@@ -67,7 +67,7 @@ compose() {
   cd "${projectRoot}"
 
   if [ "${fix_lint}" = "true" ]; then
-    npm run test:lint-fix
+    npm run lint:fix
   fi
 
   # Create test output folder

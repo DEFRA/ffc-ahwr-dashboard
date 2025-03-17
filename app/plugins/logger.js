@@ -1,23 +1,23 @@
-import pino from 'hapi-pino'
+import pino from "hapi-pino";
 
 const transport = {
-  target: 'pino-pretty',
+  target: "pino-pretty",
   options: {
     singleLine: true,
-    colorize: true
-  }
-}
-const testLevel = { level: 'silent' }
+    colorize: true,
+  },
+};
+const testLevel = { level: "silent" };
 
 const req = (req) => ({
   id: req.id,
   method: req.method,
-  url: req.url
-})
+  url: req.url,
+});
 
 const res = (res) => ({
-  statusCode: res.statusCode
-})
+  statusCode: res.statusCode,
+});
 
 const err = (err) => ({
   type: err.type,
@@ -29,25 +29,25 @@ const err = (err) => ({
   stack: err.stack,
   data: {
     isResponseError: err?.data?.isResponseError,
-    payload: err?.data?.payload
-  }
-})
+    payload: err?.data?.payload,
+  },
+});
 
 export const loggingPlugin = {
   plugin: pino,
   options: {
-    name: 'ffc-ahwr-dashboard',
-    ...(process.env.NODE_ENV === 'test' && testLevel),
+    name: "ffc-ahwr-dashboard",
+    ...(process.env.NODE_ENV === "test" && testLevel),
     formatters: {
-      level: (level) => ({ level })
+      level: (level) => ({ level }),
     },
-    ignorePaths: ['/healthy', '/healthz'],
-    ignoreTags: ['assets'],
+    ignorePaths: ["/healthy", "/healthz"],
+    ignoreTags: ["assets"],
     serializers: {
       req,
       res,
-      err
+      err,
     },
-    ...(process.env.USE_PRETTY_PRINT === 'true' && { transport })
-  }
-}
+    ...(process.env.USE_PRETTY_PRINT === "true" && { transport }),
+  },
+};

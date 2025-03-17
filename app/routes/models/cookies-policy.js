@@ -1,26 +1,26 @@
-export function ViewModel (cookiesPolicy = {}, updated = false) {
+export function ViewModel(cookiesPolicy = {}, updated = false) {
   this.analytics = {
-    idPrefix: 'analytics',
-    name: 'analytics',
+    idPrefix: "analytics",
+    name: "analytics",
     fieldset: {
       legend: {
-        text: 'Do you want to accept analytics cookies?',
-        classes: 'govuk-fieldset__legend--s'
-      }
+        text: "Do you want to accept analytics cookies?",
+        classes: "govuk-fieldset__legend--s",
+      },
     },
     items: [
       {
         value: true,
-        text: 'Yes',
-        checked: cookiesPolicy.analytics
+        text: "Yes",
+        checked: cookiesPolicy.analytics,
       },
       {
         value: false,
-        text: 'No',
-        checked: !cookiesPolicy.analytics
-      }
-    ]
-  }
+        text: "No",
+        checked: !cookiesPolicy.analytics,
+      },
+    ],
+  };
 
-  this.updated = updated
+  this.updated = updated;
 }

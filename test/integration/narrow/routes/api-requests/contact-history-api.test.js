@@ -1,51 +1,52 @@
-import { setupServer } from 'msw/node'
-import { config } from '../../../../../app/config/index.js'
-import { http, HttpResponse } from 'msw'
-import { changeContactHistory } from '../../../../../app/api-requests/contact-history-api.js'
+import { setupServer } from "msw/node";
+import { config } from "../../../../../app/config/index.js";
+import { http, HttpResponse } from "msw";
+import { changeContactHistory } from "../../../../../app/api-requests/contact-history-api.js";
 
-jest.mock('applicationinsights', () => ({
+jest.mock("applicationinsights", () => ({
   defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
-  dispose: jest.fn()
-}))
+  dispose: jest.fn(),
+}));
 
-const mswServer = setupServer()
-mswServer.listen()
+const mswServer = setupServer();
+mswServer.listen();
 
 afterEach(() => {
-  mswServer.resetHandlers()
-})
+  mswServer.resetHandlers();
+});
 
 afterAll(() => {
-  mswServer.close()
-})
+  mswServer.close();
+});
 
-test('changeContactHistory, throws returned errors', async () => {
+test("changeContactHistory, throws returned errors", async () => {
   const logger = {
-    setBindings: jest.fn()
-  }
+    setBindings: jest.fn(),
+  };
 
   const appService = http.put(
     `${config.applicationApi.uri}/application/contact-history`,
-    () => new HttpResponse(null, {
-      status: 400,
-      statusText: 'Bad Request'
-    })
-  )
+    () =>
+      new HttpResponse(null, {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+  );
 
-  mswServer.use(appService)
+  mswServer.use(appService);
 
   const personSummary = {
-    firstName: 'John',
-    lastName: 'Testing'
-  }
+    firstName: "John",
+    lastName: "Testing",
+  };
 
   const organisationSummary = {
-    email: 'org.email@test.com',
-    sbi: '987654321',
-    address: {}
-  }
+    email: "org.email@test.com",
+    sbi: "987654321",
+    address: {},
+  };
 
   await expect(
-    changeContactHistory(personSummary, organisationSummary, logger)
-  ).rejects.toThrow('Response Error: 400 Bad Request')
-})
+    changeContactHistory(personSummary, organisationSummary, logger),
+  ).rejects.toThrow("Response Error: 400 Bad Request");
+});

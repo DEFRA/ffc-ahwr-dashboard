@@ -1,6 +1,6 @@
 export class LockedBusinessError extends Error {
-  constructor (message) {
-    super(message)
-    this.name = 'LockedBusinessError'
+  constructor(message) {
+    super(message);
+    this.name = "LockedBusinessError";
   }
 }
