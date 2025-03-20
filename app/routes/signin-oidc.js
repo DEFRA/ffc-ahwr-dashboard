@@ -195,7 +195,6 @@ export const signinRouteHandlers = [
             properties: {
               sbi: organisation.sbi,
               crn,
-              email: personSummary.email,
             },
           });
 
