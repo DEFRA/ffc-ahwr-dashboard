@@ -32,4 +32,5 @@ module.exports = {
   transform: {
     "^.+\\.[j]sx?$": "babel-jest",
   },
+  transformIgnorePatterns: ["/node_modules/(?!(ffc-ahwr-event-publisher)/)"],
 };
