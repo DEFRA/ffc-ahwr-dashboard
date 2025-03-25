@@ -115,13 +115,12 @@ function getRedirectPath(
   }
 }
 
-function safelyGetLoginSource(request) {
+const safelyGetLoginSource = (request) => {
   try {
     return JSON.parse(
       Buffer.from(request.query.state, "base64").toString("ascii"),
     ).source;
   } catch (queryStateError) {
-    request.logger.setBindings({ query: request.query });
     request.logger.setBindings({
       query: request.query,
       queryStateError,
