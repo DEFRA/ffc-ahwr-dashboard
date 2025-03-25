@@ -127,7 +127,7 @@ const safelyGetLoginSource = (request) => {
     });
     return null;
   }
-}
+};
 
 export const signinRouteHandlers = [
   {

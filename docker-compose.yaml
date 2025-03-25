@@ -1,4 +1,3 @@
-
 services:
   ffc-ahwr-dashboard:
     build:
