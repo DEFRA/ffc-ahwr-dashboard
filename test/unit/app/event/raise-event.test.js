@@ -1,7 +1,7 @@
 import { raiseEvent } from "../../../../app/event/raise-event.js";
-import { PublishEvent } from "ffc-ahwr-event-publisher";
+import { PublishEvent } from "ffc-ahwr-common-library";
 
-jest.mock("ffc-ahwr-event-publisher", () => ({
+jest.mock("ffc-ahwr-common-library", () => ({
   PublishEvent: jest.fn().mockImplementation(() => ({
     sendEvent: jest.fn(),
   })),
@@ -16,7 +16,7 @@ jest.mock("../../../../app/config/messaging", () => ({
 }));
 
 // Mock `PublishEvent` with a constructor that returns an object containing a mock `sendEvent` method
-jest.mock("ffc-ahwr-event-publisher", () => ({
+jest.mock("ffc-ahwr-common-library", () => ({
   PublishEvent: jest.fn().mockImplementation(() => ({
     sendEvent: jest.fn().mockResolvedValue(undefined), // Ensure sendEvent is a mock function
   })),

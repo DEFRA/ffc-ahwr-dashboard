@@ -115,6 +115,21 @@ function getRedirectPath(
   }
 }
 
+function safelyGetLoginSource(request) {
+  try {
+    return JSON.parse(
+      Buffer.from(request.query.state, "base64").toString("ascii"),
+    ).source;
+  } catch (queryStateError) {
+    request.logger.setBindings({ query: request.query });
+    request.logger.setBindings({
+      query: request.query,
+      queryStateError,
+    });
+    return null;
+  }
+}
+
 export const signinRouteHandlers = [
   {
     method: "GET",
@@ -134,18 +149,12 @@ export const signinRouteHandlers = [
           request.logger.setBindings({ err });
           appInsights.defaultClient.trackException({ exception: err });
 
-          let loginSource;
-          try {
-            loginSource = JSON.parse(
-              Buffer.from(request.query.state, "base64").toString("ascii"),
-            ).source;
-          } catch (_) {
-            request.logger.setBindings({ query: request.query });
-          }
-
           return h
             .view("verify-login-failed", {
-              backLink: requestAuthorizationCodeUrl(request, loginSource),
+              backLink: requestAuthorizationCodeUrl(
+                request,
+                safelyGetLoginSource(request),
+              ),
               ruralPaymentsAgency: config.ruralPaymentsAgency,
             })
             .code(HttpStatus.BAD_REQUEST)
@@ -155,9 +164,7 @@ export const signinRouteHandlers = [
       handler: async (request, h) => {
         try {
           await generateNewCrumb(request, h);
-          const loginSource = JSON.parse(
-            Buffer.from(request.query.state, "base64").toString("ascii"),
-          ).source;
+          const loginSource = safelyGetLoginSource(request);
 
           await authenticate(request);
           const apimAccessToken = await retrieveApimAccessToken(request);
@@ -227,17 +234,7 @@ export const signinRouteHandlers = [
         } catch (err) {
           request.logger.setBindings({ err });
 
-          let loginSource;
-          try {
-            loginSource = JSON.parse(
-              Buffer.from(request.query.state, "base64").toString("ascii"),
-            ).source;
-          } catch (queryStateError) {
-            request.logger.setBindings({
-              query: request.query,
-              queryStateError,
-            });
-          }
+          const loginSource = safelyGetLoginSource(request);
 
           const attachedToMultipleBusinesses = getCustomer(
             request,
@@ -255,13 +252,9 @@ export const signinRouteHandlers = [
                 requestAuthorizationCodeUrl(request, loginSource),
               );
             case err instanceof InvalidPermissionsError:
-              break;
             case err instanceof LockedBusinessError:
-              break;
             case err instanceof NoEligibleCphError:
-              break;
             case err instanceof OutstandingAgreementError:
-              break;
             case err instanceof NoEndemicsAgreementError:
               break;
             default:
@@ -278,9 +271,9 @@ export const signinRouteHandlers = [
           try {
             await raiseIneligibilityEvent(
               request.yar.id,
-              organisation?.sbi,
+              organisation.sbi,
               crn,
-              organisation?.email,
+              organisation.email,
               err.name,
             );
           } catch (ineligibilityEventError) {
@@ -300,8 +293,8 @@ export const signinRouteHandlers = [
               backLink: requestAuthorizationCodeUrl(request, loginSource),
               claimLink: `${config.claimServiceUri}/endemics/`,
               applyLink: `${config.applyServiceUri}/endemics/start`,
-              sbiText: `SBI ${organisation?.sbi ?? ""}`,
-              organisationName: organisation?.name,
+              sbiText: `SBI ${organisation.sbi ?? ""}`,
+              organisationName: organisation.name,
               guidanceLink: config.serviceUri,
             })
             .code(HttpStatus.BAD_REQUEST)
