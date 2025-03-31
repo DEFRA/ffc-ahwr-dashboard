@@ -23,18 +23,6 @@ jest.mock("../../../../app/session/index.js", () => ({
 }));
 
 describe("Dev sign in page test", () => {
-  // let server;
-
-  // beforeAll(async () => {
-  //   config.devLogin.enabled = true;
-  //   server = await createServer();
-  //   await server.initialize();
-  // });
-  //
-  // afterAll(async () => {
-  //   await server.stop();
-  //   config.devLogin.enabled = false;
-  // });
 
   test("GET dev sign-in route returns redirect to apply journey if not applied yet", async () => {
     config.devLogin.enabled = true;
