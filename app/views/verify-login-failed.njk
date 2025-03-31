@@ -17,6 +17,10 @@
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-l">Login failed</h1>
 
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+
     <p>Please repeat the login process.</p>
 
     <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency.</p>  

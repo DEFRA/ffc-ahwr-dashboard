@@ -77,6 +77,9 @@ export const getConfig = () => {
       enabled: joi.boolean().required(),
       releaseDate: joi.string().required(),
     }),
+    devLogin: {
+      enabled: joi.bool().required(),
+    },
     latestTermsAndConditionsUri: joi.string().required(),
     reapplyTimeLimitMonths: joi.number(),
   });
@@ -148,6 +151,9 @@ export const getConfig = () => {
     multiSpecies: {
       enabled: process.env.MULTI_SPECIES_ENABLED === "true",
       releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE || "2024-12-06",
+    },
+    devLogin: {
+      enabled: process.env.DEV_LOGIN_ENABLED === "true",
     },
     latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
     reapplyTimeLimitMonths: 10,

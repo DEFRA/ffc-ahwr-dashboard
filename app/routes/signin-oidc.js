@@ -15,13 +15,7 @@ import {
 } from "../session/index.js";
 import { authenticate } from "../auth/authenticate.js";
 import { setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
-import {
-  applicationType,
-  closedViewStatuses,
-  farmerApply,
-  loginSources,
-  viewStatus,
-} from "../constants/constants.js";
+import { farmerApply } from "../constants/constants.js";
 import { LockedBusinessError } from "../exceptions/LockedBusinessError.js";
 import { InvalidPermissionsError } from "../exceptions/InvalidPermissionsError.js";
 import { InvalidStateError } from "../exceptions/InvalidStateError.js";
@@ -40,6 +34,8 @@ import {
 import { changeContactHistory } from "../api-requests/contact-history-api.js";
 import { customerMustHaveAtLeastOneValidCph } from "../api-requests/rpa-api/cph-check.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
+import { getRedirectPath } from "./utils/get-redirect-path.js";
+import { ClaimHasExpiredError } from "../exceptions/ClaimHasExpired.js";
 
 function setOrganisationSessionData(request, personSummary, org, crn) {
   const organisation = {
@@ -63,56 +59,6 @@ function setOrganisationSessionData(request, personSummary, org, crn) {
     sessionKeys.farmerApplyData.organisation,
     organisation,
   );
-}
-
-function getRedirectPath(
-  latestApplicationsForSbi,
-  loginSource,
-  organisation,
-  query,
-) {
-  const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`;
-
-  if (latestApplicationsForSbi.length === 0) {
-    if (loginSource === loginSources.apply) {
-      // send to endemics apply journey
-      return endemicsApplyJourney;
-    } else {
-      // show the 'You need to complete an endemics application' error page
-      throw new NoEndemicsAgreementError(
-        `Business with SBI ${organisation.sbi} must complete an endemics agreement`,
-      );
-    }
-  }
-
-  const latestApplication = latestApplicationsForSbi[0];
-  if (latestApplication.type === applicationType.ENDEMICS) {
-    if (latestApplication.statusId === viewStatus.AGREED) {
-      return "/check-details";
-    } else {
-      return endemicsApplyJourney;
-    }
-  }
-
-  if (closedViewStatuses.includes(latestApplication.statusId)) {
-    if (loginSource === loginSources.apply) {
-      // send to endemics apply journey
-      return endemicsApplyJourney;
-    } else {
-      // show the 'You need to complete an endemics application' error page
-      throw new NoEndemicsAgreementError(
-        `Business with SBI ${organisation.sbi} must complete an endemics agreement`,
-      );
-    }
-  }
-
-  if (loginSource === loginSources.apply) {
-    throw new OutstandingAgreementError(
-      `Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`,
-    );
-  } else {
-    return `${config.claimServiceUri}/signin-oidc?state=${query.state}&code=${query.code}`;
-  }
 }
 
 const safelyGetLoginSource = (request) => {
@@ -225,7 +171,7 @@ export const signinRouteHandlers = [
           const redirectPath = getRedirectPath(
             latestApplicationsForSbi,
             loginSource,
-            organisation,
+            organisation.sbi,
             request.query,
           );
 
@@ -255,6 +201,7 @@ export const signinRouteHandlers = [
             case err instanceof NoEligibleCphError:
             case err instanceof OutstandingAgreementError:
             case err instanceof NoEndemicsAgreementError:
+            case err instanceof ClaimHasExpiredError:
               break;
             default:
               appInsights.defaultClient.trackException({ exception: err });
@@ -281,13 +228,8 @@ export const signinRouteHandlers = [
 
           return h
             .view("cannot-apply-exception", {
+              error: err,
               ruralPaymentsAgency: config.ruralPaymentsAgency,
-              permissionError: err instanceof InvalidPermissionsError,
-              cphError: err instanceof NoEligibleCphError,
-              lockedBusinessError: err instanceof LockedBusinessError,
-              outstandingAgreementError:
-                err instanceof OutstandingAgreementError,
-              noEndemicsAgreementError: err instanceof NoEndemicsAgreementError,
               hasMultipleBusinesses: attachedToMultipleBusinesses,
               backLink: requestAuthorizationCodeUrl(request, loginSource),
               claimLink: `${config.claimServiceUri}/endemics/`,

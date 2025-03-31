@@ -862,6 +862,7 @@ test("get /signin-oidc: open old world application, did not come from apply", as
         {
           type: "VV",
           statusId: applicationStatus.AGREED,
+          createdAt: new Date(),
         },
       ]);
     },
@@ -883,10 +884,14 @@ test("get /signin-oidc: open old world application, did not come from apply", as
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  expect(res.statusCode).toBe(302);
-  expect(res.headers.location).toMatch(
-    `${config.claimServiceUri}/signin-oidc?state=${encodedState}&code=123`,
-  );
+  globalJsdom(res.payload);
+  expect(res.statusCode).toBe(400);
+  expect(
+    getByRole(document.body, "heading", {
+      level: 1,
+      name: "You cannot claim for a livestock review for this business",
+    }),
+  ).toBeDefined();
 });
 
 test("get /signin-oidc: closed old world application, came from dashboard", async () => {

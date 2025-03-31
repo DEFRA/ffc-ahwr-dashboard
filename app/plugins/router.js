@@ -7,8 +7,10 @@ import { updateDetailsHandlers } from "../routes/update-details.js";
 import { signinRouteHandlers } from "../routes/signin-oidc.js";
 import { downloadApplicationHandlers } from "../routes/download-application.js";
 import { vetVisitsHandlers } from "../routes/vet-visits.js";
+import { devLoginHandlers } from "../routes/dev-sign-in.js";
+import { config } from "../config/index.js";
 
-const routes = [
+const alwaysOnRoutes = [
   healthHandlers,
   assetsRouteHandlers,
   cookieHandlers,
@@ -20,10 +22,20 @@ const routes = [
   vetVisitsHandlers,
 ].flat();
 
+let routes;
+const mapRoutes = () => {
+  routes = alwaysOnRoutes;
+
+  if (config.devLogin.enabled) {
+    routes = routes.concat(devLoginHandlers);
+  }
+};
+
 export const routerPlugin = {
   plugin: {
     name: "router",
     register: (server, _) => {
+      mapRoutes();
       server.route(routes);
     },
   },
