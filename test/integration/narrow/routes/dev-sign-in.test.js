@@ -335,4 +335,32 @@ describe("Dev sign in page test", () => {
       }),
     ).toBeDefined();
   });
+
+  test("GET dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {
+    config.devLogin.enabled = true;
+    const sbi = "123456789";
+    const server = await createServer();
+
+    const getLatestApplicationsBySbi = http.get(
+      `${config.applicationApi.uri}/applications/latest`,
+      ({ _request }) => {
+        return HttpResponse.error();
+      },
+    );
+    mswServer.use(getLatestApplicationsBySbi);
+
+    const res = await server.inject({
+      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+    });
+
+    globalJsdom(res.payload);
+    expect(res.statusCode).toBe(400);
+
+    expect(
+      getByRole(document.body, "heading", {
+        level: 1,
+        name: "Login failed",
+      }),
+    ).toBeDefined();
+  });
 });
