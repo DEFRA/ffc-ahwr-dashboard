@@ -23,7 +23,6 @@ jest.mock("../../../../app/session/index.js", () => ({
 }));
 
 describe("Dev sign in page test", () => {
-
   test("GET dev sign-in route returns redirect to apply journey if not applied yet", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
