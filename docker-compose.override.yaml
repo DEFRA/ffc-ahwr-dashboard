@@ -9,6 +9,7 @@ services:
     container_name: ffc-ahwr-dashboard-development
     environment:
       USE_PRETTY_PRINT: ${USE_PRETTY_PRINT:-true}
+      DEV_LOGIN_ENABLED: ${DEV_LOGIN_ENABLED:-true}
     ports:
       - "3003:3000"
       - "9232:9229"

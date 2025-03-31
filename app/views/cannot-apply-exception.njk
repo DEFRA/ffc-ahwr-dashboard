@@ -5,7 +5,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {% if outstandingAgreementError %}
+      {% if error.name === "OutstandingAgreementError" %}
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
         <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old annual health and welfare review service. On 19 June 2024, we replaced that service with the expanded service 'Get funding to improve animal health and welfare'.</p>
 
@@ -17,7 +17,7 @@
           <p class="govuk-body">You can apply <a href='{{ backLink }}'>for another business</a> that does not have an existing agreement.</p>
         {% endif %}
       {% endif %}
-      {% if noEndemicsAgreementError %}
+      {% if error.name === "NoEndemicsAgreementError" %}
         <a class="govuk-back-link" href='{{backLink}}'>Back</a>
         <h1 class="govuk-heading-l">You do not have an agreement for this business</h1>
         <p class="govuk-body">The {{ organisationName }} &#8212; {{ sbiText }} does not have an agreement for this service.</p>
@@ -39,7 +39,7 @@
         {% endif %}
       {% endif %}
 
-      {% if permissionError %}
+      {% if error.name === "InvalidPermissionsError" %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
         <p class="govuk-body">You do not have the required permission to act for {{ organisationName }} &#8212; {{ sbiText }}.</p>
         <h2 class="govuk-heading-m">What to do next</h2>
@@ -59,7 +59,7 @@
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
       {% endif %}
 
-      {% if cphError %}
+      {% if error.name === "NoEligibleCphError" %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
         <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has no eligible county parish holding (CPH) number registered to it.</p>
 
@@ -80,7 +80,7 @@
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
       {% endif %}
 
-      {% if lockedBusinessError %}
+      {% if error.name === "LockedBusinessError" %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
         <p class="govuk-body">The business record for {{ organisationName }} is locked.</p>
 
@@ -101,6 +101,22 @@
           <p class="govuk-body">You can <a href='{{ backLink }}'>apply for another business</a> that does not have a locked business record.</p>
         {% endif %}
 
+      {% endif %}
+
+      {% if error.name === "ClaimHasExpired" %}
+        <h1 class="govuk-heading-l">You cannot claim for a livestock review for this business</h1>
+        <p class="govuk-body">You accepted your annual health and welfare agreement offer on {{ error.latestApplicationDate }}.</p>
+        <p class="govuk-body">To be eligible for funding, you must have completed and claimed for your review within 6 months of this date.</p>
+        <p class="govuk-body">The 6 month deadline for this review was {{ error.claimExpiredDate }}.</p>
+        <h2 class="govuk-heading-m">What to do next</h2>
+        {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
+
+        <p class="govuk-body">Have your agreement number with you when you call or include it in your email.</p>
+
+        {% if hasMultipleBusinesses %}
+          <h2 class="govuk-heading-m">Claim for another business</h2>
+          <p class="govuk-body">You can <a href='{{ backLink }}'>claim for another business</a> that has applied for a review.</p>
+        {% endif %}
       {% endif %}
     </div>
   </div>
