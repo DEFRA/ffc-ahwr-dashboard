@@ -105,15 +105,9 @@ export const devLoginHandlers = [
     options: {
       auth: false,
       handler: async (request, h) => {
-        const { sbi, cameFrom, tempApplicationId } = request.query;
+        const { sbi, cameFrom } = request.query;
 
-        request.logger.info(`came from ${cameFrom} with ${tempApplicationId}`);
-
-        setFarmerApplyData(
-          request,
-          sessionKeys.farmerApplyData.reference,
-          tempApplicationId,
-        );
+        request.logger.info(`dev sign-in came from ${cameFrom}`);
 
         request.logger.setBindings({ sbi });
         const [personSummary, organisationSummary] =
