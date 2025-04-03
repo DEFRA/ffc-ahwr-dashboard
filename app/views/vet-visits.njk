@@ -42,7 +42,10 @@
     {{ govukButton({
       text: 'Start a new claim',
       href: claimServiceRedirectUri,
-      preventDoubleClick: true
+      preventDoubleClick: true,
+      attributes: {
+        id: "start"
+      }
     }) }}
     <hr class="govuk-section-break govuk-section-break--m">
     <h2 class="govuk-heading-m govuk-!-static-margin-top-2">View your claims</h2>
