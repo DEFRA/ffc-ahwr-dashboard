@@ -26,7 +26,7 @@ export const getConfig = () => {
       cookieNameCookiePolicy: joi.string(),
       cookieNameAuth: joi.string(),
       cookieNameSession: joi.string(),
-      isSameSite: joi.string(),
+      isSameSite: [joi.string(), joi.bool()],
       isSecure: joi.boolean(),
       password: joi.string().min(32).required(),
       ttl: joi.number().required(),
@@ -34,7 +34,7 @@ export const getConfig = () => {
     cookiePolicy: {
       clearInvalid: joi.bool(),
       encoding: joi.string().valid("base64json"),
-      isSameSite: joi.string(),
+      isSameSite: [joi.string(), joi.bool()],
       isSecure: joi.bool(),
       password: joi.string().min(32).required(),
       path: joi.string().default("/"),
@@ -101,7 +101,8 @@ export const getConfig = () => {
       cookieNameCookiePolicy: "ffc_ahwr_cookie_policy",
       cookieNameAuth: "ffc_ahwr_auth",
       cookieNameSession: "ffc_ahwr_session",
-      isSameSite: "Lax",
+      isSameSite:
+        process.env.DISABLE_COOKIE_SAME_SITE === "true" ? false : "Lax",
       isSecure: process.env.NODE_ENV === "production",
       password: process.env.COOKIE_PASSWORD,
       ttl: threeDaysInMs,
@@ -109,7 +110,8 @@ export const getConfig = () => {
     cookiePolicy: {
       clearInvalid: false,
       encoding: "base64json",
-      isSameSite: "Lax",
+      isSameSite:
+        process.env.DISABLE_COOKIE_SAME_SITE === "true" ? false : "Lax",
       isSecure: process.env.NODE_ENV === "production",
       password: process.env.COOKIE_PASSWORD,
       ttl: oneYearInMs,
