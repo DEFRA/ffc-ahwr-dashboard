@@ -40,7 +40,6 @@ data:
   AZURE_STORAGE_APPLICATION_CONTAINER: {{ quote .Values.container.azureStorageApplicationDocumentsContainerName }}
   AZURE_STORAGE_USE_CONNECTION_STRING: {{ quote .Values.container.azureStorageUseConnectionString }}
   DEV_LOGIN_ENABLED: {{ quote .Values.container.devLoginEnabled }}
-  MULTI_SPECIES_ENABLED: {{ quote .Values.container.multiSpeciesEnabled }}
   MULTI_SPECIES_RELEASE_DATE: {{ quote .Values.container.multiSpeciesReleaseDate }}
   CUSTOMER_SURVEY_CLAIM_URI: {{ quote .Values.container.customerSurveyClaimUri }}
 {{- end -}}

@@ -63,18 +63,11 @@ export const getConfig = () => {
     customerSurvey: {
       uri: joi.string().uri().optional(),
     },
-    dateOfTesting: {
-      enabled: joi.bool().default(false),
-    },
-    tenMonthRule: {
-      enabled: joi.bool().default(false),
-    },
     applicationApi: applicationApiConfigSchema,
     wreckHttp: {
       timeoutMilliseconds: joi.number().required(),
     },
     multiSpecies: joi.object({
-      enabled: joi.boolean().required(),
       releaseDate: joi.string().required(),
     }),
     devLogin: {
@@ -137,13 +130,6 @@ export const getConfig = () => {
       uri: process.env.CUSTOMER_SURVEY_CLAIM_URI,
     },
     applicationApi: applicationApiConfig,
-    dateOfTesting: {
-      // Note that this and the tenMonthRule below are not actually used, but I won;t update in this PR as trying to resolve login redirect issue
-      enabled: process.env.DATE_OF_TESTING_ENABLED === "true",
-    },
-    tenMonthRule: {
-      enabled: process.env.TEN_MONTH_RULE_ENABLED === "true",
-    },
     wreckHttp: {
       timeoutMilliseconds: Number.parseInt(
         process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS ?? "10000",
@@ -151,7 +137,6 @@ export const getConfig = () => {
       ),
     },
     multiSpecies: {
-      enabled: process.env.MULTI_SPECIES_ENABLED === "true",
       releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE || "2024-12-06",
     },
     devLogin: {

@@ -123,7 +123,6 @@ test("get /vet-visits: new world, multiple businesses", async () => {
 test("get /vet-visits: new world, no claims made, show banner", async () => {
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
-  jest.replaceProperty(config.multiSpecies, "enabled", true);
 
   const sbi = "123123123";
   const state = {
