@@ -16,7 +16,7 @@ import { claimServiceUri, vetVisits } from "../config/routes.js";
 import { config } from "../config/index.js";
 import { userNeedsNotification } from "./utils/user-needs-notification.js";
 
-const { latestTermsAndConditionsUri, multiSpecies } = config;
+const { latestTermsAndConditionsUri } = config;
 
 const pageUrl = `/${vetVisits}`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`;
@@ -104,7 +104,6 @@ export const vetVisitsHandlers = [
         const downloadedDocument = `/download-application/${organisation.sbi}/${latestEndemicsApplication?.reference}`;
 
         const showNotificationBanner =
-          multiSpecies.enabled &&
           Boolean(latestEndemicsApplication) &&
           userNeedsNotification(applications, claims);
 

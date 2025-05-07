@@ -21,12 +21,10 @@ describe("Base config", () => {
 
   test("environment variables used for overriding values", () => {
     process.env.DISPLAY_PAGE_SIZE = "100";
-    process.env.MULTI_SPECIES_ENABLED = "true";
 
     const config = getConfig();
 
     expect(config.displayPageSize).toBe(100);
-    expect(config.multiSpecies.enabled).toBe(true);
   });
 
   test("should throw an error if config is invalid", () => {

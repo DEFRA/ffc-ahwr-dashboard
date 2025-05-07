@@ -75,7 +75,6 @@ container:
   azureStorageApplicationDocumentsContainerName:
   azureStorageUseConnectionString: true
   devLoginEnabled: "false"
-  multiSpeciesEnabled: "false"
   multiSpeciesReleaseDate: "3000-01-01"
   customerSurveyClaimUri: https://forms.office.com/Pages/ResponsePage.aspx?id=UCQKdycCYkyQx044U38RAsIdAEqqafZCk2LjifrI4h1UOVJKOVRUWlBLMEpFQVdERzA3QVRFWUM2NS4u
 
