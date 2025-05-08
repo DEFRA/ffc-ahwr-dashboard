@@ -75,6 +75,9 @@ export const getConfig = () => {
     },
     latestTermsAndConditionsUri: joi.string().required(),
     reapplyTimeLimitMonths: joi.number(),
+    multiHerds: joi.object({
+      enabled: joi.boolean().required(),
+    }),
   });
 
   const config = {
@@ -144,6 +147,9 @@ export const getConfig = () => {
     },
     latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
     reapplyTimeLimitMonths: 10,
+    multiHerds: {
+      enabled: process.env.MULTI_HERDS_ENABLED === "true",
+    },
   };
 
   const { error } = schema.validate(config, {
