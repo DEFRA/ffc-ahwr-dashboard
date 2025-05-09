@@ -22,6 +22,7 @@ afterAll(() => {
 });
 
 test("get /vet-visits: new world, multiple businesses", async () => {
+  config.multiHerds.enabled = false;
   const server = await createServer();
 
   const sbi = "106354662";
@@ -121,6 +122,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
 });
 
 test("get /vet-visits: new world, no claims made, show banner", async () => {
+  config.multiHerds.enabled = false;
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
 
@@ -177,6 +179,7 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
 });
 
 test("get /vet-visits: old world application only", async () => {
+  config.multiHerds.enabled = false;
   const server = await createServer();
   const timeOfTest = new Date("2025-01-02");
 
