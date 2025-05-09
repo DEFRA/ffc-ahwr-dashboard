@@ -20,6 +20,7 @@ const { latestTermsAndConditionsUri } = config;
 
 const pageUrl = `/${vetVisits}`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`;
+const centringClass = "vertical-middle";
 
 const createRowsForTable = (claims) => {
   const env = nunjucks.configure([
@@ -49,11 +50,11 @@ const createRowsForTable = (claims) => {
         attributes: {
           "data-sort-value": dateOfVisit.getTime(),
         },
-        classes: "vertical-middle",
+        classes: centringClass,
       },
       {
         text: herdName,
-        classes: "vertical-middle",
+        classes: centringClass,
       },
       {
         html: `<div>
@@ -63,10 +64,91 @@ const createRowsForTable = (claims) => {
       },
       {
         html: env.render("tag.njk", { status: claim.statusId }),
-        classes: "vertical-middle",
+        classes: centringClass,
       },
     ];
   });
+};
+
+const buildClaimRowsPerSpecies = (allClaims, isOldWorld) => {
+  const beefClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "beef",
+    ),
+  );
+  const dairyClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "dairy",
+    ),
+  );
+  const pigClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "pigs",
+    ),
+  );
+  const sheepClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "sheep",
+    ),
+  );
+
+  return { beefClaimsRows, dairyClaimsRows, pigClaimsRows, sheepClaimsRows };
+};
+
+const buildTableHeaders = () => {
+  const sharedTableHeaders = [
+    {
+      text: "Visit date",
+      attributes: {
+        "aria-sort": "descending",
+      },
+      classes: "col-19",
+    },
+    {
+      text: "Type and claim number",
+      attributes: {
+        "aria-sort": "none",
+      },
+      classes: "col-25",
+    },
+    {
+      text: "Status",
+      attributes: {
+        "aria-sort": "none",
+      },
+      classes: "col-12",
+    },
+  ];
+
+  const sheepHeaders = [...sharedTableHeaders];
+
+  sheepHeaders.splice(1, 0, {
+    text: "Flock name",
+    attributes: {
+      "aria-sort": "none",
+    },
+    classes: "col-44",
+  });
+
+  const nonSheepHeaders = [...sharedTableHeaders];
+
+  nonSheepHeaders.splice(1, 0, {
+    text: "Herd name",
+    attributes: {
+      "aria-sort": "none",
+    },
+    classes: "col-44",
+  });
+
+  return { sheepHeaders, nonSheepHeaders };
 };
 
 export const vetVisitsHandlers = [
@@ -110,38 +192,12 @@ export const vetVisitsHandlers = [
 
         const isOldWorld = !latestEndemicsApplication;
 
-        const beefClaimsRows = createRowsForTable(
-          allClaims.filter(
-            (claim) =>
-              (isOldWorld
-                ? claim.data.whichReview
-                : claim.data.typeOfLivestock) === "beef",
-          ),
-        );
-        const dairyClaimsRows = createRowsForTable(
-          allClaims.filter(
-            (claim) =>
-              (isOldWorld
-                ? claim.data.whichReview
-                : claim.data.typeOfLivestock) === "dairy",
-          ),
-        );
-        const pigClaimsRows = createRowsForTable(
-          allClaims.filter(
-            (claim) =>
-              (isOldWorld
-                ? claim.data.whichReview
-                : claim.data.typeOfLivestock) === "pigs",
-          ),
-        );
-        const sheepClaimsRows = createRowsForTable(
-          allClaims.filter(
-            (claim) =>
-              (isOldWorld
-                ? claim.data.whichReview
-                : claim.data.typeOfLivestock) === "sheep",
-          ),
-        );
+        const {
+          beefClaimsRows,
+          dairyClaimsRows,
+          pigClaimsRows,
+          sheepClaimsRows,
+        } = buildClaimRowsPerSpecies(allClaims, isOldWorld);
 
         setEndemicsClaim(
           request,
@@ -154,49 +210,7 @@ export const vetVisitsHandlers = [
           Boolean(latestEndemicsApplication) &&
           userNeedsNotification(applications, claims);
 
-        const sharedTableHeaders = [
-          {
-            text: "Visit date",
-            attributes: {
-              "aria-sort": "descending",
-            },
-            classes: "col-19",
-          },
-          {
-            text: "Type and claim number",
-            attributes: {
-              "aria-sort": "none",
-            },
-            classes: "col-25",
-          },
-          {
-            text: "Status",
-            attributes: {
-              "aria-sort": "none",
-            },
-            classes: "col-12",
-          },
-        ];
-
-        const sheepHeaders = [...sharedTableHeaders];
-
-        sheepHeaders.splice(1, 0, {
-          text: "Flock name",
-          attributes: {
-            "aria-sort": "none",
-          },
-          classes: "col-44",
-        });
-
-        const nonSheepHeaders = [...sharedTableHeaders];
-
-        nonSheepHeaders.splice(1, 0, {
-          text: "Herd name",
-          attributes: {
-            "aria-sort": "none",
-          },
-          classes: "col-44",
-        });
+        const { sheepHeaders, nonSheepHeaders } = buildTableHeaders();
 
         return h.view(`${vetVisits}-mh`, {
           beefClaimsRows,
