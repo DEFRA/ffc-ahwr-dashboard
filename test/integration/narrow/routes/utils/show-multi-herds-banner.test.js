@@ -61,3 +61,15 @@ test("applied after", () => {
 
   expect(result).toBe(false);
 });
+
+test("applied before, no claims, but MH is disabled", () => {
+  multiHerds.enabled = false;
+  jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
+
+  const applications = [{ createdAt: "2024-12-03" }];
+  const claims = [];
+
+  const result = showMultiHerdsBanner(applications, claims);
+
+  expect(result).toBe(false);
+});
