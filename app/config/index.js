@@ -77,6 +77,7 @@ export const getConfig = () => {
     reapplyTimeLimitMonths: joi.number(),
     multiHerds: joi.object({
       enabled: joi.boolean().required(),
+      releaseDate: joi.string().required(),
     }),
   });
 
@@ -149,6 +150,7 @@ export const getConfig = () => {
     reapplyTimeLimitMonths: 10,
     multiHerds: {
       enabled: process.env.MULTI_HERDS_ENABLED === "true",
+      releaseDate: process.env.MULTI_HERDS_RELEASE_DATE || "2025-05-01",
     },
   };
 
