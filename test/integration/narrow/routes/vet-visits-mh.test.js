@@ -275,7 +275,7 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
 
   const banner = getByRole(document.body, "region", { name: "Important" });
   expect(getByRole(banner, "paragraph").textContent.trim()).toBe(
-    "You can now claim for more than one species.",
+    "You can now claim for more than one herd or flock of any species.",
   );
 });
 

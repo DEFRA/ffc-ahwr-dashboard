@@ -21,12 +21,14 @@
     {% if showNotificationBanner %}
       {% set html %}
         <p class="govuk-notification-banner__heading">
-          You can now claim for more than one species.
+          You can now claim for more than one herd or flock of any species.
         </p>
       {% endset %}
+      <div class="two-thirds-width">
       {{ govukNotificationBanner({
         html: html
       }) }}
+    </div>
     {% endif %}
 
     <h1 class="govuk-heading-xl">Manage your claims</h1>

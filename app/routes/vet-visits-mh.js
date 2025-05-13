@@ -14,7 +14,7 @@ import { sessionKeys } from "../session/keys.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { claimServiceUri, vetVisits } from "../config/routes.js";
 import { config } from "../config/index.js";
-import { userNeedsNotification } from "./utils/user-needs-notification.js";
+import { showMultiHerdsBanner } from "./utils/show-multi-herds-banner.js";
 
 const { latestTermsAndConditionsUri } = config;
 
@@ -208,7 +208,7 @@ export const vetVisitsHandlers = [
 
         const showNotificationBanner =
           Boolean(latestEndemicsApplication) &&
-          userNeedsNotification(applications, claims);
+          showMultiHerdsBanner(applications, claims);
 
         const { sheepHeaders, nonSheepHeaders } = buildTableHeaders();
 
