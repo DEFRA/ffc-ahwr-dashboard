@@ -9,7 +9,7 @@ beforeEach(() => {
   jest.resetAllMocks();
 });
 
-test("no applications", () => {
+test("user has no applications, so we shouldnt show the banner", () => {
   const applications = [];
   const claims = [];
 
@@ -18,7 +18,7 @@ test("no applications", () => {
   expect(result).toBe(false);
 });
 
-test("applied before, no claims", () => {
+test("user applied before MH was released, and has no claims, so we should show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-03" }];
@@ -29,7 +29,7 @@ test("applied before, no claims", () => {
   expect(result).toBe(true);
 });
 
-test("applied before, claimed before", () => {
+test("user applied before MH was released and their last claim was before MH was released, so we should show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-03" }];
@@ -40,7 +40,7 @@ test("applied before, claimed before", () => {
   expect(result).toBe(true);
 });
 
-test("applied before, claimed after", () => {
+test("user applied before MH was released and their most recent claim was after MH was released, so we shouldnt show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-03" }];
@@ -51,7 +51,7 @@ test("applied before, claimed after", () => {
   expect(result).toBe(false);
 });
 
-test("applied after", () => {
+test("user applied after MH was released, and has no claims yet, so we shouldnt show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-05" }];
@@ -62,7 +62,7 @@ test("applied after", () => {
   expect(result).toBe(false);
 });
 
-test("applied before, no claims, but MH is disabled", () => {
+test("user applied before MH was released, has no claims, but MH is disabled", () => {
   multiHerds.enabled = false;
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
