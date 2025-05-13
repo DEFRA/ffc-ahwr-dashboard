@@ -4,6 +4,7 @@ import { config } from "../../../../../app/config/index.js";
 const { multiHerds } = config;
 
 jest.mock("../../../../../app/config/index");
+multiHerds.enabled = true;
 beforeEach(() => {
   jest.resetAllMocks();
 });
