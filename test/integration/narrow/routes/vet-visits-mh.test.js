@@ -120,6 +120,78 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   );
 });
 
+test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd)", async () => {
+  config.multiHerds.enabled = true;
+  const server = await createServer();
+
+  const sbi = "106354662";
+  const state = {
+    customer: {
+      attachedToMultipleBusinesses: true,
+    },
+    endemicsClaim: {
+      organisation: {
+        sbi,
+        name: "PARTRIDGES",
+        farmerName: "Janice Harrison",
+      },
+    },
+  };
+
+  await setServerState(server, state);
+
+  const applicationReference = "AHWR-TEST-NEW1";
+  const newWorldApplications = [
+    {
+      sbi,
+      type: "EE",
+      reference: applicationReference,
+    },
+  ];
+  const applicationsLatest = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    () => HttpResponse.json(newWorldApplications),
+  );
+
+  const claims = [
+    {
+      applicationReference,
+      reference: "REBC-A89F-7776",
+      data: {
+        dateOfVisit: "2024-12-29",
+        typeOfLivestock: "sheep",
+        claimType: "R",
+      },
+      statusId: "2",
+    },
+  ];
+  const claimByReference = http.get(
+    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
+    () => HttpResponse.json(claims),
+  );
+
+  mswServer.use(applicationsLatest, claimByReference);
+
+  const { payload } = await server.inject({
+    url: "/vet-visits",
+    auth: {
+      credentials: {},
+      strategy: "cookie",
+    },
+  });
+  globalJsdom(payload);
+
+  expect(getTableCells(document.body)).toEqual([
+    ["Visit date", "Flock name", "Type and claim number", "Status"],
+    [
+      "29 December 2024",
+      "Unnamed flock",
+      expect.stringContaining("REBC-A89F-7776"),
+      "Withdrawn",
+    ],
+  ]);
+});
+
 test("get /vet-visits: new world, claim has a herd", async () => {
   config.multiHerds.enabled = true;
   const server = await createServer();
