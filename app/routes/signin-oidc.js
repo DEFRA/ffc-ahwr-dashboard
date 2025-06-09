@@ -9,7 +9,6 @@ import { retrieveApimAccessToken } from "../auth/client-credential-grant/retriev
 import {
   getCustomer,
   getEndemicsClaim,
-  getFarmerApplyData,
   setCustomer,
   setEndemicsClaim,
   setFarmerApplyData,
@@ -37,7 +36,7 @@ import { customerMustHaveAtLeastOneValidCph } from "../api-requests/rpa-api/cph-
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
 import { getRedirectPath } from "./utils/get-redirect-path.js";
 import { ClaimHasExpiredError } from "../exceptions/ClaimHasExpired.js";
-import { base64URLEncode } from "../auth/auth-code-grant/proof-key-for-code-exchange.js";
+import { maybeSuffixLoginRedirectUrl } from "../lib/suffix-url.js";
 
 function setOrganisationSessionData(request, personSummary, org, crn) {
   const organisation = {
@@ -177,12 +176,12 @@ export const signinRouteHandlers = [
             request.query,
           );
 
-          if (
-            config.isDev &&
-            getFarmerApplyData(request, "sendBackDevValue") === "true"
-          ) {
-            redirectPath += `?org=${base64URLEncode(Buffer.from(JSON.stringify(getFarmerApplyData(request, sessionKeys.endemicsClaim.organisation))))}&crn=${crn}&custId=${personSummary.id}`;
-          }
+          redirectPath = maybeSuffixLoginRedirectUrl(
+            request,
+            redirectPath,
+            crn,
+            personSummary.id,
+          );
 
           return h.redirect(redirectPath);
         } catch (err) {
