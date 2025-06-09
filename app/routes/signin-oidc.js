@@ -181,7 +181,7 @@ export const signinRouteHandlers = [
             config.isDev &&
             getFarmerApplyData(request, "sendBackDevValue") === "true"
           ) {
-            redirectPath += `?org=${base64URLEncode(Buffer.from(JSON.stringify(getFarmerApplyData(request, sessionKeys.endemicsClaim.organisation))))}&crn=${crn}&custId=${personSummary.id}#lookameMA`;
+            redirectPath += `?org=${base64URLEncode(Buffer.from(JSON.stringify(getFarmerApplyData(request, sessionKeys.endemicsClaim.organisation))))}&crn=${crn}&custId=${personSummary.id}`;
           }
 
           return h.redirect(redirectPath);
