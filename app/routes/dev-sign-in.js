@@ -19,6 +19,7 @@ import { getRedirectPath } from "./utils/get-redirect-path.js";
 import HttpStatus from "http-status-codes";
 import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { ClaimHasExpiredError } from "../exceptions/ClaimHasExpired.js";
+import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 
 const pageUrl = `/dev-sign-in`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
@@ -181,6 +182,17 @@ export const devLoginHandlers = [
             .code(HttpStatus.BAD_REQUEST)
             .takeover();
         }
+      },
+    },
+  },
+  {
+    method: "GET",
+    path: "/dev-defraid",
+    options: {
+      auth: false,
+      handler: async (request, h) => {
+        setFarmerApplyData(request, "sendBackDevValue", "true");
+        return h.redirect(requestAuthorizationCodeUrl(request, "apply"));
       },
     },
   },
