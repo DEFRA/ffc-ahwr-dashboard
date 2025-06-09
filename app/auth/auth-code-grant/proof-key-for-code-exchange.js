@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { sessionKeys } from "../../session/keys.js";
 import { setPkcecodes } from "../../session/index.js";
 
-const base64URLEncode = (str) => {
+export const base64URLEncode = (str) => {
   return str
     .toString("base64")
     .replace(/\+/g, "-")

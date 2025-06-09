@@ -36,6 +36,7 @@ import { customerMustHaveAtLeastOneValidCph } from "../api-requests/rpa-api/cph-
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
 import { getRedirectPath } from "./utils/get-redirect-path.js";
 import { ClaimHasExpiredError } from "../exceptions/ClaimHasExpired.js";
+import { maybeSuffixLoginRedirectUrl } from "../lib/suffix-url.js";
 
 function setOrganisationSessionData(request, personSummary, org, crn) {
   const organisation = {
@@ -168,11 +169,18 @@ export const signinRouteHandlers = [
             organisation.sbi,
             request.logger,
           );
-          const redirectPath = getRedirectPath(
+          let redirectPath = getRedirectPath(
             latestApplicationsForSbi,
             loginSource,
             organisation.sbi,
             request.query,
+          );
+
+          redirectPath = maybeSuffixLoginRedirectUrl(
+            request,
+            redirectPath,
+            crn,
+            personSummary.id,
           );
 
           return h.redirect(redirectPath);

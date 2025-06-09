@@ -363,4 +363,18 @@ describe("Dev sign in page test", () => {
       }),
     ).toBeDefined();
   });
+
+  test("GET dev defraid sign-in route returns redirect to defraId", async () => {
+    config.devLogin.enabled = true;
+    const server = await createServer();
+
+    const res = await server.inject({
+      url: `/dev-defraid`,
+    });
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location.href).toMatch(
+      `onmicrosoft.com/oauth2/v2.0/authorize`,
+    );
+  });
 });
