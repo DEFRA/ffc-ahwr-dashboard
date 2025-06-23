@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-dashboard",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Dashboard service for AHWP service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-dashboard",
   "main": "app/index.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "build": "webpack",
     "build:watch": "webpack --watch",
-    "pretest": "npm run prettier && npm run lint",
+    "pretest": "npm run lint",
     "prettier": "prettier . --check",
     "prettier:fix": "prettier . --write",
     "test": "jest --runInBand",
@@ -52,9 +52,6 @@
     "pg-promise": "^11.5.5"
   },
   "overrides": {
-    "webdriverio": {
-      "puppeteer-core": "22.13.0"
-    },
     "semver": "7.5.2"
   },
   "devDependencies": {
@@ -66,19 +63,18 @@
     "@types/hapi__hapi": "^20.0.10",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.19",
-    "babel-jest": "^29.7.0",
+    "babel-jest": "^30.0.2",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "7.1.2",
     "dotenv": "^16.0.3",
     "eslint": "9.22.0",
     "eslint-config-prettier": "10.1.1",
-    "global-jsdom": "25.0.0",
+    "global-jsdom": "26.0.0",
     "html-webpack-plugin": "^5.5.0",
-    "jest": "29.7.0",
-    "jest-environment-jsdom": "29.7.0",
-    "jest-junit": "^13.0.0",
-    "jest-when": "^3.5.2",
-    "jsdom": "25.0.1",
+    "jest": "^30.0.2",
+    "jest-junit": "^16.0.0",
+    "jest-when": "^3.7.0",
+    "jsdom": "^26.0.0",
     "mini-css-extract-plugin": "^2.5.3",
     "msw": "2.7.0",
     "neostandard": "0.12.1",
@@ -90,7 +86,6 @@
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.49.7",
     "sass-loader": "^12.4.0",
-    "webdriverio": "9.5.7",
     "webpack": "^5.68.0",
     "webpack-cli": "^4.9.2"
   },
