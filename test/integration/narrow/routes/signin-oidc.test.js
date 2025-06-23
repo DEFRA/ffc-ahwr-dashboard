@@ -14,6 +14,7 @@ import { getByRole } from "@testing-library/dom";
 import { applicationStatus } from "../../../../app/constants/constants.js";
 import * as session from "../../../../app/session/index.js";
 
+let cleanUpFunction;
 const mswServer = setupServer();
 mswServer.listen();
 
@@ -443,7 +444,7 @@ test("get /signin-oidc: no eligible cph numbers", async () => {
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
 
   expect(
@@ -537,6 +538,7 @@ test("get /signin-oidc: no application, came from apply", async () => {
 });
 
 test("get /signin-oidc: no application, came from dashboard", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -612,7 +614,7 @@ test("get /signin-oidc: no application, came from dashboard", async () => {
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
 
   expect(
@@ -711,6 +713,7 @@ test("get /signin-oidc: closed old world application, came from apply", async ()
 });
 
 test("get /signin-oidc: open old world application, came from apply", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -791,7 +794,7 @@ test("get /signin-oidc: open old world application, came from apply", async () =
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
 
   expect(res.statusCode).toBe(400);
   expect(
@@ -803,6 +806,7 @@ test("get /signin-oidc: open old world application, came from apply", async () =
 });
 
 test("get /signin-oidc: open old world application, did not come from apply", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -884,7 +888,7 @@ test("get /signin-oidc: open old world application, did not come from apply", as
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
   expect(
     getByRole(document.body, "heading", {
@@ -895,6 +899,7 @@ test("get /signin-oidc: open old world application, did not come from apply", as
 });
 
 test("get /signin-oidc: closed old world application, came from dashboard", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -975,7 +980,7 @@ test("get /signin-oidc: closed old world application, came from dashboard", asyn
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
 
   expect(
@@ -987,6 +992,7 @@ test("get /signin-oidc: closed old world application, came from dashboard", asyn
 });
 
 test("get /signin-oidc: approved application, organisation locked", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -1044,7 +1050,7 @@ test("get /signin-oidc: approved application, organisation locked", async () => 
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
 
   expect(
@@ -1056,6 +1062,7 @@ test("get /signin-oidc: approved application, organisation locked", async () => 
 });
 
 test("get /signin-oidc: approved application, permission not available", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const rawState = {
@@ -1112,7 +1119,7 @@ test("get /signin-oidc: approved application, permission not available", async (
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
   expect(res.statusCode).toBe(400);
 
   expect(
@@ -1124,6 +1131,7 @@ test("get /signin-oidc: approved application, permission not available", async (
 });
 
 test("get /signin-oidc: mismatching state", async () => {
+  cleanUpFunction();
   const { defraId } = authConfig;
   const server = await createServer();
 

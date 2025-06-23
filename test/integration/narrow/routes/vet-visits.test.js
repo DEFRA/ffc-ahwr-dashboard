@@ -8,6 +8,8 @@ import { getByRole, queryByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { authConfig } from "../../../../app/config/auth.js";
 
+let cleanUpFunction;
+
 const nunJucksInternalTimerMethods = ["nextTick"];
 
 const mswServer = setupServer();
@@ -51,7 +53,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   ];
   const applicationsLatest = http.get(
     `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
+    () => HttpResponse.json(newWorldApplications)
   );
 
   const claims = [
@@ -68,7 +70,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   ];
   const claimByReference = http.get(
     `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
-    () => HttpResponse.json(claims),
+    () => HttpResponse.json(claims)
   );
 
   mswServer.use(applicationsLatest, claimByReference);
@@ -80,10 +82,10 @@ test("get /vet-visits: new world, multiple businesses", async () => {
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   expect(queryByRole(document.body, "region", { name: "Important" })).toBe(
-    null,
+    null
   );
 
   expect(getTableCells(document.body)).toEqual([
@@ -98,30 +100,31 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   ]);
 
   expect(
-    getByRole(document.body, "link", { name: "agreement summary" }),
+    getByRole(document.body, "link", { name: "agreement summary" })
   ).toHaveProperty(
     "href",
-    `${document.location.href}download-application/${sbi}/${applicationReference}`,
+    `${document.location.href}download-application/${sbi}/${applicationReference}`
   );
 
   expect(
-    getByRole(document.body, "button", { name: "Start a new claim" }),
+    getByRole(document.body, "button", { name: "Start a new claim" })
   ).toHaveProperty(
     "href",
-    `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`,
+    `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`
   );
 
   expect(
     getByRole(document.body, "link", {
       name: "Claim for a different business",
-    }),
+    })
   ).toHaveProperty(
     "href",
-    expect.stringContaining(authConfig.defraId.hostname),
+    expect.stringContaining(authConfig.defraId.hostname)
   );
 });
 
 test("get /vet-visits: new world, no claims made, show banner", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = false;
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
@@ -153,12 +156,12 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
   ];
   const applicationsLatest = http.get(
     `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
+    () => HttpResponse.json(newWorldApplications)
   );
 
   const claimByReference = http.get(
     `${config.applicationApi.uri}/claim/get-by-application-reference/AHWR-TEST-NEW2`,
-    () => HttpResponse.json([]),
+    () => HttpResponse.json([])
   );
 
   mswServer.use(applicationsLatest, claimByReference);
@@ -170,15 +173,16 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   const banner = getByRole(document.body, "region", { name: "Important" });
   expect(getByRole(banner, "paragraph").textContent.trim()).toBe(
-    "You can now claim for more than one species.",
+    "You can now claim for more than one species."
   );
 });
 
 test("get /vet-visits: old world application only", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = false;
   const server = await createServer();
   const timeOfTest = new Date("2025-01-02");
@@ -219,7 +223,7 @@ test("get /vet-visits: old world application only", async () => {
   ];
   const applicationsLatest = http.get(
     `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(oldWorldApplications),
+    () => HttpResponse.json(oldWorldApplications)
   );
 
   mswServer.use(applicationsLatest);
@@ -235,7 +239,7 @@ test("get /vet-visits: old world application only", async () => {
   globalJsdom(payload);
 
   expect(queryByRole(document.body, "region", { name: "Important" })).toBe(
-    null,
+    null
   );
 
   expect(getTableCells(document.body)).toEqual([

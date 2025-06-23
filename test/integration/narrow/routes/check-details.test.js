@@ -6,6 +6,8 @@ import { setServerState } from "../../../helpers/set-server-state";
 import { captureFormData } from "../../../helpers/capture-form-data";
 import { userEvent } from "@testing-library/user-event";
 
+let cleanUpFunction;
+
 test("get /check-details", async () => {
   const server = await createServer();
 
@@ -42,7 +44,7 @@ test("get /check-details", async () => {
     },
   });
 
-  globalJsdom(res.payload);
+  cleanUpFunction = globalJsdom(res.payload);
 
   const { crumb } = getCrumbFromSetCookie(res.headers["set-cookie"]);
   const user = userEvent.setup({ document });
@@ -87,6 +89,7 @@ test("get /check-details", async () => {
 });
 
 test("get /check-details: organisation not found", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const res = await server.inject({
@@ -96,6 +99,8 @@ test("get /check-details: organisation not found", async () => {
       strategy: "cookie",
     },
   });
+
+  cleanUpFunction = globalJsdom(res.payload);
 
   expect(res.statusCode).toBe(404);
 });
@@ -123,6 +128,7 @@ test("post /check-details: confirmed yes", async () => {
 });
 
 test("post /check-details: confirmed no", async () => {
+  cleanUpFunction();
   const server = await createServer();
   const { crumb } = await getCrumb(server, "/check-details");
 
