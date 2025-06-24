@@ -9,6 +9,7 @@ import { http, HttpResponse } from "msw";
 import { authConfig } from "../../../../app/config/auth.js";
 
 const nunJucksInternalTimerMethods = ["nextTick"];
+let cleanUpFunction;
 
 const mswServer = setupServer();
 mswServer.listen();
@@ -80,7 +81,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   expect(queryByRole(document.body, "region", { name: "Important" })).toBe(
     null,
@@ -121,6 +122,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
 });
 
 test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd)", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = true;
   const server = await createServer();
 
@@ -179,7 +181,7 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   expect(getTableCells(document.body)).toEqual([
     ["Visit date", "Flock name", "Type and claim number", "Status"],
@@ -193,6 +195,7 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
 });
 
 test("get /vet-visits: new world, claim has a herd", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = true;
   const server = await createServer();
 
@@ -254,7 +257,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   expect(queryByRole(document.body, "region", { name: "Important" })).toBe(
     null,
@@ -295,6 +298,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
 });
 
 test("get /vet-visits: new world, no claims made, show banner", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = true;
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
@@ -343,7 +347,7 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
       strategy: "cookie",
     },
   });
-  globalJsdom(payload);
+  cleanUpFunction = globalJsdom(payload);
 
   const banner = getByRole(document.body, "region", { name: "Important" });
   expect(getByRole(banner, "paragraph").textContent.trim()).toBe(
@@ -352,6 +356,7 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
 });
 
 test("get /vet-visits: old world application only", async () => {
+  cleanUpFunction();
   config.multiHerds.enabled = true;
   const server = await createServer();
   const timeOfTest = new Date("2025-01-02");

@@ -6,6 +6,7 @@ import { http, HttpResponse } from "msw";
 import { applicationStatus } from "../../../../app/constants/constants.js";
 import { setupServer } from "msw/node";
 
+let cleanUpFunction;
 const mswServer = setupServer();
 mswServer.listen();
 
@@ -149,7 +150,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -161,6 +162,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim for an open VV application", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -189,7 +191,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -201,6 +203,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim and no application exists", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -223,7 +226,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -235,6 +238,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to error page when forced to show CPH error", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123c";
     const server = await createServer();
@@ -257,7 +261,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -269,6 +273,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to error page when forced to show Invalid permissions error", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123i";
     const server = await createServer();
@@ -291,7 +296,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -303,6 +308,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to error page when forced to show locked business error", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123l";
     const server = await createServer();
@@ -325,7 +331,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -337,6 +343,7 @@ describe("Dev sign in page test", () => {
   });
 
   test("GET dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {
+    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
