@@ -1,3 +1,4 @@
+import { initAll } from 'govuk-frontend'
 import "./css/application.scss";
 import "./css/document-list.scss";
 import "./css/devolved-nations.scss";
@@ -9,6 +10,8 @@ import "./js/cookies.js";
 import "./js/handleDuplicateFormSubmissions.js";
 import jquery from "jquery";
 import moj from "@ministryofjustice/frontend";
+
+initAll()
 
 window.$ = jquery;
 
