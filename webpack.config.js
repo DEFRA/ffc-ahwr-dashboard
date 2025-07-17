@@ -15,6 +15,12 @@ console.log(`Running webpack in ${isDev ? "development" : "production"} mode`);
 export default {
   entry: "./app/frontend/src/entry.js",
   mode: isDev ? "development" : "production",
+  resolve: {
+    modules: [
+      path.resolve(__dirname, 'src'),
+      'node_modules'
+    ]
+  },
   module: {
     rules: [
       {
@@ -35,6 +41,7 @@ export default {
               sourceMap: true,
               sassOptions: {
                 outputStyle: "compressed",
+                includePaths: [path.resolve(__dirname, 'node_modules')]
               },
             },
           },

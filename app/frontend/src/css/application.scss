@@ -1,7 +1,8 @@
 $govuk-assets-path: "~govuk-frontend/dist/govuk/assets/";
 $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sass-api-reference/#global-styles
-@import "~govuk-frontend/dist/govuk/all";
-@import "@ministryofjustice/frontend/moj/components/sortable-table/sortable-table";
+@forward "@ministryofjustice/frontend/moj/components/sortable-table/sortable-table";
+@import "govuk-frontend/dist/govuk/index";
+
 
 .nojs-hidden {
   display: none;
