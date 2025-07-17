@@ -9,7 +9,8 @@ import "./css/organisation-logo.scss";
 import "./js/cookies.js";
 import "./js/handleDuplicateFormSubmissions.js";
 import jquery from "jquery";
-import moj from "@ministryofjustice/frontend";
+import { nodeListForEach } from '@ministryofjustice/frontend/moj/helpers.mjs'
+import { SortableTable } from '@ministryofjustice/frontend'
 
 initAll()
 
@@ -18,7 +19,7 @@ window.$ = jquery;
 const $sortableTables = document.querySelectorAll(
   '[data-module="moj-sortable-table"]',
 );
-moj.nodeListForEach(
+nodeListForEach(
   $sortableTables,
-  (table) => new moj.SortableTable({ table }),
+  (table) => new SortableTable({ table }),
 );

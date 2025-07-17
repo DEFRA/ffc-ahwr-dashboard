@@ -27,11 +27,11 @@
     at any time.</p>
   {% endset %}
   {{ govukCookieBanner({
-    ariaLabel: serviceName,
+    ariaLabel: "Cookies on " + serviceName,
     classes: "js-cookies-banner",
     messages: [
       {
-        headingText: serviceName,
+        headingText: "Cookies on " + serviceName,
         html: html,
         classes: "js-question-banner",
         actions: [
