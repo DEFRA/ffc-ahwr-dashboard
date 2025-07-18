@@ -4,11 +4,11 @@
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</p>
+      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</h2>
       <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{ sbi }}</p>
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</p>
+      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</h2>
       {% if attachedToMultipleBusinesses %}
         <p class="govuk-!-text-align-right">
           <a id="MBILink" href={{ hostname }}>Claim for a different business</a>
@@ -42,9 +42,9 @@
         <a class="govuk-link" rel="external noopener noreferrer" target={{ downloadedDocument | default('_self') }} href={{ downloadedDocument | default('#') }}>
           agreement summary
         </a>.</p>
-      <p class="govuk-heading-s govuk-!-static-margin-bottom-4">
+      <h2 class="govuk-heading-s govuk-!-static-margin-bottom-4">
         Agreement number: <span class="govuk-body">{{ reference }}</span>
-      </p>
+      </h2>
 
       {{ govukButton({
         text: 'Start a new claim',
@@ -62,8 +62,8 @@
 
       {% if beefClaimsRows | length %}
         <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Beef cattle</h2>
-        
-        <div class="scroll-horizontally govuk-!-margin-bottom-7 govuk-!-padding-bottom-2" style="display:block;">
+
+        <div class="moj-scrollable-pane">
           {{ govukTable({
               attributes: {
                 'data-module': 'moj-sortable-table'
@@ -73,12 +73,13 @@
             rows: beefClaimsRows,
             classes: 'fixed-layout-table'
         }) }}
+        </div>
       {% endif %}
 
       {% if dairyClaimsRows | length %}
         <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Dairy cattle</h2>
         
-        <div class="scroll-horizontally govuk-!-margin-bottom-7 govuk-!-padding-bottom-2" style="display:block;">
+        <div class="moj-scrollable-pane">
           {{ govukTable({
               attributes: {
                 'data-module': 'moj-sortable-table'
@@ -88,12 +89,13 @@
             rows: dairyClaimsRows,
             classes: 'fixed-layout-table'
         }) }}
+        </div>
       {% endif %}
 
       {% if pigClaimsRows | length %}
         <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Pigs</h2>
         
-        <div class="scroll-horizontally govuk-!-margin-bottom-7 govuk-!-padding-bottom-2" style="display:block;">
+        <div class="moj-scrollable-pane">
           {{ govukTable({
               attributes: {
                 'data-module': 'moj-sortable-table'
@@ -103,12 +105,13 @@
             rows: pigClaimsRows,
             classes: 'fixed-layout-table'
         }) }}
+        </div>
       {% endif %}
 
       {% if sheepClaimsRows | length %}
         <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Sheep</h2>
         
-        <div class="scroll-horizontally govuk-!-margin-bottom-7 govuk-!-padding-bottom-2" style="display:block;">
+        <div class="moj-scrollable-pane">
           {{ govukTable({
               attributes: {
                 'data-module': 'moj-sortable-table'
@@ -118,6 +121,7 @@
             rows: sheepClaimsRows,
             classes: 'fixed-layout-table'
         }) }}
+        </div>
       {% endif %}
 
       {% if not (beefClaimsRows.length or dairyClaimsRows.length or pigClaimsRows.length or sheepClaimsRows.length) %}
