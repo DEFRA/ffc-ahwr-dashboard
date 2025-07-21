@@ -9,6 +9,8 @@ import { downloadApplicationHandlers } from "../routes/download-application.js";
 import { vetVisitsHandlers } from "../routes/vet-visits.js";
 import { vetVisitsHandlers as vvHandlersMh } from "../routes/vet-visits-mh.js";
 import { devLoginHandlers } from "../routes/dev-sign-in.js";
+import { accessibilityRouteHandlers } from "../routes/accessibility.js";
+
 import { config } from "../config/index.js";
 
 const alwaysOnRoutes = [
@@ -20,6 +22,7 @@ const alwaysOnRoutes = [
   updateDetailsHandlers,
   signinRouteHandlers,
   downloadApplicationHandlers,
+  accessibilityRouteHandlers,
 ].flat();
 
 let routes;
