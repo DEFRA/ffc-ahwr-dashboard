@@ -1,5 +1,4 @@
 import { config } from "dotenv";
-import "@testing-library/jest-dom";
 
 process.env.EVENT_QUEUE_ADDRESS = "ffc-ahwr-test";
 process.env.APPLICATION_API_URI = "http://localhost";

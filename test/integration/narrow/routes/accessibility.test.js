@@ -1,6 +1,7 @@
 import { createServer } from "../../../../app/server";
 import { getByText, queryByText } from "@testing-library/dom";
 import globalJsdom from "global-jsdom";
+import "@testing-library/jest-dom";
 
 describe("GET /accessibility", () => {
   let server;
