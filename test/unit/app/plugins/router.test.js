@@ -27,6 +27,7 @@ describe("routes plugin test", () => {
       routePaths.push(element.path);
     });
     expect(routePaths).toEqual([
+      "/accessibility",
       "/check-details",
       "/cookies",
       "/healthy",
@@ -38,7 +39,7 @@ describe("routes plugin test", () => {
       "/assets/{path*}",
       "/download-application/{sbi}/{reference}",
       "/check-details",
-      "/cookies",
+      "/cookies"
     ]);
   });
 

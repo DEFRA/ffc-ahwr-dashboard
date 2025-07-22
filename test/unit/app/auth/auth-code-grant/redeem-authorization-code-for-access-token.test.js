@@ -5,7 +5,6 @@ import { authConfig } from "../../../../../app/config/auth.js";
 import FormData from "form-data";
 
 jest.mock("@hapi/wreck");
-jest.mock("form-data");
 jest.mock("applicationinsights", () => ({
   defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
   dispose: jest.fn(),
