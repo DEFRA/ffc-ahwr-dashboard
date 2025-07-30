@@ -2,24 +2,12 @@ import { createServer } from "../../../../app/server.js";
 import { config } from "../../../../app/config/index.js";
 
 describe("routes plugin test", () => {
-  jest.mock("../../../../app/config", () => ({
-    ...jest.requireActual("../../../../app/config"),
-    endemics: {
-      enabled: false,
-    },
-  }));
 
   beforeEach(() => {
     jest.resetModules();
   });
 
   test("routes included", async () => {
-    jest.mock("../../../../app/config", () => ({
-      ...jest.requireActual("../../../../app/config"),
-      endemics: {
-        enabled: true,
-      },
-    }));
 
     const server = await createServer();
     const routePaths = [];

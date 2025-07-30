@@ -7,7 +7,6 @@ import { updateDetailsHandlers } from "../routes/update-details.js";
 import { signinRouteHandlers } from "../routes/signin-oidc.js";
 import { downloadApplicationHandlers } from "../routes/download-application.js";
 import { vetVisitsHandlers } from "../routes/vet-visits.js";
-import { vetVisitsHandlers as vvHandlersMh } from "../routes/vet-visits-mh.js";
 import { devLoginHandlers } from "../routes/dev-sign-in.js";
 import { accessibilityRouteHandlers } from "../routes/accessibility.js";
 
@@ -23,17 +22,12 @@ const alwaysOnRoutes = [
   signinRouteHandlers,
   downloadApplicationHandlers,
   accessibilityRouteHandlers,
+  vetVisitsHandlers
 ].flat();
 
 let routes;
 const mapRoutes = () => {
   routes = alwaysOnRoutes;
-
-  if (config.multiHerds.enabled) {
-    routes = routes.concat(vvHandlersMh);
-  } else {
-    routes = routes.concat(vetVisitsHandlers);
-  }
 
   if (config.devLogin.enabled) {
     routes = routes.concat(devLoginHandlers);
