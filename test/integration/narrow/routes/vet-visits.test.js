@@ -23,7 +23,6 @@ afterAll(() => {
 });
 
 test("get /vet-visits: new world, multiple businesses", async () => {
-  config.multiHerds.enabled = true;
   const server = await createServer();
 
   const sbi = "106354662";
@@ -123,7 +122,6 @@ test("get /vet-visits: new world, multiple businesses", async () => {
 
 test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd)", async () => {
   cleanUpFunction();
-  config.multiHerds.enabled = true;
   const server = await createServer();
 
   const sbi = "106354662";
@@ -196,7 +194,6 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
 
 test("get /vet-visits: new world, claim has a herd", async () => {
   cleanUpFunction();
-  config.multiHerds.enabled = true;
   const server = await createServer();
 
   const sbi = "106354662";
@@ -299,7 +296,6 @@ test("get /vet-visits: new world, claim has a herd", async () => {
 
 test("get /vet-visits: new world, no claims made, show banner", async () => {
   cleanUpFunction();
-  config.multiHerds.enabled = true;
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
 
@@ -357,7 +353,6 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
 
 test("get /vet-visits: old world application only", async () => {
   cleanUpFunction();
-  config.multiHerds.enabled = true;
   const server = await createServer();
   const timeOfTest = new Date("2025-01-02");
 
