@@ -1,9 +1,6 @@
 import { config } from "../../config/index.js";
 
 export const showMultiHerdsBanner = (applications, claims) => {
-  if (!config.multiHerds.enabled) {
-    return false;
-  }
 
   const releaseDate = new Date(config.multiHerds.releaseDate).getTime();
 

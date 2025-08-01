@@ -14,12 +14,146 @@ import { sessionKeys } from "../session/keys.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { claimServiceUri, vetVisits } from "../config/routes.js";
 import { config } from "../config/index.js";
-import { userNeedsNotification } from "./utils/user-needs-notification.js";
+import { showMultiHerdsBanner } from "./utils/show-multi-herds-banner.js";
 
 const { latestTermsAndConditionsUri } = config;
 
 const pageUrl = `/${vetVisits}`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`;
+const centringClass = "vertical-middle";
+
+const createRowsForTable = (claims) => {
+  const env = nunjucks.configure([
+    "app/views/snippets",
+    "node_modules/govuk-frontend/dist",
+  ]);
+
+  return claims.map((claim) => {
+    const newClaimVisitDate = claim.data.dateOfVisit;
+    const oldClaimVisitDate = claim.data.visitDate;
+    const dateOfVisit = new Date(newClaimVisitDate || oldClaimVisitDate);
+    const formattedDateOfVisit = dateOfVisit.toLocaleString("en-gb", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    const claimTypeText =
+      (claim.data.claimType ?? claimType.review) === "R"
+        ? "Review"
+        : "Follow-up";
+    const herdName =
+      claim.herd?.herdName ??
+      (claim.data.typeOfLivestock === "sheep"
+        ? "Unnamed flock"
+        : "Unnamed herd");
+
+    return [
+      {
+        text: formattedDateOfVisit,
+        attributes: {
+          "data-sort-value": dateOfVisit.getTime(),
+        },
+        classes: centringClass,
+      },
+      {
+        text: herdName,
+        classes: centringClass,
+      },
+      {
+        html: `<div>
+                <p class="govuk-!-margin-0">${claimTypeText}</p>
+                <p class="govuk-caption-m govuk-!-margin-0">${claim.reference}</p>
+              </div>`,
+      },
+      {
+        html: env.render("tag.njk", { status: claim.statusId }),
+        classes: centringClass,
+      },
+    ];
+  });
+};
+
+const buildClaimRowsPerSpecies = (allClaims, isOldWorld) => {
+  const beefClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "beef",
+    ),
+  );
+  const dairyClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "dairy",
+    ),
+  );
+  const pigClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "pigs",
+    ),
+  );
+  const sheepClaimsRows = createRowsForTable(
+    allClaims.filter(
+      (claim) =>
+        (isOldWorld ? claim.data.whichReview : claim.data.typeOfLivestock) ===
+        "sheep",
+    ),
+  );
+
+  return { beefClaimsRows, dairyClaimsRows, pigClaimsRows, sheepClaimsRows };
+};
+
+const buildTableHeaders = () => {
+  const sharedTableHeaders = [
+    {
+      text: "Visit date",
+      attributes: {
+        "aria-sort": "descending",
+      },
+      classes: "col-19",
+    },
+    {
+      text: "Type and claim number",
+      attributes: {
+        "aria-sort": "none",
+      },
+      classes: "col-25",
+    },
+    {
+      text: "Status",
+      attributes: {
+        "aria-sort": "none",
+      },
+      classes: "col-12",
+    },
+  ];
+
+  const sheepHeaders = [...sharedTableHeaders];
+
+  sheepHeaders.splice(1, 0, {
+    text: "Flock name",
+    attributes: {
+      "aria-sort": "none",
+    },
+    classes: "col-44",
+  });
+
+  const nonSheepHeaders = [...sharedTableHeaders];
+
+  nonSheepHeaders.splice(1, 0, {
+    text: "Herd name",
+    attributes: {
+      "aria-sort": "none",
+    },
+    classes: "col-44",
+  });
+
+  return { sheepHeaders, nonSheepHeaders };
+};
 
 export const vetVisitsHandlers = [
   {
@@ -50,6 +184,7 @@ export const vetVisitsHandlers = [
               request.logger,
             )
           : [];
+
         const vetVisitApplicationsWithinLastTenMonths =
           vetVisitApplications.filter((application) =>
             isWithinLastTenMonths(application?.data?.visitDate),
@@ -59,42 +194,14 @@ export const vetVisitsHandlers = [
           ...vetVisitApplicationsWithinLastTenMonths,
         ];
 
-        const env = nunjucks.configure([
-          "app/views/snippets",
-          "node_modules/govuk-frontend/dist",
-        ]);
+        const isOldWorld = !latestEndemicsApplication;
 
-        const claimsRows = allClaims.map((claim) => {
-          const newClaimVisitDate = claim.data.dateOfVisit;
-          const oldClaimVisitDate = claim.data.visitDate;
-          const dateOfVisit = new Date(newClaimVisitDate || oldClaimVisitDate);
-          const formattedDateOfVisit = dateOfVisit.toLocaleString("en-gb", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-
-          return [
-            {
-              text: formattedDateOfVisit,
-              attributes: {
-                "data-sort-value": dateOfVisit.getTime(),
-              },
-            },
-            {
-              text: env.render("species.njk", {
-                species: claim.data.typeOfLivestock ?? claim.data.whichReview,
-              }),
-            },
-            {
-              text: env.render("claim-type.njk", {
-                claimType: claim.data.claimType ?? claimType.review,
-              }),
-            },
-            { text: claim.reference },
-            { html: env.render("tag.njk", { status: claim.statusId }) },
-          ];
-        });
+        const {
+          beefClaimsRows,
+          dairyClaimsRows,
+          pigClaimsRows,
+          sheepClaimsRows,
+        } = buildClaimRowsPerSpecies(allClaims, isOldWorld);
 
         setEndemicsClaim(
           request,
@@ -105,16 +212,25 @@ export const vetVisitsHandlers = [
 
         const showNotificationBanner =
           Boolean(latestEndemicsApplication) &&
-          userNeedsNotification(applications, claims);
+          showMultiHerdsBanner(applications, claims);
+
+        const { sheepHeaders, nonSheepHeaders } = buildTableHeaders();
 
         return h.view(vetVisits, {
-          claimsRows,
+          beefClaimsRows,
+          dairyClaimsRows,
+          pigClaimsRows,
+          sheepClaimsRows,
+          headers: {
+            sheepHeaders,
+            nonSheepHeaders,
+          },
           showNotificationBanner,
           attachedToMultipleBusinesses,
           claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
           ...organisation,
           ...(latestEndemicsApplication?.reference && {
-            reference: latestEndemicsApplication?.reference,
+            reference: latestEndemicsApplication.reference,
           }),
           ...(latestEndemicsApplication?.reference && { downloadedDocument }),
           ...(attachedToMultipleBusinesses && {

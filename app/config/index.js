@@ -54,12 +54,6 @@ export const getConfig = () => {
     applyServiceUri: joi.string().uri(),
     serviceName: joi.string(),
     useRedis: joi.boolean(),
-    ruralPaymentsAgency: {
-      loginUri: joi.string().uri(),
-      callChargesUri: joi.string().uri(),
-      email: joi.string().email(),
-      telephone: joi.string(),
-    },
     customerSurvey: {
       uri: joi.string().uri().optional(),
     },
@@ -76,7 +70,6 @@ export const getConfig = () => {
     latestTermsAndConditionsUri: joi.string().required(),
     reapplyTimeLimitMonths: joi.number(),
     multiHerds: joi.object({
-      enabled: joi.boolean().required(),
       releaseDate: joi.string().required(),
     }),
   });
@@ -124,12 +117,6 @@ export const getConfig = () => {
     applyServiceUri: process.env.APPLY_SERVICE_URI,
     useRedis: process.env.NODE_ENV !== "test",
     serviceName: "Get funding to improve animal health and welfare",
-    ruralPaymentsAgency: {
-      loginUri: "https://www.ruralpayments.service.gov.uk",
-      callChargesUri: "https://www.gov.uk/call-charges",
-      email: "ruralpayments@defra.gov.uk",
-      telephone: "03000 200 301",
-    },
     customerSurvey: {
       uri: process.env.CUSTOMER_SURVEY_CLAIM_URI,
     },
@@ -149,7 +136,6 @@ export const getConfig = () => {
     latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
     reapplyTimeLimitMonths: 10,
     multiHerds: {
-      enabled: process.env.MULTI_HERDS_ENABLED === "true",
       releaseDate: process.env.MULTI_HERDS_RELEASE_DATE || "2025-05-01",
     },
   };

@@ -9,7 +9,7 @@ beforeEach(() => {
   jest.resetAllMocks();
 });
 
-test("user has no applications, so we shouldnt show the banner", () => {
+test("user has no applications, so we shouldn't show the banner", () => {
   const applications = [];
   const claims = [];
 
@@ -40,7 +40,7 @@ test("user applied before MH was released and their last claim was before MH was
   expect(result).toBe(true);
 });
 
-test("user applied before MH was released and their most recent claim was after MH was released, so we shouldnt show the banner", () => {
+test("user applied before MH was released and their most recent claim was after MH was released, so we shouldn't show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-03" }];
@@ -51,7 +51,7 @@ test("user applied before MH was released and their most recent claim was after 
   expect(result).toBe(false);
 });
 
-test("user applied after MH was released, and has no claims yet, so we shouldnt show the banner", () => {
+test("user applied after MH was released, and has no claims yet, so we shouldn't show the banner", () => {
   jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
 
   const applications = [{ createdAt: "2024-12-05" }];
@@ -62,14 +62,3 @@ test("user applied after MH was released, and has no claims yet, so we shouldnt 
   expect(result).toBe(false);
 });
 
-test("user applied before MH was released, has no claims, but MH is disabled", () => {
-  multiHerds.enabled = false;
-  jest.replaceProperty(multiHerds, "releaseDate", "2024-12-04");
-
-  const applications = [{ createdAt: "2024-12-03" }];
-  const claims = [];
-
-  const result = showMultiHerdsBanner(applications, claims);
-
-  expect(result).toBe(false);
-});

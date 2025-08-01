@@ -4,11 +4,11 @@
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</p>
+      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</h2>
       <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{ sbi }}</p>
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</p>
+      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</h2>
       {% if attachedToMultipleBusinesses %}
         <p class="govuk-!-text-align-right">
           <a id="MBILink" href={{ hostname }}>Claim for a different business</a>
@@ -21,89 +21,126 @@
     {% if showNotificationBanner %}
       {% set html %}
         <p class="govuk-notification-banner__heading">
-          You can now claim for more than one species.
+          You can now claim for more than one herd or flock of any species.
         </p>
       {% endset %}
+      <div class="two-thirds-width">
       {{ govukNotificationBanner({
         html: html
       }) }}
+    </div>
     {% endif %}
+
     <h1 class="govuk-heading-xl">Manage your claims</h1>
-    <p>
-      Start a new claim or view and manage your current claims.
-      We recommend you claim in order of the visits. Download your
-      <a class="govuk-link" rel="external noopener noreferrer" target={{ downloadedDocument | default('_self') }} href={{ downloadedDocument | default('#') }}>
-        agreement summary
-      </a>.
-    <p>
-    <p class="govuk-caption-l govuk-!-static-margin-bottom-4">
-      Agreement number: <span class="govuk-!-font-weight-bold">{{ reference }}</span>
-    </p>
-    {{ govukButton({
-      text: 'Start a new claim',
-      href: claimServiceRedirectUri,
-      preventDoubleClick: true,
-      attributes: {
-        id: "start"
-      }
-    }) }}
-    <hr class="govuk-section-break govuk-section-break--m">
-    <h2 class="govuk-heading-m govuk-!-static-margin-top-2">View your claims</h2>
-    {% if claimsRows | length %}
-    <div class="scroll-horizontally govuk-!-margin-bottom-7 govuk-!-padding-bottom-2" style="display:block;">
-      {{ govukTable({
+
+    <div class="govuk-grid-column-two-thirds govuk-!-padding-0">
+      <p>
+        Start a new claim or view and manage your current claims.
+        We recommend you claim in order of the visits.
+      <p>
+      <p>Download your
+        <a class="govuk-link" rel="external noopener noreferrer" target={{ downloadedDocument | default('_self') }} href={{ downloadedDocument | default('#') }}>
+          agreement summary
+        </a>.</p>
+      <h2 class="govuk-heading-s govuk-!-static-margin-bottom-4">
+        Agreement number: <span class="govuk-body">{{ reference }}</span>
+      </h2>
+
+      {{ govukButton({
+        text: 'Start a new claim',
+        href: claimServiceRedirectUri,
+        preventDoubleClick: true,
         attributes: {
-          'data-module': 'moj-sortable-table'
-        },
-        firstCellIsHeader: false,
-        head: [
-          {
-            text: 'Visit date',
-            attributes: {
-              'aria-sort': 'descending'
-            }
-          },
-          {
-            text: 'Species',
-            attributes: {
-              'aria-sort': 'none'
-            }
-          },
-          {
-            text: 'Type',
-            attributes: {
-              'aria-sort': 'none'
-            }
-          },
-          {
-            text: 'Claim number',
-            attributes: {
-              'aria-sort': 'none'
-            }
-          },
-          {
-            text: 'Status',
-            attributes: {
-              'aria-sort': 'none'
-            }
-          }
-        ],
-        rows: claimsRows,
-        classes: 'govuk-!-margin-bottom-0 govuk-!-padding-bottom-0'
+          id: "start"
+        }
       }) }}
     </div>
-    {% else %}
-      <p class="govuk-caption-m">Once you have submitted a claim, it will appear here.</p>
-    {% endif %}
+    
     <hr class="govuk-section-break govuk-section-break--m">
-    <h2 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h2>
-    <ul class="govuk-list">
-      <li>
-        <a class="govuk-link" rel="external" href="https://www.gov.uk/government/collections/funding-to-improve-animal-health-and-welfare-guidance-for-farmers-and-vets">Guidance for funding to improve animal health and welfare</a>
-      </li>
-      <li>
-        <a class="govuk-link" rel="external" href={{ latestTermsAndConditionsUri }}>Terms and conditions</a>
-      </li>
-    </ul>
+
+    <div class="govuk-grid-column-full govuk-!-padding-0">
+
+      {% if beefClaimsRows | length %}
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Beef cattle</h2>
+
+        <div>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: headers.nonSheepHeaders,
+            rows: beefClaimsRows,
+            classes: 'fixed-layout-table'
+        }) }}
+        </div>
+      {% endif %}
+
+      {% if dairyClaimsRows | length %}
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Dairy cattle</h2>
+        
+        <div>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: headers.nonSheepHeaders,
+            rows: dairyClaimsRows,
+            classes: 'fixed-layout-table'
+        }) }}
+        </div>
+      {% endif %}
+
+      {% if pigClaimsRows | length %}
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Pigs</h2>
+        
+        <div>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: headers.nonSheepHeaders,
+            rows: pigClaimsRows,
+            classes: 'fixed-layout-table'
+        }) }}
+        </div>
+      {% endif %}
+
+      {% if sheepClaimsRows | length %}
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Sheep</h2>
+        
+        <div>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: headers.sheepHeaders,
+            rows: sheepClaimsRows,
+            classes: 'fixed-layout-table'
+        }) }}
+        </div>
+      {% endif %}
+
+      {% if not (beefClaimsRows.length or dairyClaimsRows.length or pigClaimsRows.length or sheepClaimsRows.length) %}
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Your claims</h2>
+        <p class="govuk-caption-m">Your claims will appear here once you have submitted them.</p>
+      {% endif %}
+      
+    </div>
+    <div class="govuk-grid-column-full govuk-!-padding-0">
+      <hr class="govuk-section-break govuk-section-break--m">
+      <h2 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h2>
+      <ul class="govuk-list">
+        <li>
+          <a class="govuk-link" rel="external" href="https://www.gov.uk/government/collections/funding-to-improve-animal-health-and-welfare-guidance-for-farmers-and-vets">Guidance for funding to improve animal health and welfare</a>
+        </li>
+        <li>
+          <a class="govuk-link" rel="external" href={{ latestTermsAndConditionsUri }}>Terms and conditions</a>
+        </li>
+      </ul>
+    </div>
   </div>
 {% endblock %}
