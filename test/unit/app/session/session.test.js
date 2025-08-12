@@ -157,22 +157,6 @@ describe("session", () => {
     });
   });
 
-  describe("SelectYourBusiness", () => {
-    test("set called with correct variables", () => {
-      const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };
-      session.setSelectYourBusiness(request, "test key", "test value");
-      expect(yarMock.set).toHaveBeenCalledWith("selectYourBusiness", {
-        "test key": "test value",
-      });
-    });
-
-    test("get called with correct variables", () => {
-      const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };
-      session.getSelectYourBusiness(request, "test key");
-      expect(yarMock.get).toHaveBeenCalledWith("selectYourBusiness");
-    });
-  });
-
   describe("Token", () => {
     test("set called with correct variables", () => {
       const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };

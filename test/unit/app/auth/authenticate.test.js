@@ -14,7 +14,6 @@ import { verify } from "jsonwebtoken";
 const { when, resetAllWhenMocks } = require("jest-when");
 
 const MOCK_NOW = new Date();
-const MOCK_COOKIE_AUTH_SET = jest.fn();
 
 jest.mock("../../../../app/session");
 jest.mock("@hapi/wreck");
@@ -80,10 +79,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
-          },
+          }
         },
       },
       when: {
@@ -127,10 +123,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
-          },
+          }
         },
       },
       when: {
@@ -176,9 +169,6 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
           },
         },
       },
@@ -244,13 +234,6 @@ describe("authenticate", () => {
     when(jwktopem)
       .calledWith(testCase.when.acquiredSigningKey)
       .mockReturnValue(testCase.when.jwktopem);
-    // when(MOCK_JWT_VERIFY)
-    //   .calledWith(
-    //     testCase.when.redeemResponse.payload.access_token,
-    //     'public_key',
-    //     { algorithms: ['RS256'], ignoreNotBefore: true }
-    //   )
-    //   .mockResolvedValue('verified')
     when(getToken)
       .calledWith(testCase.given.request, sessionKeys.tokens.nonce)
       .mockReturnValue("123");
@@ -262,7 +245,6 @@ describe("authenticate", () => {
 
       expect(setToken).toHaveBeenCalledTimes(0);
       expect(setCustomer).toHaveBeenCalledTimes(0);
-      expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledTimes(0);
     } else {
       await authenticate(testCase.given.request);
 
@@ -291,22 +273,6 @@ describe("authenticate", () => {
         sessionKeys.customer.attachedToMultipleBusinesses,
         false,
       );
-      expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledWith({
-        account: {
-          email: "john.doe@email.com",
-          name: "John Doe",
-        },
-        scope: {
-          roleNames: ["Agent"],
-          roles: [
-            {
-              relationshipId: "5384769",
-              roleName: "Agent",
-              status: "3",
-            },
-          ],
-        },
-      });
     }
   });
 });

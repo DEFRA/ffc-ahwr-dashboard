@@ -74,14 +74,6 @@ export function getFarmerApplyData(request, key) {
   return get(request, entries.farmerApplyData, key);
 }
 
-export function setSelectYourBusiness(request, key, value) {
-  set(request, entries.selectYourBusiness, key, value);
-}
-
-export function getSelectYourBusiness(request, key) {
-  return get(request, entries.selectYourBusiness, key);
-}
-
 export function setToken(request, key, value) {
   set(request, entries.tokens, key, value);
 }

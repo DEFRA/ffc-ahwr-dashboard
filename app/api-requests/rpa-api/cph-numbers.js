@@ -1,7 +1,6 @@
 import { get } from "./base.js";
 import { getCustomer } from "../../session/index.js";
 import { sessionKeys } from "../../session/keys.js";
-
 import { authConfig } from "../../config/auth.js";
 
 export const getCphNumbers = async (request, apimAccessToken) => {
