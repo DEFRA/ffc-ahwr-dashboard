@@ -14,7 +14,6 @@ import { verify } from "jsonwebtoken";
 const { when, resetAllWhenMocks } = require("jest-when");
 
 const MOCK_NOW = new Date();
-const MOCK_COOKIE_AUTH_SET = jest.fn();
 
 jest.mock("../../../../app/session");
 jest.mock("@hapi/wreck");
@@ -80,10 +79,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
-          },
+          }
         },
       },
       when: {
@@ -127,10 +123,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
-          },
+          }
         },
       },
       when: {
@@ -176,9 +169,6 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          },
-          cookieAuth: {
-            set: MOCK_COOKIE_AUTH_SET,
           },
         },
       },
@@ -255,7 +245,6 @@ describe("authenticate", () => {
 
       expect(setToken).toHaveBeenCalledTimes(0);
       expect(setCustomer).toHaveBeenCalledTimes(0);
-      expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledTimes(0);
     } else {
       await authenticate(testCase.given.request);
 
