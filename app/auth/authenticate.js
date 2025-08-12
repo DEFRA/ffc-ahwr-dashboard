@@ -7,7 +7,6 @@ import { toISOString } from "./auth-code-grant/expires-in.js";
 import { jwtVerifyIss } from "./token-verify/jwt-verify-iss.js";
 import { redeemAuthorizationCodeForAccessToken } from "./auth-code-grant/redeem-authorization-code-for-access-token.js";
 import { setCustomer, setToken } from "../session/index.js";
-import { set as setCookieAuth } from "./cookie-auth/cookie-auth.js";
 import { sessionKeys } from "../session/keys.js";
 
 export const authenticate = async (request) => {
@@ -43,8 +42,4 @@ export const authenticate = async (request) => {
     typeof accessToken.enrolmentCount !== "undefined" &&
       accessToken.enrolmentCount > 1,
   );
-
-  setCookieAuth(request, accessToken);
-
-  return accessToken;
 };

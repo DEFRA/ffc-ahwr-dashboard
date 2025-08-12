@@ -244,13 +244,6 @@ describe("authenticate", () => {
     when(jwktopem)
       .calledWith(testCase.when.acquiredSigningKey)
       .mockReturnValue(testCase.when.jwktopem);
-    // when(MOCK_JWT_VERIFY)
-    //   .calledWith(
-    //     testCase.when.redeemResponse.payload.access_token,
-    //     'public_key',
-    //     { algorithms: ['RS256'], ignoreNotBefore: true }
-    //   )
-    //   .mockResolvedValue('verified')
     when(getToken)
       .calledWith(testCase.given.request, sessionKeys.tokens.nonce)
       .mockReturnValue("123");
@@ -291,22 +284,6 @@ describe("authenticate", () => {
         sessionKeys.customer.attachedToMultipleBusinesses,
         false,
       );
-      expect(MOCK_COOKIE_AUTH_SET).toHaveBeenCalledWith({
-        account: {
-          email: "john.doe@email.com",
-          name: "John Doe",
-        },
-        scope: {
-          roleNames: ["Agent"],
-          roles: [
-            {
-              relationshipId: "5384769",
-              roleName: "Agent",
-              status: "3",
-            },
-          ],
-        },
-      });
     }
   });
 });
