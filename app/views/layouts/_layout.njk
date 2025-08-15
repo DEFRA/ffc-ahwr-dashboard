@@ -19,12 +19,17 @@
 {% from "govuk/components/fieldset/macro.njk"            import govukFieldset %}
 {% from "govuk/components/inset-text/macro.njk"          import govukInsetText %}
 {% from "govuk/components/error-summary/macro.njk"       import govukErrorSummary %}
+{% from "govuk/components/service-navigation/macro.njk"  import govukServiceNavigation %}
 
 {% from "../macros/rpa-contact-details.njk"              import rpaContactDetails %}
+
+{% set govukRebrand = true %}
 
 {% block pageTitle %}{{ serviceName }} - GOV.UK{% endblock %}
 
 {% block head %}
+  <link rel="icon" sizes="48x48" href="/assets/rebrand/images/favicon.ico">
+  <link rel="icon" sizes="any" href="/assets/rebrand/images/favicon.svg" type="image/svg+xml">
   {% if cookiesPolicy.analytics %}
     {% include "../tag-manager/_head-content.njk" %}
   {% endif %}
@@ -42,8 +47,11 @@
 
 {% block header %}
   {{ govukHeader({
+    rebrand: true,
     homepageUrl: "https://www.gov.uk/",
-    containerClasses: "govuk-width-container",
+    containerClasses: "govuk-width-container"
+  }) }}
+  {{ govukServiceNavigation({
     serviceName: serviceName,
     serviceUrl: serviceUrl
   }) }}
@@ -85,6 +93,7 @@
 
 {% block footer %}
   {{ govukFooter({
+    rebrand: true,
     meta: {
       html: footerHtml
     }
