@@ -53,8 +53,15 @@
   }) }}
   {{ govukServiceNavigation({
     serviceName: serviceName,
-    serviceUrl: serviceUrl
-  }) }}
+    serviceUrl: serviceUrl,
+    navigation: [
+      {
+        href: "/vets-visits",
+        text: "Manage your claims",
+        active: true
+      }]
+    }) 
+  }}
   <div class="govuk-grid-row govuk-width-container">
     {{ govukPhaseBanner({
       tag: {
