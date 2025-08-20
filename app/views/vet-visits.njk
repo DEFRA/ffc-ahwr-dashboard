@@ -1,6 +1,8 @@
 {% extends './layouts/layout.njk' %}
 {% block pageTitle %}Manage your claims - {{ serviceName }} - GOV.UK{% endblock %}
 
+{% set spanText = "(column headers with buttons are sortable by ascending or descending order)." %}
+
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
@@ -61,7 +63,9 @@
     <div class="govuk-grid-column-full govuk-!-padding-0">
 
       {% if beefClaimsRows | length %}
-        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Beef cattle</h2>
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">
+          Beef cattle <span class="govuk-visually-hidden">{{spanText}}</span>
+        </h2>
 
         <div>
           {{ govukTable({
@@ -77,7 +81,9 @@
       {% endif %}
 
       {% if dairyClaimsRows | length %}
-        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Dairy cattle</h2>
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">
+          Dairy cattle <span class="govuk-visually-hidden">{{spanText}}</span>
+        </h2>
         
         <div>
           {{ govukTable({
@@ -93,7 +99,9 @@
       {% endif %}
 
       {% if pigClaimsRows | length %}
-        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Pigs</h2>
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">
+          Pigs <span class="govuk-visually-hidden">{{spanText}}</span>
+        </h2>
         
         <div>
           {{ govukTable({
@@ -109,7 +117,9 @@
       {% endif %}
 
       {% if sheepClaimsRows | length %}
-        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Sheep</h2>
+        <h2 class="govuk-heading-m govuk-!-static-margin-top-2">
+          Sheep <span class="govuk-visually-hidden">{{spanText}}</span>
+        </h2>
         
         <div>
           {{ govukTable({
