@@ -16,7 +16,7 @@ export function getPersonName(personSummary) {
 
 function parsedAccessToken(request) {
   const accessToken = getToken(request, sessionKeys.tokens.accessToken);
-  return decodeJwt(accessToken);
+  return decodeJwt(accessToken); //why?? It's already in session at sessionKeys.customer.crn
 }
 
 export const getPersonSummary = async (request, apimAccessToken) => {

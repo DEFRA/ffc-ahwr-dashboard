@@ -26,13 +26,14 @@ export const changeContactHistory = async (
   logger,
 ) => {
   const currentAddress = getOrganisationAddress(organisationSummary.address);
+  //Do we really need the below to be in a separate function? Surely one function can construct the request and send it
   await updateContactHistory(
     {
       farmerName: getPersonName(personSummary),
       orgEmail: organisationSummary.email,
       email: personSummary.email
         ? personSummary.email
-        : organisationSummary.email,
+        : organisationSummary.email, //simplify
       sbi: organisationSummary.sbi,
       address: currentAddress,
       user: "admin",

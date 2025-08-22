@@ -20,26 +20,9 @@ export const authenticate = async (request) => {
   await jwtVerifyIss(accessToken.iss);
   verifyNonce(request, idToken);
 
-  setToken(
-    request,
-    sessionKeys.tokens.accessToken,
-    redeemResponse.access_token,
-  );
-  setToken(
-    request,
-    sessionKeys.tokens.tokenExpiry,
-    toISOString(redeemResponse.expires_in),
-  );
-  setCustomer(request, sessionKeys.customer.crn, accessToken.contactId);
-  setCustomer(
-    request,
-    sessionKeys.customer.organisationId,
-    accessToken.currentRelationshipId,
-  );
-  setCustomer(
-    request,
-    sessionKeys.customer.attachedToMultipleBusinesses,
-    typeof accessToken.enrolmentCount !== "undefined" &&
-      accessToken.enrolmentCount > 1,
-  );
+  setToken(request,sessionKeys.tokens.accessToken,redeemResponse.access_token);
+  setToken(request, sessionKeys.tokens.tokenExpiry,toISOString(redeemResponse.expires_in));
+  setCustomer(request, sessionKeys.customer.crn, accessToken.contactId);      //Note we store this here, but still try and parse it again later direct from token
+  setCustomer(request, sessionKeys.customer.organisationId, accessToken.currentRelationshipId); //and this one, this is parsed again later from token
+  setCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses,  typeof accessToken.enrolmentCount !== "undefined" && accessToken.enrolmentCount > 1);
 };

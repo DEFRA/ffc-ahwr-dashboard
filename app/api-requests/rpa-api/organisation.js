@@ -84,8 +84,9 @@ export const organisationIsEligible = async (
   personId,
   apimAccessToken,
 ) => {
-  apimToken = apimAccessToken;
+  apimToken = apimAccessToken; //this is assigning the token to a variable for use in other functions, but what if two users signing in at same time? Seems like a potential concurrency issue
   const organisationId = parsedAccessToken(request).currentRelationshipId;
+  // 2 remote calls here. We could actually use a Promise.All to do these at same time, no need to be sequential
   const organisationPermission = await organisationHasPermission(
     request,
     validPermissions,
