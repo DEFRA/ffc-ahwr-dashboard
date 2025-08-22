@@ -20,11 +20,12 @@ export function getRedirectPath(latestApplicationsForSbi, loginSource, sbi) {
     } else {
       // show the 'You need to complete an endemics application' error page
       throw new NoEndemicsAgreementError(
-        `Business with SBI ${sbi} must complete an endemics agreement`,
+        `Business with SBI ${sbi} must complete an endemics agreement`,  //maybe one to talk about. User has no application in DB at all, we're showing an error here if they came in viaq dashboard or claim journey. Why don;t we just forward to apply journey?
       );
     }
   }
 
+  //if they have an application,and it's new world...
   const latestApplication = latestApplicationsForSbi[0];
   if (latestApplication.type === applicationType.ENDEMICS) {
     if (latestApplication.statusId === viewStatus.AGREED) {
@@ -34,6 +35,7 @@ export function getRedirectPath(latestApplicationsForSbi, loginSource, sbi) {
     }
   }
 
+  //otherwise if it's old world the rest of these checks apply
   if (closedViewStatuses.includes(latestApplication.statusId)) {
     if (loginSource === loginSources.apply) {
       // send to endemics apply journey
