@@ -24,6 +24,7 @@ export const viewContextPlugin = {
           ctx.claimServiceUri = claimServiceUri;
           ctx.serviceUri = serviceUri;
           ctx.customerSurveyUri = customerSurvey.uri;
+          ctx.userIsSignedIn = request.auth.isAuthenticated;
 
           response.source.context = ctx;
         }

@@ -51,10 +51,17 @@
     homepageUrl: "https://www.gov.uk/",
     containerClasses: "govuk-width-container"
   }) }}
+
+  {% set nav = [] %}
+
+  {% if userIsSignedIn %}
+    {% set nav = [{ href: "/sign-out", text: 'Sign out' }] %}
+  {% endif %}
+
   {{ govukServiceNavigation({
     serviceName: serviceName,
     serviceUrl: serviceUrl,
-    navigation: [{ href: "/sign-out", text: 'Sign out' }]
+    navigation: nav
   }) 
   }}
   <div class="govuk-grid-row govuk-width-container">
