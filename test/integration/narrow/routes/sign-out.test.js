@@ -3,6 +3,7 @@ import { createServer } from "../../../../app/server.js";
 import { getToken, clearAllOfSession } from "../../../../app/session/index.js";
 import { clearAuthCookie } from "../../../../app/auth/cookie-auth/cookie-auth.js";
 import { claimServiceUri } from "../../../../app/config/routes.js";
+import { signOutUrl } from "../../../../app/routes/sign-out.js";
 
 jest.mock("../../../../app/session/index.js");
 jest.mock("../../../../app/auth/cookie-auth/cookie-auth.js");
@@ -15,7 +16,8 @@ describe("GET /sign-out handler", () => {
   });
 
   test("get /sign-out", async () => {
-    getToken.mockResolvedValueOnce("access-token");
+    const accessToken = "access-token";
+    getToken.mockReturnValue(accessToken);
 
     const res = await server.inject({
       url: "/sign-out",
@@ -33,8 +35,9 @@ describe("GET /sign-out handler", () => {
     const url = new URL(res.headers.location);
     const { searchParams } = url;
 
-    expect(url.origin).toBe("https://dcidmtest.b2clogin.com");
+    expect(url.href).toContain(signOutUrl);
     expect(url.pathname).toMatch(/\/oauth2\/v2\.0\/logout$/);
     expect(searchParams.get("post_logout_redirect_uri")).toBe(claimServiceUri);
+    expect(searchParams.get("id_token_hint")).toBe(accessToken);
   });
 });
