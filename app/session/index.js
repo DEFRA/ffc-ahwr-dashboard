@@ -50,6 +50,10 @@ export function clear(request) {
   request.yar.clear(entries.returnRoute);
 }
 
+export function clearAllOfSession(request) {
+  Object.values(entries).forEach(value => request.yar.clear(value))
+}
+
 export function setApplication(request, key, value) {
   set(request, entries.application, key, value);
 }

@@ -30,9 +30,7 @@ export const changeContactHistory = async (
     {
       farmerName: getPersonName(personSummary),
       orgEmail: organisationSummary.email,
-      email: personSummary.email
-        ? personSummary.email
-        : organisationSummary.email,
+      email: personSummary.email ?? organisationSummary.email,
       sbi: organisationSummary.sbi,
       address: currentAddress,
       user: "admin",

@@ -24,14 +24,12 @@ export const authPlugin = {
         redirectTo: (request) => {
           return requestAuthorizationCodeUrl(request);
         },
-        validateFunc: async (request, s) => {
-          const result = { valid: false };
-
-          if (getEndemicsClaim(request, organisationKey)) {
-            result.valid = true;
+        validateFunc: async (request) => {
+          if (config.devLogin.enabled && getEndemicsClaim(request, organisationKey)) {
+            return { valid: true }
           }
 
-          return result;
+          return { valid: request.auth.isAuthenticated }
         },
       });
       server.auth.default({ strategy: "session", mode: "required" });

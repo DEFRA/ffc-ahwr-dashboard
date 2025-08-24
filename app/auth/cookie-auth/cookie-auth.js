@@ -1,4 +1,4 @@
-export const clear = (request) => {
+export const clearAuthCookie = (request) => {
   request.cookieAuth.clear();
 };
 
