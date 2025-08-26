@@ -24,14 +24,8 @@ export const authPlugin = {
         redirectTo: (request) => {
           return requestAuthorizationCodeUrl(request);
         },
-        validateFunc: async (request, s) => {
-          const result = { valid: false };
-
-          if (getEndemicsClaim(request, organisationKey)) {
-            result.valid = true;
-          }
-
-          return result;
+        validateFunc: async (request) => {
+          return { valid: Boolean(getEndemicsClaim(request, organisationKey)) }
         },
       });
       server.auth.default({ strategy: "session", mode: "required" });

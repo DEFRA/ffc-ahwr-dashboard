@@ -20,6 +20,7 @@ describe("routes plugin test", () => {
       "/cookies",
       "/healthy",
       "/healthz",
+      "/sign-out",
       "/signin-oidc",
       "/update-details",
       "/vet-visits",

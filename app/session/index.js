@@ -13,16 +13,6 @@ export const entries = {
   returnRoute: "returnRoute",
 };
 
-export function lacksAny(request, entryKey, keys) {
-  let result = false;
-  keys.forEach((key) => {
-    if (!get(request, entryKey, key)) {
-      result = true;
-    }
-  });
-  return result;
-}
-
 function set(request, entryKey, key, value) {
   const entryValue = request.yar?.get(entryKey) || {};
   entryValue[key] = typeof value === "string" ? value.trim() : value;
@@ -48,6 +38,10 @@ export function clear(request) {
   request.yar.clear(entries.selectYourBusiness);
   request.yar.clear(entries.customer);
   request.yar.clear(entries.returnRoute);
+}
+
+export function clearAllOfSession(request) {
+  Object.values(entries).forEach(value => request.yar.clear(value))
 }
 
 export function setApplication(request, key, value) {
