@@ -25,11 +25,7 @@ export const authPlugin = {
           return requestAuthorizationCodeUrl(request);
         },
         validateFunc: async (request) => {
-          if (config.devLogin.enabled && getEndemicsClaim(request, organisationKey)) {
-            return { valid: true }
-          }
-
-          return { valid: request.auth.isAuthenticated }
+          return { valid: Boolean(getEndemicsClaim(request, organisationKey)) }
         },
       });
       server.auth.default({ strategy: "session", mode: "required" });

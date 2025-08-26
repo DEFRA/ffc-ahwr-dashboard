@@ -19,6 +19,7 @@ export const viewContextPlugin = {
           if (path.startsWith("/cookies")) {
             serviceUrl = "/cookies";
           }
+
           ctx.serviceName = serviceName;
           ctx.serviceUrl = serviceUrl;
           ctx.claimServiceUri = claimServiceUri;
