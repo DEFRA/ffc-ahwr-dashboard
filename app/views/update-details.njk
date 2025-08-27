@@ -1,12 +1,12 @@
 {% extends './layouts/layout.njk' %}
 
-{% block pageTitle %}Update you details - {{ serviceName }} - GOV.UK{% endblock %}
+{% block pageTitle %}Update your details - {{ serviceName }} - GOV.UK{% endblock %}
 
 {% block beforeContent %}
   {{ govukBackLink({
     text: "Back",
     href: "/check-details",
-	  attributes: {id: "back"}
+	  attributes: { id: "back" }
   }) }}
 {% endblock %}
 
