@@ -39,6 +39,10 @@ describe("raiseEvent function", () => {
     PublishEvent.mockClear();
   });
 
+  afterAll(() => {
+    jest.resetAllMocks();
+  })
+
   test("should instantiate PublishEvent with the correct queue", async () => {
     await raiseEvent(testEvent);
 

@@ -40,6 +40,7 @@ export const getOrganisation = (request, organisation, errorText) => {
       value: { html: formatAddressForDisplay(organisation) },
     },
   ];
+
   return {
     backLink: {
       href: requestAuthorizationCodeUrl(request, returnRoute?.returnRoute),

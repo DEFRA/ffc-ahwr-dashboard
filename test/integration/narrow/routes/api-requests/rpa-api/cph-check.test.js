@@ -1,5 +1,5 @@
 import { authConfig } from "../../../../../../app/config/auth.js";
-import { customerMustHaveAtLeastOneValidCph } from "../../../../../../app/api-requests/rpa-api/cph-check";
+import { customerHasAtLeastOneValidCph } from "../../../../../../app/api-requests/rpa-api/cph-check";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 
@@ -14,7 +14,7 @@ afterAll(() => {
   mswServer.close();
 });
 
-test("cphCheck: throws if response.success is false", async () => {
+test("cphCheck: returns false if RPA request is unsuccessful", async () => {
   const { ruralPaymentsAgency } = authConfig;
 
   const organisationId = "112233445";
@@ -48,7 +48,5 @@ test("cphCheck: throws if response.success is false", async () => {
     },
   };
 
-  await expect(
-    customerMustHaveAtLeastOneValidCph(request, "token"),
-  ).rejects.toThrow("test RPA failure");
+  expect(await customerHasAtLeastOneValidCph(request, "token")).toBeFalsy();
 });

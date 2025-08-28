@@ -5,6 +5,8 @@ import { getByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { applicationStatus } from "../../../../app/constants/constants.js";
 import { setupServer } from "msw/node";
+import { StatusCodes } from "http-status-codes";
+import { applyServiceUri } from "../../../../app/config/routes.js";
 
 let cleanUpFunction;
 const mswServer = setupServer();
@@ -227,14 +229,9 @@ describe("Dev sign in page test", () => {
     });
 
     cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "You do not have an agreement for this business",
-      }),
-    ).toBeDefined();
+    expect(res.headers.location).toBe(`${applyServiceUri}/endemics/check-details`);
   });
 
   test("GET dev sign-in route forwards to error page when forced to show CPH error", async () => {

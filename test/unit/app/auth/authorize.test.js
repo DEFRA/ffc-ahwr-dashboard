@@ -27,14 +27,18 @@ describe("Generate authentication url test", () => {
     expect(params.get("code_challenge")).toBeNull();
   });
 
-  test("when invalid state error is thrown", async () => {
+  test("when invalid state occurs", async () => {
     verifyState.mockReturnValueOnce(false);
     const request = { yar: { id: "33" }, logger: { setBindings: jest.fn() } };
-    try {
-      await authenticate(request);
-    } catch (e) {
-      expect(e.message).toBe("Invalid state");
-      expect(verifyState).toHaveBeenCalledWith(request);
-    }
+    const mockLogger = {
+      setBindings: jest.fn(),
+    };
+    const mockRedirect = jest.fn();
+    const mockH = {
+      redirect: mockRedirect
+    };
+    
+    await authenticate(request, 'claim', mockH, mockLogger);
+    expect(mockRedirect).toHaveBeenCalled();
   });
 });

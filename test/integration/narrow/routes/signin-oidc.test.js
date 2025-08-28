@@ -13,6 +13,8 @@ import globalJsdom from "global-jsdom";
 import { getByRole } from "@testing-library/dom";
 import { applicationStatus } from "../../../../app/constants/constants.js";
 import * as session from "../../../../app/session/index.js";
+import { StatusCodes } from "http-status-codes";
+import { applyServiceUri } from "../../../../app/config/routes.js";
 
 let cleanUpFunction;
 const mswServer = setupServer();
@@ -249,7 +251,7 @@ test("get /signin-oidc: approved application", async () => {
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -290,7 +292,7 @@ test("get /signin-oidc: approved application", async () => {
       sbi: "106354662",
     },
   );
-  expect(res.statusCode).toBe(302);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
   expect(res.headers.location).toBe("/check-details");
 });
 
@@ -347,7 +349,7 @@ test("get /signin-oidc: application not approved", async () => {
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -375,7 +377,7 @@ test("get /signin-oidc: application not approved", async () => {
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  expect(res.statusCode).toBe(302);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
   expect(res.headers.location).toBe(
     `${config.applyServiceUri}/endemics/check-details`,
   );
@@ -445,7 +447,7 @@ test("get /signin-oidc: no eligible cph numbers", async () => {
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
 
   expect(
     getByRole(document.body, "heading", {
@@ -508,7 +510,7 @@ test("get /signin-oidc: no application, came from apply", async () => {
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([]);
@@ -531,7 +533,7 @@ test("get /signin-oidc: no application, came from apply", async () => {
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  expect(res.statusCode).toBe(302);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
   expect(res.headers.location).toBe(
     `${config.applyServiceUri}/endemics/check-details`,
   );
@@ -591,7 +593,7 @@ test("get /signin-oidc: no application, came from dashboard", async () => {
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([]);
@@ -615,14 +617,9 @@ test("get /signin-oidc: no application, came from dashboard", async () => {
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
-  expect(
-    getByRole(document.body, "heading", {
-      level: 1,
-      name: "You do not have an agreement for this business",
-    }),
-  ).toBeDefined();
+  expect(res.headers.location).toEqual(`${applyServiceUri}/endemics/check-details`);
 });
 
 test("get /signin-oidc: closed old world application, came from apply", async () => {
@@ -678,7 +675,7 @@ test("get /signin-oidc: closed old world application, came from apply", async ()
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -706,7 +703,7 @@ test("get /signin-oidc: closed old world application, came from apply", async ()
     url: `/signin-oidc?state=${encodedState}&code=123`,
   });
 
-  expect(res.statusCode).toBe(302);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
   expect(res.headers.location).toBe(
     `${config.applyServiceUri}/endemics/check-details`,
   );
@@ -766,7 +763,7 @@ test("get /signin-oidc: open old world application, came from apply", async () =
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -796,7 +793,7 @@ test("get /signin-oidc: open old world application, came from apply", async () =
 
   cleanUpFunction = globalJsdom(res.payload);
 
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
   expect(
     getByRole(document.body, "heading", {
       level: 1,
@@ -859,7 +856,7 @@ test("get /signin-oidc: open old world application, did not come from apply", as
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -889,7 +886,7 @@ test("get /signin-oidc: open old world application, did not come from apply", as
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
   expect(
     getByRole(document.body, "heading", {
       level: 1,
@@ -952,7 +949,7 @@ test("get /signin-oidc: closed old world application, came from dashboard", asyn
       const url = new URL(request.url);
 
       if (url.searchParams.get("sbi") !== sbi) {
-        return new HttpResponse(null, { status: 404 });
+        return new HttpResponse(null, { status: StatusCodes.NOT_FOUND });
       }
 
       return HttpResponse.json([
@@ -981,14 +978,9 @@ test("get /signin-oidc: closed old world application, came from dashboard", asyn
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
-  expect(
-    getByRole(document.body, "heading", {
-      level: 1,
-      name: "You do not have an agreement for this business",
-    }),
-  ).toBeDefined();
+  expect(res.headers.location).toEqual(`${applyServiceUri}/endemics/check-details`);
 });
 
 test("get /signin-oidc: approved application, organisation locked", async () => {
@@ -1051,7 +1043,7 @@ test("get /signin-oidc: approved application, organisation locked", async () => 
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
 
   expect(
     getByRole(document.body, "heading", {
@@ -1120,7 +1112,7 @@ test("get /signin-oidc: approved application, permission not available", async (
   });
 
   cleanUpFunction = globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
 
   expect(
     getByRole(document.body, "heading", {
@@ -1162,7 +1154,7 @@ test("get /signin-oidc: mismatching state", async () => {
     url: `/signin-oidc?state=${encodedClientState}&code=0`,
   });
 
-  expect(res.statusCode).toBe(302);
+  expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
   expect(res.headers.location.href).toMatch(
     `${defraId.hostname}${defraId.oAuthAuthorisePath}`,
   );
@@ -1176,7 +1168,7 @@ test("get /signin-oidc: missing query", async () => {
   });
 
   globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
 
   expect(
     getByRole(document.body, "heading", { level: 1, name: "Login failed" }),
@@ -1191,7 +1183,7 @@ test("get /signin-oidc: unexpected error", async () => {
   });
 
   globalJsdom(res.payload);
-  expect(res.statusCode).toBe(400);
+  expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 
   expect(
     getByRole(document.body, "heading", { level: 1, name: "Login failed" }),

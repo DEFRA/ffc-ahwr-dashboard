@@ -3,14 +3,9 @@ import { generate as generateNonce } from "../id-token/nonce.js";
 import { generate as generateState } from "./state.js";
 import { generateCodeChallenge } from "./proof-key-for-code-exchange.js";
 
-export const requestAuthorizationCodeUrl = (
-  request,
-  source = "dashboard",
-  useProofKeyForCodeExchange = true,
-) => {
-  const url = new URL(
-    `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`,
-  );
+export const requestAuthorizationCodeUrl = (request, source = "dashboard", useProofKeyForCodeExchange = true) => {
+  const url = new URL(`${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`);
+
   url.searchParams.append("p", authConfig.defraId.policy);
   url.searchParams.append("client_id", authConfig.defraId.clientId);
   url.searchParams.append("nonce", generateNonce(request));

@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 import { config } from "../../../../../app/config/index.js";
 import { http, HttpResponse } from "msw";
-import { changeContactHistory } from "../../../../../app/api-requests/contact-history-api.js";
+import { updateContactHistory } from "../../../../../app/api-requests/contact-history-api.js";
 
 jest.mock("applicationinsights", () => ({
   defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
@@ -19,7 +19,7 @@ afterAll(() => {
   mswServer.close();
 });
 
-test("changeContactHistory, throws returned errors", async () => {
+test("updateContactHistory, throws returned errors", async () => {
   const logger = {
     setBindings: jest.fn(),
   };
@@ -46,7 +46,5 @@ test("changeContactHistory, throws returned errors", async () => {
     address: {},
   };
 
-  await expect(
-    changeContactHistory(personSummary, organisationSummary, logger),
-  ).rejects.toThrow("Response Error: 400 Bad Request");
+  await expect(updateContactHistory(personSummary, organisationSummary, logger)).rejects.toThrow("Response Error: 400 Bad Request");
 });

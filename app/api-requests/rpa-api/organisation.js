@@ -5,9 +5,8 @@ import { decodeJwt } from "../../auth/token-verify/jwt-decode.js";
 import { authConfig } from "../../config/auth.js";
 
 const validPermissions = ["Submit - bps", "Full permission - business"];
-let apimToken;
 
-export function getOrganisationAddress(address) {
+function formatOrganisationAddress(address) {
   return [
     address?.address1,
     address?.address2,
@@ -33,9 +32,8 @@ function parsedAccessToken(request) {
   return decodeJwt(accessToken);
 }
 
-const getOrganisationAuthorisation = async (request, organisationId) => {
-  const { hostname, getOrganisationPermissionsUrl } =
-    authConfig.ruralPaymentsAgency;
+const getOrganisationAuthorisation = async (request, organisationId, apimToken) => {
+  const { hostname, getOrganisationPermissionsUrl } = authConfig.ruralPaymentsAgency;
 
   const response = await get(
     hostname,
@@ -50,25 +48,21 @@ const permissionMatcher = (permissions, permissionToMatch) => {
   return permissions.every((value) => permissionToMatch.includes(value));
 };
 
-const organisationHasPermission = async (
+const organisationHasPermission = async ({
   request,
-  permissions,
   personId,
   organisationId,
-) => {
-  const organisationAuthorisation = await getOrganisationAuthorisation(
-    request,
-    organisationId,
-  );
+  apimToken,
+}) => {
+  const organisationAuthorisation = await getOrganisationAuthorisation(request, organisationId, apimToken);
   const personPrivileges = organisationAuthorisation.personPrivileges.filter(
-    (privilege) => privilege.personId === personId,
+    (privilege) => privilege.personId === personId
   );
-  return personPrivileges.some((privilege) =>
-    permissionMatcher(privilege.privilegeNames, permissions),
-  );
+
+  return personPrivileges.some((privilege) => permissionMatcher(privilege.privilegeNames, validPermissions));
 };
 
-const getOrganisation = async (request, organisationId) => {
+const getOrganisation = async (request, organisationId, apimToken) => {
   const { hostname, getOrganisationUrl } = authConfig.ruralPaymentsAgency;
   const response = await get(
     hostname,
@@ -76,26 +70,24 @@ const getOrganisation = async (request, organisationId) => {
     request,
     { Authorization: apimToken },
   );
+
   return response?._data;
 };
 
-export const organisationIsEligible = async (
-  request,
-  personId,
-  apimAccessToken,
-) => {
-  apimToken = apimAccessToken;
+export const organisationIsEligible = async (request, personId, apimToken) => {
   const organisationId = parsedAccessToken(request).currentRelationshipId;
-  const organisationPermission = await organisationHasPermission(
+
+  const organisationPermissionPromise = organisationHasPermission({
     request,
-    validPermissions,
     personId,
     organisationId,
-  );
-  const organisation = await getOrganisation(request, organisationId);
+    apimToken
+  });
+  const organisationPromise = getOrganisation(request, organisationId, apimToken);
 
-  return {
-    organisationPermission,
-    organisation,
-  };
+  const [organisationPermission, organisation] = await Promise.all([organisationPermissionPromise, organisationPromise]);
+
+  request.logger.setBindings({ sbi: organisation.sbi });
+
+  return { organisationPermission, organisation: { ...organisation, address: formatOrganisationAddress(organisation.address)} }
 };

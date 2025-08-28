@@ -18,9 +18,13 @@ export const checkDetailsHandlers = [
     options: {
       handler: async (request, h) => {
         const organisation = getEndemicsClaim(request, organisationKey);
+
         if (!organisation) {
           return boom.notFound();
         }
+
+        getOrganisation(request, organisation)
+
         return h.view("check-details", getOrganisation(request, organisation));
       },
     },
