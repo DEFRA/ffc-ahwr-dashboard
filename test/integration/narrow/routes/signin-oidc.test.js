@@ -121,9 +121,9 @@ describe('signin-oidc', () => {
   test('happy path', async () => {
     const encodedState = await getEncodedTestState(server);
 
-    jest.spyOn(authModule, "authenticate").mockImplementation().mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
-    jest.spyOn(apimModule, "retrieveApimAccessToken").mockImplementation().mockResolvedValue('Bearer abc123');
-    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockImplementation().mockResolvedValue({
+    jest.spyOn(authModule, "authenticate").mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
+    jest.spyOn(apimModule, "retrieveApimAccessToken").mockResolvedValue('Bearer abc123');
+    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue({
       orgDetails: {
         organisationPermission: {},
         organisation: {}
@@ -132,7 +132,7 @@ describe('signin-oidc', () => {
 
       }
     });
-    jest.spyOn(checkLoginValidModule, "checkLoginValid").mockImplementation().mockResolvedValue({ redirectPath: '/the-happy-path', redirectCallback: undefined })
+    jest.spyOn(checkLoginValidModule, "checkLoginValid").mockResolvedValue({ redirectPath: '/the-happy-path', redirectCallback: undefined })
 
     const res = await server.inject({
       url: `/signin-oidc?state=${encodedState}&code=123`,
@@ -149,9 +149,9 @@ describe('signin-oidc', () => {
   test('user is not eligible to sign in, show the error page', async () => {
     const encodedState = await getEncodedTestState(server);
 
-    jest.spyOn(authModule, "authenticate").mockImplementation().mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
-    jest.spyOn(apimModule, "retrieveApimAccessToken").mockImplementation().mockResolvedValue('Bearer abc123');
-    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockImplementation().mockResolvedValue({
+    jest.spyOn(authModule, "authenticate").mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
+    jest.spyOn(apimModule, "retrieveApimAccessToken").mockResolvedValue('Bearer abc123');
+    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue({
       orgDetails: {
         organisationPermission: {},
         organisation: {
@@ -161,7 +161,7 @@ describe('signin-oidc', () => {
       personSummary: {}
     });
 
-    jest.spyOn(cphCheckModule, "customerHasAtLeastOneValidCph").mockImplementation().mockResolvedValue(true);
+    jest.spyOn(cphCheckModule, "customerHasAtLeastOneValidCph").mockResolvedValue(true);
 
     const res = await server.inject({
       url: `/signin-oidc?state=${encodedState}&code=123`,

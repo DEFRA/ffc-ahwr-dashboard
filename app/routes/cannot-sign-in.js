@@ -32,7 +32,7 @@ export const cannotSignInExceptionHandlers = [
           .view("cannot-sign-in-exception", {
             error,
             ruralPaymentsAgency: RPA_CONTACT_DETAILS,
-            hasMultipleBusinesses: hasMultipleBusinessesString === 'false',
+            hasMultipleBusinesses: hasMultipleBusinessesString === 'true',
             backLink,
             sbiText: `SBI ${organisation.sbi ?? ""}`,
             organisationName: organisation.name,
