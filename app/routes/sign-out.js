@@ -9,7 +9,7 @@ import { sessionKeys } from "../session/keys.js";
 
 export const signOutUrl = `${authConfig.defraId.hostname}/${authConfig.defraId.policy}/oauth2/v2.0/logout`;
 
-function getSignOutUrl(token) {
+export const getSignOutUrl = (token) => {
   const query = [
     `post_logout_redirect_uri=${claimServiceUri}`,
     `id_token_hint=${token}`,

@@ -16,6 +16,7 @@ import { getRedirectPath } from "./utils/get-redirect-path.js";
 import HttpStatus from "http-status-codes";
 import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
+import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 
 const pageUrl = `/dev-sign-in`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
@@ -95,28 +96,32 @@ export const devLoginHandlers = [
           setCustomer(request, sessionKeys.customer.id, personSummary.id);
           setCustomer(request, sessionKeys.customer.crn, personSummary.customerReferenceNumber);
           setOrganisationSessionData(request, personSummary, organisationSummary);
-
           setAuthCookie(request, personSummary.email, farmerApply);
 
-          const redirectPath = getRedirectPath(latestApplicationsForSbi);
+          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi);
+
+          if (error) {
+            const errorToThrow = new Error();
+            errorToThrow.name = error;
+
+            throw errorToThrow;
+          }
 
           return h.redirect(redirectPath);
         } catch (error) {
-          const backLink =
-            cameFrom === "apply"
-              ? applyServiceRedirectUri
-              : claimServiceRedirectUri;
+          const backLink = cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri;
           if (
             [
               "LockedBusinessError",
               "InvalidPermissionsError",
-              "NoEligibleCphError"
+              "NoEligibleCphError",
+              "ExpiredOldWorldApplication"
             ].includes(error.name)
           ) {
             return h
-              .view("cannot-apply-exception", {
+              .view("cannot-sign-in-exception", {
                 error: error.name,
-                ruralPaymentsAgency: config.ruralPaymentsAgency,
+                ruralPaymentsAgency: RPA_CONTACT_DETAILS,
                 hasMultipleBusinesses: getCustomer(
                   request,
                   sessionKeys.customer.attachedToMultipleBusinesses,
@@ -134,7 +139,7 @@ export const devLoginHandlers = [
           return h
             .view("verify-login-failed", {
               backLink,
-              ruralPaymentsAgency: config.ruralPaymentsAgency,
+              ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
             .code(HttpStatus.BAD_REQUEST)

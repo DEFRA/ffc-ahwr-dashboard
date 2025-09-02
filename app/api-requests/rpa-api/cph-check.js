@@ -31,6 +31,10 @@ const restrictedToCattlePigAndSheepLivestock = (cphNumber) => {
 export const customerHasAtLeastOneValidCph = async (request, apimAccessToken) => {
   const cphNumbers = await getCphNumbers(request, apimAccessToken);
 
+  if (!cphNumbers) {
+    return false;
+  }
+
   const userHasAtLeastOneValidCph = cphNumbers.some((cphNumber) => inEngland(cphNumber) && restrictedToCattlePigAndSheepLivestock(cphNumber));
 
   return userHasAtLeastOneValidCph;

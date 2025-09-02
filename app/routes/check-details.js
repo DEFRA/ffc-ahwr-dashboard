@@ -1,10 +1,10 @@
-import { getOrganisation } from "./models/organisation.js";
+import { getOrganisationModel } from "./models/organisation.js";
 import { sessionKeys } from "../session/keys.js";
-import { config } from "../config/index.js";
 import boom from "@hapi/boom";
 import joi from "joi";
 import HttpStatus from "http-status-codes";
 import { getEndemicsClaim, setEndemicsClaim } from "../session/index.js";
+import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 
 const {
   organisation: organisationKey,
@@ -23,9 +23,7 @@ export const checkDetailsHandlers = [
           return boom.notFound();
         }
 
-        getOrganisation(request, organisation)
-
-        return h.view("check-details", getOrganisation(request, organisation));
+        return h.view("check-details", getOrganisationModel(request, organisation));
       },
     },
   },
@@ -46,7 +44,7 @@ export const checkDetailsHandlers = [
           return h
             .view("check-details", {
               errorMessage: { text: "Select if these details are correct" },
-              ...getOrganisation(
+              ...getOrganisationModel(
                 request,
                 organisation,
                 "Select if these details are correct",
@@ -64,9 +62,7 @@ export const checkDetailsHandlers = [
           return h.redirect("/vet-visits");
         }
 
-        return h.view("update-details", {
-          ruralPaymentsAgency: config.ruralPaymentsAgency,
-        });
+        return h.view("update-details", { ruralPaymentsAgency: RPA_CONTACT_DETAILS });
       },
     },
   },

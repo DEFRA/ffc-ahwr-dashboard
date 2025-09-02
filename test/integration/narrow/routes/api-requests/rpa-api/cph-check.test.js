@@ -3,6 +3,10 @@ import { customerHasAtLeastOneValidCph } from "../../../../../../app/api-request
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 
+jest.mock("../../../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 const mswServer = setupServer();
 mswServer.listen();
 

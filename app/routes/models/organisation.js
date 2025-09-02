@@ -15,7 +15,7 @@ const formatAddressForDisplay = (organisation) => {
   return organisation?.address?.replaceAll(",", "<br>");
 };
 
-export const getOrganisation = (request, organisation, errorText) => {
+export const getOrganisationModel = (request, organisation, errorText) => {
   const returnRoute = getReturnRoute(request);
   request.logger.setBindings({ returnRoute });
   const prevAnswer = getEndemicsClaim(request, confirmCheckDetails);

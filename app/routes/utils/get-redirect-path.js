@@ -1,13 +1,6 @@
 import { config } from "../../config/index.js";
+import { CLAIM_STATUSES, closedViewStatuses } from "../../constants/claim-statuses.js";
 import { applicationType } from "../../constants/constants.js";
-import { CLAIM_STATUS } from "ffc-ahwr-common-library";
-
-const closedViewStatuses = [
-  CLAIM_STATUS.WITHDRAWN,
-  CLAIM_STATUS.REJECTED,
-  CLAIM_STATUS.NOT_AGREED,
-  CLAIM_STATUS.READY_TO_PAY,
-];
 
 export function getRedirectPath(latestApplicationsForSbi) {
   const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`;
@@ -15,24 +8,24 @@ export function getRedirectPath(latestApplicationsForSbi) {
 
   if (latestApplicationsForSbi.length === 0) {
     // send to endemics apply journey, regardless of where user signed in
-    return endemicsApplyJourney;
+    return { redirectPath: endemicsApplyJourney, error: '' };
   }
 
   const latestApplication = latestApplicationsForSbi[0];
 
   if (latestApplication.type === applicationType.ENDEMICS) {
-    if (latestApplication.statusId === CLAIM_STATUS.AGREED) {
-      return dashboardEntry;
+    if (latestApplication.statusId === CLAIM_STATUSES.AGREED) {
+      return { redirectPath: dashboardEntry, error: '' };
     }
 
-    return endemicsApplyJourney;
+    return { redirectPath: endemicsApplyJourney, error: '' };
   }
 
   if (closedViewStatuses.includes(latestApplication.statusId)) {
     // User has claimed on their OW agreement, and needs a new world agreement.
     // Send to endemics apply journey, regardless of where user signed in
-    return endemicsApplyJourney;
+    return { redirectPath: endemicsApplyJourney, error: '' };
   }
 
-  // error?
+  return { redirectPath: '', error: 'ExpiredOldWorldApplication' }
 }

@@ -12,7 +12,9 @@ import { requestAuthorizationCodeUrl } from "./auth-code-grant/request-authoriza
 export const authenticate = async (request, loginSource, h, logger) => {
   if (!verifyState(request)) {
     logger.setBindings({ error: 'Invalid state. Redirecting back to /signin-oidc after resetting state.' });
-    return h.redirect(requestAuthorizationCodeUrl(request, loginSource));
+    const authRedirectCallback = h.redirect(requestAuthorizationCodeUrl(request, loginSource));
+
+    return { authRedirectCallback };
   }
   const redeemResponse = await redeemAuthorizationCodeForAccessToken(request);
   await jwtVerify(redeemResponse.access_token);
@@ -26,5 +28,7 @@ export const authenticate = async (request, loginSource, h, logger) => {
 
   setCustomer(request, sessionKeys.customer.crn, accessToken.contactId);
   setCustomer(request, sessionKeys.customer.organisationId, accessToken.currentRelationshipId);
-  setCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses, typeof accessToken.enrolmentCount !== "undefined" && accessToken.enrolmentCount > 1);
+  setCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses, accessToken.enrolmentCount > 1);
+
+  return { accessToken }
 };

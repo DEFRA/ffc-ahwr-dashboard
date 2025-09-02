@@ -3,7 +3,6 @@ import { config } from "../../../../app/config/index.js";
 import globalJsdom from "global-jsdom";
 import { getByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
-import { applicationStatus } from "../../../../app/constants/constants.js";
 import { setupServer } from "msw/node";
 import { StatusCodes } from "http-status-codes";
 import { applyServiceUri } from "../../../../app/config/routes.js";
@@ -23,6 +22,26 @@ afterAll(() => {
 jest.mock("../../../../app/session/index.js", () => ({
   ...jest.requireActual("../../../../app/session/index.js"),
   setFarmerApplyData: jest.fn(),
+}));
+
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9],
+  CLAIM_STATUSES: {
+    AGREED: 1,
+    WITHDRAWN: 2,
+    IN_CHECK: 5,
+    ACCEPTED: 6,
+    NOT_AGREED: 7,
+    PAID: 8,
+    READY_TO_PAY: 9,
+    REJECTED: 10,
+    ON_HOLD: 11,
+    RECOMMENDED_TO_PAY: 12,
+    RECOMMENDED_TO_REJECT: 13,
+    AUTHORISED: 14,
+    SENT_TO_FINANCE: 15,
+    PAYMENT_HELD: 16
+  }
 }));
 
 describe("Dev sign in page test", () => {
@@ -72,7 +91,7 @@ describe("Dev sign in page test", () => {
         return HttpResponse.json([
           {
             type: "EE",
-            statusId: applicationStatus.AGREED,
+            statusId: 1,
             createdAt: new Date(),
           },
         ]);
@@ -105,7 +124,7 @@ describe("Dev sign in page test", () => {
         return HttpResponse.json([
           {
             type: "VV",
-            statusId: applicationStatus.READY_TO_PAY,
+            statusId: 9,
             createdAt: new Date(),
           },
         ]);
@@ -140,7 +159,7 @@ describe("Dev sign in page test", () => {
         return HttpResponse.json([
           {
             type: "VV",
-            statusId: applicationStatus.AGREED,
+            statusId: 1,
             createdAt: new Date(),
           },
         ]);
@@ -158,7 +177,7 @@ describe("Dev sign in page test", () => {
     expect(
       getByRole(document.body, "heading", {
         level: 1,
-        name: "You have an existing agreement for this business",
+        name: "Your agreement has expired",
       }),
     ).toBeDefined();
   });
@@ -181,7 +200,7 @@ describe("Dev sign in page test", () => {
         return HttpResponse.json([
           {
             type: "VV",
-            statusId: applicationStatus.AGREED,
+            statusId: 1,
             createdAt: new Date(),
           },
         ]);
@@ -199,7 +218,7 @@ describe("Dev sign in page test", () => {
     expect(
       getByRole(document.body, "heading", {
         level: 1,
-        name: "You cannot claim for a livestock review for this business",
+        name: "Your agreement has expired",
       }),
     ).toBeDefined();
   });

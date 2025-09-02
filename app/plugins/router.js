@@ -11,6 +11,7 @@ import { devLoginHandlers } from "../routes/dev-sign-in.js";
 import { accessibilityRouteHandlers } from "../routes/accessibility.js";
 import { signOutHandlers } from "../routes/sign-out.js";
 import { config } from "../config/index.js";
+import { cannotSignInExceptionHandlers } from "../routes/cannot-sign-in.js";
 
 const alwaysOnRoutes = [
   healthHandlers,
@@ -23,7 +24,8 @@ const alwaysOnRoutes = [
   downloadApplicationHandlers,
   accessibilityRouteHandlers,
   vetVisitsHandlers,
-  signOutHandlers
+  signOutHandlers,
+  cannotSignInExceptionHandlers
 ].flat();
 
 let routes;

@@ -4,6 +4,10 @@ import { storageConfig } from "../../../../app/config/storage.js";
 import globalJsdom from "global-jsdom";
 import { getByRole } from "@testing-library/dom";
 
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 test("get /download-application", async () => {
   const server = await createServer();
 
