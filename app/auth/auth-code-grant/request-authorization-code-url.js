@@ -3,8 +3,10 @@ import { generate as generateNonce } from "../id-token/nonce.js";
 import { generate as generateState } from "./state.js";
 import { generateCodeChallenge } from "./proof-key-for-code-exchange.js";
 
+export const BASE_URL = new URL(`${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`);
+
 export const requestAuthorizationCodeUrl = (request, source = "dashboard", useProofKeyForCodeExchange = true) => {
-  const url = new URL(`${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`);
+  const url = new URL(BASE_URL);
 
   url.searchParams.append("p", authConfig.defraId.policy);
   url.searchParams.append("client_id", authConfig.defraId.clientId);

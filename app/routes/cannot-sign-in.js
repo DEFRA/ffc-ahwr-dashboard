@@ -24,6 +24,7 @@ export const cannotSignInExceptionHandlers = [
       handler: async (request, h) => {
 
         const { error, hasMultipleBusinesses: hasMultipleBusinessesString, backLink, organisation } = request.query;
+        const decodedOrganisation = JSON.parse(Buffer.from(organisation, "base64").toString("ascii"));
 
         const token = getToken(request, sessionKeys.tokens.accessToken);
         const signOutLink = getSignOutUrl(token);
@@ -34,8 +35,8 @@ export const cannotSignInExceptionHandlers = [
             ruralPaymentsAgency: RPA_CONTACT_DETAILS,
             hasMultipleBusinesses: hasMultipleBusinessesString === 'true',
             backLink,
-            sbiText: `SBI ${organisation.sbi ?? ""}`,
-            organisationName: organisation.name,
+            sbiText: `SBI ${decodedOrganisation.sbi ?? ""}`,
+            organisationName: decodedOrganisation.name,
             signOutLink
           });
       },

@@ -4,49 +4,42 @@ import { authConfig } from "../../config/auth.js";
 import FormData from "form-data";
 
 let tokenCache = {
-  tokenType: null,
   accessToken: null,
-  expiresAt: 0, // ms
+  expiresAt: 0, // seconds
 };
 
-let inflightRefresh = null;
+const apimTokenEndpoint = `${authConfig.apim.hostname}${authConfig.apim.oAuthPath}`;
 
-function isTokenValid(bufferSeconds = 60) {
+function isTokenValid(buffer = 60) {
   if (!tokenCache.accessToken) {
     return false;
   }
   const now = Date.now();
-  const bufferMs = bufferSeconds * 1000;
+  const bufferSeconds = buffer * 1000;
 
-  return now < (tokenCache.expiresAt - bufferMs);
-}
-
-function buildToken() {
-  return `${tokenCache.tokenType} ${tokenCache.accessToken}`;
+  return now < (tokenCache.expiresAt - bufferSeconds);
 }
 
 async function fetchNewToken() {
-  const endpoint = `${authConfig.apim.hostname}${authConfig.apim.oAuthPath}`;
-
   const data = new FormData();
   data.append("client_id", String(authConfig.apim.clientId));
   data.append("client_secret", String(authConfig.apim.clientSecret));
   data.append("scope", String(authConfig.apim.scope));
   data.append("grant_type", "client_credentials");
 
-  const { payload } = await Wreck.post(endpoint, {
+  const { payload } = await Wreck.post(apimTokenEndpoint, {
     headers: data.getHeaders(),
     payload: data,
     json: true,
     timeout: config.wreckHttp.timeoutMilliseconds,
   });
 
-  const expiresInSec = Number(payload?.expires_in) || 3600; // default to 3600 if absent
+  const defaultExpirySeconds = 3600;
+  const expiresInSec = Number(payload?.expires_in) || defaultExpirySeconds;
   const issuedAt = Date.now();
 
   tokenCache = {
-    tokenType: payload.token_type || "Bearer",
-    accessToken: payload.access_token,
+    accessToken: `${payload.token_type} ${payload.access_token}`,
     expiresAt: issuedAt + expiresInSec * 1000,
   };
 
@@ -56,35 +49,22 @@ async function fetchNewToken() {
 
 export async function retrieveApimAccessToken(request) {
   if (isTokenValid()) {
-    request.logger.info('Reusing valid APIM token...');
-    return buildToken();
+    request.logger.info("Reusing valid APIM token...");
+    return tokenCache.accessToken;
   }
 
-  // If another call is already refreshing, await it
-  if (inflightRefresh) {
-    await inflightRefresh;
-    return buildToken();
+  try {
+    request.logger.info("Fetching a new APIM token...");
+    await fetchNewToken();
+  } catch (err) {
+    request.logger.setBindings({
+      err,
+      apimTokenEndpoint,
+    });
+    throw err;
   }
 
-  inflightRefresh = (async () => {
-    try {
-      request.logger.info('Fetching a new APIM token...');
-      await fetchNewToken();
-    } catch (err) {
-      request.logger.setBindings({
-        err,
-        apimTokenEndpoint:
-          `${authConfig.apim.hostname}${authConfig.apim.oAuthPath}`,
-      });
-      throw err;
-    } finally {
-      inflightRefresh = null;
-    }
-  })();
-
-  await inflightRefresh;
-
-  return buildToken();
+  return tokenCache.accessToken;
 }
 
 export function invalidateApimAccessToken() {

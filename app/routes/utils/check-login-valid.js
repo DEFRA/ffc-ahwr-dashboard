@@ -15,10 +15,11 @@ const constructRedirectUri = (
   organisation
 }
 ) => {
+  const base64EncodedOrganisation = Buffer.from(JSON.stringify(organisation)).toString("base64");
   const query = [
     `error=${error}`,
     `backLink=${backLink}`,
-    `organisation=${organisation}`,
+    `organisation=${base64EncodedOrganisation}`,
     `hasMultipleBusinesses=${hasMultipleBusinesses}`,
   ].join("&");
 
@@ -49,11 +50,13 @@ export const checkLoginValid = async ({
     error = "InvalidPermissionsError";
   }
 
-  const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
+  if (!error) {
+    const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
 
-  if (!hasValidCph) {
-    logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
-    error = "NoEligibleCphError";
+    if (!hasValidCph) {
+      logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
+      error = "NoEligibleCphError";
+    }
   }
 
   // Checking if we already have an error, to avoid making this call if so

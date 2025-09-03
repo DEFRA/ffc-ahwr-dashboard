@@ -72,6 +72,8 @@ function throwErrorBasedOnSuffix(sbi = "") {
     );
   } else if (sbi.toUpperCase().endsWith("C")) {
     throw new NoEligibleCphError("Customer must have at least one valid CPH");
+  } else {
+    return '';
   }
 }
 

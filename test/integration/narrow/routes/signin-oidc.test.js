@@ -40,6 +40,23 @@ jest.mock("../../../../app/constants/claim-statuses.js", () => ({
 
 const unitTestDefraId = "https://local-defra-id.com/stuff";
 
+const mockOrgAndPerson = {
+  orgDetails: {
+    organisation: {
+      address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
+      email: "unit@test.email.com.test",
+      name: "Unit test org",
+      sbi: 999000,
+    },
+    organisationPermission: true,
+  },
+  personSummary: {
+    id: 12345,
+    name: "Farmer Tom",
+    email: "farmertomstestemail@test.com.test",
+  },
+};
+
 jest.mock("../../../../app/auth/auth-code-grant/request-authorization-code-url", () => ({
   requestAuthorizationCodeUrl: jest.fn().mockReturnValue(unitTestDefraId)
 }));
@@ -123,15 +140,7 @@ describe('signin-oidc', () => {
 
     jest.spyOn(authModule, "authenticate").mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
     jest.spyOn(apimModule, "retrieveApimAccessToken").mockResolvedValue('Bearer abc123');
-    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue({
-      orgDetails: {
-        organisationPermission: {},
-        organisation: {}
-      },
-      personSummary: {
-
-      }
-    });
+    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue(mockOrgAndPerson);
     jest.spyOn(checkLoginValidModule, "checkLoginValid").mockResolvedValue({ redirectPath: '/the-happy-path', redirectCallback: undefined })
 
     const res = await server.inject({
@@ -149,18 +158,12 @@ describe('signin-oidc', () => {
   test('user is not eligible to sign in, show the error page', async () => {
     const encodedState = await getEncodedTestState(server);
 
+    const lockedOrgAndPerson = { ...mockOrgAndPerson};
+    lockedOrgAndPerson.orgDetails.organisation.locked = true;
+
     jest.spyOn(authModule, "authenticate").mockResolvedValue({ accessToken: 'access-token', authRedirectCallback: undefined });
     jest.spyOn(apimModule, "retrieveApimAccessToken").mockResolvedValue('Bearer abc123');
-    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue({
-      orgDetails: {
-        organisationPermission: {},
-        organisation: {
-          locked: true
-        }
-      },
-      personSummary: {}
-    });
-
+    jest.spyOn(personAndOrgModule, "getPersonAndOrg").mockResolvedValue(lockedOrgAndPerson);
     jest.spyOn(cphCheckModule, "customerHasAtLeastOneValidCph").mockResolvedValue(true);
 
     const res = await server.inject({
@@ -172,7 +175,16 @@ describe('signin-oidc', () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toBe(`/cannot-sign-in?error=LockedBusinessError&backLink=${unitTestDefraId}&organisation=%5Bobject%20Object%5D&hasMultipleBusinesses=false`);
+
+    const redirectUri = res.headers.location;
+    const params = (new URL(`https://example.com${redirectUri}`)).searchParams;
+    const urlParams = new URLSearchParams(params);
+    const organisation = urlParams.get('organisation');
+    const decodedOrg = JSON.parse(Buffer.from(organisation, "base64").toString("ascii"));
+
+    expect(decodedOrg).toEqual(lockedOrgAndPerson.orgDetails.organisation);
+
+    expect(redirectUri).toBe(`/cannot-sign-in?error=LockedBusinessError&backLink=${unitTestDefraId}&organisation=${organisation}&hasMultipleBusinesses=false`);
   });
   
   test('something unexpectedly throws an error, return 500', async () => {

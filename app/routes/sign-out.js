@@ -1,7 +1,4 @@
-import {
-  clearAllOfSession,
-  getToken,
-} from "../session/index.js";
+import { clearAllOfSession, getToken } from "../session/index.js";
 import { clearAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { authConfig } from "../config/auth.js";
 import { claimServiceUri } from "../config/routes.js";
