@@ -15,16 +15,17 @@ export const cannotSignInExceptionHandlers = [
       },
       validate: {
         query: joi.object({
-          error: joi.string().required(),
-          hasMultipleBusinesses: joi.string().required(),
-          backLink: joi.string().required(),
-          organisation: joi.string().required()
+          payload: joi.string().required(),
         }).unknown(true),
       },
       handler: async (request, h) => {
+        const { payload } = request.query;
+        const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+        const { error, hasMultipleBusinesses, backLink, organisation } = decodedPayload;
 
-        const { error, hasMultipleBusinesses: hasMultipleBusinessesString, backLink, organisation } = request.query;
-        const decodedOrganisation = JSON.parse(Buffer.from(organisation, "base64").toString("ascii"));
+        if ([error, hasMultipleBusinesses, backLink, organisation].includes(undefined)) {
+          throw new Error('Page doesnt have required data to render.');
+        }
 
         const token = getToken(request, sessionKeys.tokens.accessToken);
         const signOutLink = getSignOutUrl(token);
@@ -33,10 +34,10 @@ export const cannotSignInExceptionHandlers = [
           .view("cannot-sign-in-exception", {
             error,
             ruralPaymentsAgency: RPA_CONTACT_DETAILS,
-            hasMultipleBusinesses: hasMultipleBusinessesString === 'true',
+            hasMultipleBusinesses: hasMultipleBusinesses === 'true',
             backLink,
-            sbiText: `SBI ${decodedOrganisation.sbi ?? ""}`,
-            organisationName: decodedOrganisation.name,
+            sbiText: `SBI ${organisation.sbi ?? ""}`,
+            organisationName: organisation.name,
             signOutLink
           });
       },

@@ -15,15 +15,15 @@ const constructRedirectUri = (
   organisation
 }
 ) => {
-  const base64EncodedOrganisation = Buffer.from(JSON.stringify(organisation)).toString("base64");
-  const query = [
-    `error=${error}`,
-    `backLink=${backLink}`,
-    `organisation=${base64EncodedOrganisation}`,
-    `hasMultipleBusinesses=${hasMultipleBusinesses}`,
-  ].join("&");
-
-  return encodeURI(`/cannot-sign-in?${query}`);
+  const payload = { 
+    error,
+    hasMultipleBusinesses,
+    backLink,
+    organisation
+  };
+  const base64EncodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64");
+  
+  return encodeURI(`/cannot-sign-in?payload=${base64EncodedPayload}`);
 };
 
 export const checkLoginValid = async ({
@@ -43,14 +43,10 @@ export const checkLoginValid = async ({
   if (organisation.locked) {
     logger.setBindings({ error: `Organisation id ${organisation.id} is locked by RPA`, crn })
     error = "LockedBusinessError";
-  }
-
-  if (!organisationPermission) {
+  } else if (!organisationPermission) {
     logger.setBindings({ error: `Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`, crn })
     error = "InvalidPermissionsError";
-  }
-
-  if (!error) {
+  } else {
     const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
 
     if (!hasValidCph) {
@@ -67,6 +63,7 @@ export const checkLoginValid = async ({
     if (err) {
       error = err;
     } else {
+      // happy path
       const redirectPath = maybeSuffixLoginRedirectUrl(request, initialRedirectPath, crn, personSummary.id);
 
       return { redirectPath, redirectCallback: null };

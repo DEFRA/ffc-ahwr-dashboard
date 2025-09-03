@@ -175,16 +175,16 @@ describe('signin-oidc', () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
 
-    const redirectUri = res.headers.location;
-    const params = (new URL(`https://example.com${redirectUri}`)).searchParams;
-    const urlParams = new URLSearchParams(params);
-    const organisation = urlParams.get('organisation');
-    const decodedOrg = JSON.parse(Buffer.from(organisation, "base64").toString("ascii"));
-
-    expect(decodedOrg).toEqual(lockedOrgAndPerson.orgDetails.organisation);
-
-    expect(redirectUri).toBe(`/cannot-sign-in?error=LockedBusinessError&backLink=${unitTestDefraId}&organisation=${organisation}&hasMultipleBusinesses=false`);
+    expect(decodedPayload).toEqual({
+      backLink: unitTestDefraId,
+      error: "LockedBusinessError",
+      hasMultipleBusinesses: false,
+      organisation: lockedOrgAndPerson.orgDetails.organisation,
+    });
   });
   
   test('something unexpectedly throws an error, return 500', async () => {

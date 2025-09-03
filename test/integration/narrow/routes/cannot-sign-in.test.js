@@ -18,7 +18,7 @@ describe("GET /cannot-sign-in handler", () => {
     server = await createServer();
   });
 
-  test("it returns a 400 if the necessary query params are not provided", async () => {
+  test("it returns a 400 if the payload query param is not provided", async () => {
     const res = await server.inject({
       url: '/cannot-sign-in',
       auth: {
@@ -30,9 +30,10 @@ describe("GET /cannot-sign-in handler", () => {
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
   });
 
-  test("it returns a 500 if the necessary query params are provided but the org is not encoded", async () => {
+  test("it returns a 500 if the payload query param is provided but the encoded contents are not correct", async () => {
+    const encodedPayload = Buffer.from(JSON.stringify({ someStuff: 1 })).toString("base64");
     const res = await server.inject({
-      url: '/cannot-sign-in?error=ExpiredOldWorldApplication&hasMultipleBusinesses=false&backLink=something&organisation=something',
+      url: `/cannot-sign-in?payload=${encodedPayload}`,
       auth: {
         credentials: {},
         strategy: "cookie",
@@ -42,17 +43,27 @@ describe("GET /cannot-sign-in handler", () => {
     expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 
-  test("it returns a 200 if the necessary query params are provided", async () => {
-    const org = {
+  test("it returns a 200 if the payload query param is provided and has the valid content required", async () => {
+    const organisation = {
       address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
       email: "unit@test.email.com.test",
       name: "Unit test org",
       sbi: 999000,
     };
+    const error = "ExpiredOldWorldApplication";
+    const hasMultipleBusinesses = "false";
+    const backLink = "something";
 
-    const encodedOrg = Buffer.from(JSON.stringify(org)).toString("base64");
+    const payload = { 
+      error,
+      hasMultipleBusinesses,
+      backLink,
+      organisation
+    };
+    const base64EncodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64");
+
     const res = await server.inject({
-      url: `/cannot-sign-in?error=ExpiredOldWorldApplication&hasMultipleBusinesses=false&backLink=something&organisation=${encodedOrg}`,
+      url: `/cannot-sign-in?payload=${base64EncodedPayload}`,
       auth: {
         credentials: {},
         strategy: "cookie",
