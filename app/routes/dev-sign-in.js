@@ -104,7 +104,7 @@ export const devLoginHandlers = [
           const errorNames = ["LockedBusinessError", "InvalidPermissionsError", "NoEligibleCphError", "ExpiredOldWorldApplication"];
 
           if (errorNames.includes(error.name)) {
-            const hasMultipleBusinesses = Math.random() >= 0.5;
+            const hasMultipleBusinesses = sbi.charAt(0) === '1';
             const backLink = requestAuthorizationCodeUrl(request, cameFrom);
             const uri = constructRedirectUri({ error: error.name, hasMultipleBusinesses, backLink, organisation });
 
