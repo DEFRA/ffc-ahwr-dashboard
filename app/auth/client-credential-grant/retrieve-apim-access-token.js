@@ -49,12 +49,10 @@ async function fetchNewToken() {
 
 export async function retrieveApimAccessToken(request) {
   if (isTokenValid()) {
-    request.logger.info("Reusing valid APIM token...");
     return tokenCache.accessToken;
   }
 
   try {
-    request.logger.info("Fetching a new APIM token...");
     await fetchNewToken();
   } catch (err) {
     request.logger.setBindings({

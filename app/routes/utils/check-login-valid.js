@@ -7,69 +7,48 @@ import { getLatestApplicationsBySbi } from "../../api-requests/application-api.j
 import { getRedirectPath } from "./get-redirect-path.js";
 import { maybeSuffixLoginRedirectUrl } from "../../lib/suffix-url.js";
 
-const constructRedirectUri = (
- { 
-  error,
-  hasMultipleBusinesses,
-  backLink,
-  organisation
-}
-) => {
-  const payload = { 
-    error,
-    hasMultipleBusinesses,
-    backLink,
-    organisation
-  };
+export const constructRedirectUri = ({ error, hasMultipleBusinesses, backLink, organisation }) => {
+  const payload = { error, hasMultipleBusinesses, backLink, organisation };
+
   const base64EncodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64");
   
   return encodeURI(`/cannot-sign-in?payload=${base64EncodedPayload}`);
 };
 
-export const checkLoginValid = async ({
-  h,
-  organisation,
-  organisationPermission,
-  request,
-  apimAccessToken,
-  personSummary,
-  loginSource
-}) => {
-
+export const checkLoginValid = async ({ h, organisation, organisationPermission, request, apimAccessToken, personSummary, loginSource }) => {
   const { logger } = request;
   const crn = getCustomer(request, sessionKeys.customer.crn);
-  let error = "";
 
   if (organisation.locked) {
     logger.setBindings({ error: `Organisation id ${organisation.id} is locked by RPA`, crn })
-    error = "LockedBusinessError";
-  } else if (!organisationPermission) {
+    return returnErrorRouting({ h, error: 'LockedBusinessError', organisation, request, crn, loginSource });
+  }
+  
+  if (!organisationPermission) {
     logger.setBindings({ error: `Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`, crn })
-    error = "InvalidPermissionsError";
-  } else {
-    const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
-
-    if (!hasValidCph) {
-      logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
-      error = "NoEligibleCphError";
-    }
+    return returnErrorRouting({ h, error: 'InvalidPermissionsError', organisation, request, crn, loginSource });
   }
 
-  // Checking if we already have an error, to avoid making this call if so
-  if (!error) {
-    const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, logger);
-    const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi);
-    
-    if (err) {
-      error = err;
-    } else {
-      // happy path
-      const redirectPath = maybeSuffixLoginRedirectUrl(request, initialRedirectPath, crn, personSummary.id);
+  const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
 
-      return { redirectPath, redirectCallback: null };
-    }
+  if (!hasValidCph) {
+    logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
+    return returnErrorRouting({ h, error: 'NoEligibleCphError', organisation, request, crn, loginSource });
   }
 
+  const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, logger);
+  const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi);
+
+  if (err) {
+    return returnErrorRouting({ h, error: err, organisation, request, crn, loginSource });
+  }
+
+  const redirectPath = maybeSuffixLoginRedirectUrl(request, initialRedirectPath, crn, personSummary.id);
+
+  return { redirectPath, redirectCallback: null };
+};
+
+const returnErrorRouting = async ({ h, error, organisation, request, crn, loginSource }) => {
   await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
 
   const hasMultipleBusinesses = Boolean(getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses));
@@ -79,4 +58,4 @@ export const checkLoginValid = async ({
   const redirectCallback = h.redirect(redirectCallbackUri).takeover();
 
   return { redirectPath: null, redirectCallback };
-};
+}

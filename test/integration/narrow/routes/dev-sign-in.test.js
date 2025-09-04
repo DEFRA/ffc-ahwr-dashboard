@@ -7,7 +7,6 @@ import { setupServer } from "msw/node";
 import { StatusCodes } from "http-status-codes";
 import { applyServiceUri } from "../../../../app/config/routes.js";
 
-let cleanUpFunction;
 const mswServer = setupServer();
 mswServer.listen();
 
@@ -171,19 +170,16 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toMatch('/cannot-sign-in');
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "Your agreement has expired",
-      }),
-    ).toBeDefined();
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+
+    expect(decodedPayload.error).toBe("ExpiredOldWorldApplication");
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim for an open VV application", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -212,19 +208,16 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toMatch('/cannot-sign-in');
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "Your agreement has expired",
-      }),
-    ).toBeDefined();
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+
+    expect(decodedPayload.error).toBe("ExpiredOldWorldApplication");
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim and no application exists", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -247,14 +240,12 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
     expect(res.headers.location).toBe(`${applyServiceUri}/endemics/check-details`);
   });
 
   test("GET dev sign-in route forwards to error page when forced to show CPH error", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123c";
     const server = await createServer();
@@ -277,19 +268,16 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toMatch('/cannot-sign-in');
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "You cannot apply for reviews or follow-ups for this business",
-      }),
-    ).toBeDefined();
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+
+    expect(decodedPayload.error).toBe("NoEligibleCphError");
   });
 
   test("GET dev sign-in route forwards to error page when forced to show Invalid permissions error", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123i";
     const server = await createServer();
@@ -312,19 +300,16 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toMatch('/cannot-sign-in');
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "You cannot apply for reviews or follow-ups for this business",
-      }),
-    ).toBeDefined();
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+
+    expect(decodedPayload.error).toBe("InvalidPermissionsError");
   });
 
   test("GET dev sign-in route forwards to error page when forced to show locked business error", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123l";
     const server = await createServer();
@@ -347,19 +332,16 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    cleanUpFunction = globalJsdom(res.payload);
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toMatch('/cannot-sign-in');
 
-    expect(
-      getByRole(document.body, "heading", {
-        level: 1,
-        name: "You cannot apply for reviews or follow-ups for this business",
-      }),
-    ).toBeDefined();
+    const payload = res.headers.location.split("payload=")[1];
+    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
+
+    expect(decodedPayload.error).toBe("LockedBusinessError");
   });
 
   test("GET dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {
-    cleanUpFunction();
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -376,7 +358,7 @@ describe("Dev sign in page test", () => {
       url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
     });
 
-    globalJsdom(res.payload);
+    const cleanUpFunction = globalJsdom(res.payload);
     expect(res.statusCode).toBe(400);
 
     expect(
@@ -385,6 +367,8 @@ describe("Dev sign in page test", () => {
         name: "Login failed",
       }),
     ).toBeDefined();
+
+    cleanUpFunction()
   });
 
   test("GET dev defraid sign-in route returns redirect to defraId", async () => {
@@ -396,8 +380,6 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location.href).toMatch(
-      `onmicrosoft.com/oauth2/v2.0/authorize`,
-    );
+    expect(res.headers.location.href).toMatch('onmicrosoft.com/oauth2/v2.0/authorize');
   });
 });

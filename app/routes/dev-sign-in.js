@@ -1,14 +1,8 @@
-import { config } from "../config/index.js";
 import { LockedBusinessError } from "../exceptions/LockedBusinessError.js";
 import { InvalidPermissionsError } from "../exceptions/InvalidPermissionsError.js";
 import { NoEligibleCphError } from "../exceptions/NoEligibleCphError.js";
 import { sessionKeys } from "../session/keys.js";
-import {
-  getCustomer,
-  setCustomer,
-  setEndemicsClaim,
-  setFarmerApplyData,
-} from "../session/index.js";
+import { setCustomer, setEndemicsClaim, setFarmerApplyData } from "../session/index.js";
 import { setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { farmerApply } from "../constants/constants.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
@@ -17,6 +11,7 @@ import HttpStatus from "http-status-codes";
 import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
+import { constructRedirectUri } from "./utils/check-login-valid.js";
 
 const pageUrl = `/dev-sign-in`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
@@ -45,24 +40,6 @@ const createDevDetails = (sbi) => {
   return [personSummary, organisationSummary];
 };
 
-function setOrganisationSessionData(request, personSummary, organisationSummary) {
-  const { organisation: org } = organisationSummary
-
-  const organisation = {
-    sbi: org.sbi,
-    farmerName: personSummary.name,
-    name: org.name,
-    email: personSummary.email,
-    orgEmail: org.email,
-    address: org.address,
-    crn: personSummary.customerReferenceNumber,
-    frn: org.businessReference,
-  };
-
-  setFarmerApplyData(request, sessionKeys.farmerApplyData.organisation, organisation);
-  setEndemicsClaim(request, sessionKeys.endemicsClaim.organisation, organisation);
-}
-
 function throwErrorBasedOnSuffix(sbi = "") {
   if (sbi.toUpperCase().endsWith("L")) {
     throw new LockedBusinessError(`Organisation is locked by RPA`);
@@ -90,6 +67,18 @@ export const devLoginHandlers = [
         request.logger.setBindings({ sbi });
 
         const [personSummary, organisationSummary] = createDevDetails(sbi);
+        const { organisation: org } = organisationSummary;
+
+        const organisation = {
+          sbi: org.sbi,
+          farmerName: personSummary.name,
+          name: org.name,
+          email: personSummary.email,
+          orgEmail: org.email,
+          address: org.address,
+          crn: personSummary.customerReferenceNumber,
+          frn: org.businessReference,
+        };
 
         try {
           throwErrorBasedOnSuffix(sbi);
@@ -97,7 +86,8 @@ export const devLoginHandlers = [
 
           setCustomer(request, sessionKeys.customer.id, personSummary.id);
           setCustomer(request, sessionKeys.customer.crn, personSummary.customerReferenceNumber);
-          setOrganisationSessionData(request, personSummary, organisationSummary);
+          setFarmerApplyData(request, sessionKeys.farmerApplyData.organisation, organisation);
+          setEndemicsClaim(request, sessionKeys.endemicsClaim.organisation, organisation);
           setAuthCookie(request, personSummary.email, farmerApply);
 
           const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi);
@@ -111,36 +101,19 @@ export const devLoginHandlers = [
 
           return h.redirect(redirectPath);
         } catch (error) {
-          const backLink = cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri;
-          if (
-            [
-              "LockedBusinessError",
-              "InvalidPermissionsError",
-              "NoEligibleCphError",
-              "ExpiredOldWorldApplication"
-            ].includes(error.name)
-          ) {
-            return h
-              .view("cannot-sign-in-exception", {
-                error: error.name,
-                ruralPaymentsAgency: RPA_CONTACT_DETAILS,
-                hasMultipleBusinesses: getCustomer(
-                  request,
-                  sessionKeys.customer.attachedToMultipleBusinesses,
-                ),
-                backLink,
-                claimLink: config.claimServiceUri,
-                sbiText: `SBI ${sbi}`,
-                organisationName: organisationSummary.name,
-                guidanceLink: config.serviceUri,
-              })
-              .code(400)
-              .takeover();
+          const errorNames = ["LockedBusinessError", "InvalidPermissionsError", "NoEligibleCphError", "ExpiredOldWorldApplication"];
+
+          if (errorNames.includes(error.name)) {
+            const hasMultipleBusinesses = Math.random() >= 0.5;
+            const backLink = requestAuthorizationCodeUrl(request, cameFrom);
+            const uri = constructRedirectUri({ error: error.name, hasMultipleBusinesses, backLink, organisation });
+
+            return h.redirect(uri).takeover();
           }
 
           return h
             .view("verify-login-failed", {
-              backLink,
+              backLink: cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri,
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
