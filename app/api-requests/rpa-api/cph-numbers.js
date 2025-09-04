@@ -18,7 +18,7 @@ export const getCphNumbers = async (request, apimAccessToken) => {
   );
 
   if (!response.success) {
-    throw new Error(response.errorString);
+    return null;
   }
   return response.data.map((cph) => cph.cphNumber);
 };

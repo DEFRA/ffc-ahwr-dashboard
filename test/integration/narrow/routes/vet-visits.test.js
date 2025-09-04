@@ -8,6 +8,10 @@ import { getByRole, queryByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { authConfig } from "../../../../app/config/auth.js";
 
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 const nunJucksInternalTimerMethods = ["nextTick"];
 let cleanUpFunction;
 

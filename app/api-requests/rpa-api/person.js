@@ -1,10 +1,7 @@
-import { getToken } from "../../session/index.js";
 import { get } from "./base.js";
-import { sessionKeys } from "../../session/keys.js";
 import { authConfig } from "../../config/auth.js";
-import { decodeJwt } from "../../auth/token-verify/jwt-decode.js";
 
-export function getPersonName(personSummary) {
+function formatPersonName(personSummary) {
   return [
     personSummary.firstName,
     personSummary.middleName,
@@ -14,18 +11,17 @@ export function getPersonName(personSummary) {
     .join(" ");
 }
 
-function parsedAccessToken(request) {
-  const accessToken = getToken(request, sessionKeys.tokens.accessToken);
-  return decodeJwt(accessToken);
-}
-
-export const getPersonSummary = async (request, apimAccessToken) => {
+export const getPersonSummary = async (request, apimAccessToken, crn, logger) => {
   const { hostname, getPersonSummaryUrl } = authConfig.ruralPaymentsAgency;
 
-  const crn = parsedAccessToken(request).contactId;
   const response = await get(hostname, getPersonSummaryUrl, request, {
     crn,
     Authorization: apimAccessToken,
   });
-  return response._data;
+
+  const personSummary = response._data;
+
+  logger.setBindings({ personSummaryId: personSummary.id });
+
+  return { ...personSummary, name: formatPersonName(personSummary) };
 };

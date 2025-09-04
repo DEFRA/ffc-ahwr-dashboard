@@ -6,6 +6,10 @@ import { setServerState } from "../../../helpers/set-server-state";
 import { captureFormData } from "../../../helpers/capture-form-data";
 import { userEvent } from "@testing-library/user-event";
 
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 let cleanUpFunction;
 
 test("get /check-details", async () => {

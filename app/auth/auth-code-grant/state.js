@@ -23,16 +23,15 @@ export const verifyState = (request) => {
     if (!state) {
       return false;
     }
-    const decodedState = JSON.parse(
-      Buffer.from(state, "base64").toString("ascii"),
-    );
+    const decodedState = JSON.parse(Buffer.from(state, "base64").toString("ascii"));
     const sessionState = getToken(request, sessionKeys.tokens.state);
+
     if (sessionState === undefined) {
       return false;
     }
-    const savedState = JSON.parse(
-      Buffer.from(sessionState, "base64").toString("ascii"),
-    );
+
+    const savedState = JSON.parse(Buffer.from(sessionState, "base64").toString("ascii"));
+
     return decodedState.id === savedState.id;
   } else {
     request.logger.setBindings({ err: request.query.error });

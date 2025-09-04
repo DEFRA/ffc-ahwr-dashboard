@@ -1,31 +1,23 @@
-import { config } from "../config/index.js";
 import { LockedBusinessError } from "../exceptions/LockedBusinessError.js";
 import { InvalidPermissionsError } from "../exceptions/InvalidPermissionsError.js";
 import { NoEligibleCphError } from "../exceptions/NoEligibleCphError.js";
-import { OutstandingAgreementError } from "../exceptions/OutstandingAgreementError.js";
 import { sessionKeys } from "../session/keys.js";
-import { getPersonName } from "../api-requests/rpa-api/person.js";
-import { getOrganisationAddress } from "../api-requests/rpa-api/organisation.js";
-import {
-  getCustomer,
-  setCustomer,
-  setEndemicsClaim,
-  setFarmerApplyData,
-} from "../session/index.js";
+import { setCustomer, setEndemicsClaim, setFarmerApplyData } from "../session/index.js";
 import { setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { farmerApply } from "../constants/constants.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
 import { getRedirectPath } from "./utils/get-redirect-path.js";
 import HttpStatus from "http-status-codes";
 import { applyServiceUri, claimServiceUri } from "../config/routes.js";
-import { ClaimHasExpiredError } from "../exceptions/ClaimHasExpired.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
+import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
+import { constructRedirectUri } from "./utils/check-login-valid.js";
 
 const pageUrl = `/dev-sign-in`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
 const applyServiceRedirectUri = `${applyServiceUri}/endemics/dev-sign-in`;
 
-const createDevDetails = async (sbi) => {
+const createDevDetails = (sbi) => {
   const organisationSummary = {
     organisationPermission: {},
     organisation: {
@@ -33,49 +25,20 @@ const createDevDetails = async (sbi) => {
       name: "madeUpCo",
       email: "org@company.com",
       frn: "1100918140",
-      address: {
-        address1: "Somewhere",
-      },
+      address: "Somewhere",
       businessReference: "1100918140",
     },
     name: "madeUpCo",
   };
+
   const personSummary = {
     email: "farmer@farm.com",
     customerReferenceNumber: "2054561445",
-    firstName: "John",
-    lastName: "Smith",
+    name: "John Smith"
   };
 
   return [personSummary, organisationSummary];
 };
-
-function setOrganisationSessionData(
-  request,
-  personSummary,
-  { organisation: org },
-) {
-  const organisation = {
-    sbi: org.sbi,
-    farmerName: getPersonName(personSummary),
-    name: org.name,
-    email: personSummary.email,
-    orgEmail: org.email,
-    address: getOrganisationAddress(org.address),
-    crn: personSummary.customerReferenceNumber,
-    frn: org.businessReference,
-  };
-  setFarmerApplyData(
-    request,
-    sessionKeys.farmerApplyData.organisation,
-    organisation,
-  );
-  setEndemicsClaim(
-    request,
-    sessionKeys.endemicsClaim.organisation,
-    organisation,
-  );
-}
 
 function throwErrorBasedOnSuffix(sbi = "") {
   if (sbi.toUpperCase().endsWith("L")) {
@@ -86,16 +49,8 @@ function throwErrorBasedOnSuffix(sbi = "") {
     );
   } else if (sbi.toUpperCase().endsWith("C")) {
     throw new NoEligibleCphError("Customer must have at least one valid CPH");
-  } else if (sbi.toUpperCase().endsWith("O")) {
-    throw new OutstandingAgreementError(
-      `Business with SBI ${sbi} must claim or withdraw agreement before creating another.`,
-    );
-  } else if (sbi.toUpperCase().endsWith("E")) {
-    throw new ClaimHasExpiredError(
-      `Claim has expired for reference - AHWR-MADE-UP1`,
-      "20 December 2023",
-      "20 June 2024",
-    );
+  } else {
+    return '';
   }
 }
 
@@ -109,74 +64,57 @@ export const devLoginHandlers = [
         const { sbi, cameFrom } = request.query;
 
         request.logger.info(`dev sign-in came from ${cameFrom}`);
-
         request.logger.setBindings({ sbi });
-        const [personSummary, organisationSummary] =
-          await createDevDetails(sbi);
+
+        const [personSummary, organisationSummary] = createDevDetails(sbi);
+        const { organisation: org } = organisationSummary;
+
+        const organisation = {
+          sbi: org.sbi,
+          farmerName: personSummary.name,
+          name: org.name,
+          email: personSummary.email,
+          orgEmail: org.email,
+          address: org.address,
+          crn: personSummary.customerReferenceNumber,
+          frn: org.businessReference,
+        };
 
         try {
           throwErrorBasedOnSuffix(sbi);
-          const latestApplicationsForSbi = await getLatestApplicationsBySbi(
-            sbi,
-            request.logger,
-          );
+          const latestApplicationsForSbi = await getLatestApplicationsBySbi(sbi, request.logger);
 
           setCustomer(request, sessionKeys.customer.id, personSummary.id);
-          setCustomer(
-            request,
-            sessionKeys.customer.crn,
-            personSummary.customerReferenceNumber,
-          );
-          setOrganisationSessionData(request, personSummary, {
-            ...organisationSummary,
-          });
-
+          setCustomer(request, sessionKeys.customer.crn, personSummary.customerReferenceNumber);
+          setFarmerApplyData(request, sessionKeys.farmerApplyData.organisation, organisation);
+          setEndemicsClaim(request, sessionKeys.endemicsClaim.organisation, organisation);
           setAuthCookie(request, personSummary.email, farmerApply);
 
-          const redirectPath = getRedirectPath(
-            latestApplicationsForSbi,
-            cameFrom,
-            sbi,
-          );
+          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi);
+
+          if (error) {
+            const errorToThrow = new Error();
+            errorToThrow.name = error;
+
+            throw errorToThrow;
+          }
 
           return h.redirect(redirectPath);
         } catch (error) {
-          const backLink =
-            cameFrom === "apply"
-              ? applyServiceRedirectUri
-              : claimServiceRedirectUri;
-          if (
-            [
-              "LockedBusinessError",
-              "InvalidPermissionsError",
-              "NoEligibleCphError",
-              "OutstandingAgreementError",
-              "NoEndemicsAgreementError",
-              "ClaimHasExpired",
-            ].includes(error.name)
-          ) {
-            return h
-              .view("cannot-apply-exception", {
-                error,
-                ruralPaymentsAgency: config.ruralPaymentsAgency,
-                hasMultipleBusinesses: getCustomer(
-                  request,
-                  sessionKeys.customer.attachedToMultipleBusinesses,
-                ),
-                backLink,
-                claimLink: config.claimServiceUri,
-                sbiText: `SBI ${sbi}`,
-                organisationName: organisationSummary.name,
-                guidanceLink: config.serviceUri,
-              })
-              .code(400)
-              .takeover();
+          const errorNames = ["LockedBusinessError", "InvalidPermissionsError", "NoEligibleCphError", "ExpiredOldWorldApplication"];
+
+          if (errorNames.includes(error.name)) {
+            const hasMultipleBusinesses = sbi.charAt(0) === '1';
+            const backLink = requestAuthorizationCodeUrl(request, cameFrom);
+            const uri = constructRedirectUri({ error: error.name, hasMultipleBusinesses, backLink, organisation });
+
+            return h.redirect(uri).takeover();
           }
 
           return h
             .view("verify-login-failed", {
-              backLink,
-              ruralPaymentsAgency: config.ruralPaymentsAgency,
+              backLink: cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri,
+              ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
             .code(HttpStatus.BAD_REQUEST)

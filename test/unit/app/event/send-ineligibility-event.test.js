@@ -37,7 +37,7 @@ describe("Send event on inegibile", () => {
       email: "random@email.com",
       name: "send-ineligibility-event",
       type: "ineligibility-event",
-      message: `Apply: ${exception}`,
+      message: `Dashboard: ${exception}`,
       data: {
         sbi,
         crn,

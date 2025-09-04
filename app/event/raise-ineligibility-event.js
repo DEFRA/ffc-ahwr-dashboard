@@ -1,13 +1,6 @@
 import { raiseEvent } from "./raise-event.js";
 
-export const raiseIneligibilityEvent = async (
-  sessionId,
-  sbi,
-  crn,
-  email,
-  exception,
-  status = "alert",
-) => {
+export const raiseIneligibilityEvent = async (sessionId, sbi, crn, email, exception, status = "alert") => {
   if (sessionId && exception) {
     const event = {
       id: sessionId,
@@ -16,7 +9,7 @@ export const raiseIneligibilityEvent = async (
       email,
       name: "send-ineligibility-event",
       type: "ineligibility-event",
-      message: `Apply: ${exception}`,
+      message: `Dashboard: ${exception}`,
       data: {
         sbi,
         crn,

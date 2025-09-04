@@ -47,8 +47,7 @@ export const getAuthConfig = () => {
     ruralPaymentsAgency: {
       hostname: process.env.RPA_HOST_NAME,
       getPersonSummaryUrl: process.env.RPA_GET_PERSON_SUMMARY_URL,
-      getOrganisationPermissionsUrl:
-        process.env.RPA_GET_ORGANISATION_PERMISSIONS_URL,
+      getOrganisationPermissionsUrl: process.env.RPA_GET_ORGANISATION_PERMISSIONS_URL,
       getOrganisationUrl: process.env.RPA_GET_ORGANISATION_URL,
       getCphNumbersUrl: process.env.RPA_GET_CPH_NUMBERS_URL,
     },

@@ -1,14 +1,22 @@
 import Wreck from "@hapi/wreck";
 import appInsights from "applicationinsights";
 import { config } from "../config/index.js";
-import { getOrganisationAddress } from "./rpa-api/organisation.js";
-import { getPersonName } from "./rpa-api/person.js";
 
-export async function updateContactHistory(data, logger) {
+export const updateContactHistory = async (personSummary, organisation, logger) => {
   const endpoint = `${config.applicationApiUri}/application/contact-history`;
+
+  const contactHistory = {
+    farmerName: personSummary.name,
+    orgEmail: organisation.email,
+    email: personSummary.email ?? organisation.email,
+    sbi: organisation.sbi,
+    address: organisation.address,
+    user: "admin",
+  };
+
   try {
     const { payload } = await Wreck.put(endpoint, {
-      payload: data,
+      payload: contactHistory,
       json: true,
     });
 
@@ -19,22 +27,3 @@ export async function updateContactHistory(data, logger) {
     throw err;
   }
 }
-
-export const changeContactHistory = async (
-  personSummary,
-  organisationSummary,
-  logger,
-) => {
-  const currentAddress = getOrganisationAddress(organisationSummary.address);
-  await updateContactHistory(
-    {
-      farmerName: getPersonName(personSummary),
-      orgEmail: organisationSummary.email,
-      email: personSummary.email ?? organisationSummary.email,
-      sbi: organisationSummary.sbi,
-      address: currentAddress,
-      user: "admin",
-    },
-    logger,
-  );
-};

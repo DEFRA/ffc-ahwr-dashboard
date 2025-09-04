@@ -1,5 +1,9 @@
 import { createServer } from "../../../../app/server.js";
 
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 test("sets predefined headers", async () => {
   const server = await createServer();
 

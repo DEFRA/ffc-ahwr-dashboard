@@ -8,6 +8,10 @@ import { signOutUrl } from "../../../../app/routes/sign-out.js";
 jest.mock("../../../../app/session/index.js");
 jest.mock("../../../../app/auth/cookie-auth/cookie-auth.js");
 
+jest.mock("../../../../app/constants/claim-statuses.js", () => ({
+  closedViewStatuses: [2, 10, 7, 9]
+}));
+
 describe("GET /sign-out handler", () => {
   let server;
 
