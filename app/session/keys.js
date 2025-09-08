@@ -52,4 +52,10 @@ export const sessionKeys = {
   returnRoute: {
     returnRoute: "returnRoute",
   },
+  cannotSignInDetails: {
+    error: "error",
+    hasMultipleBusinesses: "hasMultipleBusinesses",
+    backLink: "backLink",
+    organisation: "organisation",
+  },
 };

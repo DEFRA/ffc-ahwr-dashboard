@@ -11,6 +11,7 @@ export const entries = {
   tokens: "tokens",
   customer: "customer",
   returnRoute: "returnRoute",
+  cannotSignInDetails: "cannotSignInDetails"
 };
 
 function set(request, entryKey, key, value) {
@@ -38,6 +39,7 @@ export function clear(request) {
   request.yar.clear(entries.selectYourBusiness);
   request.yar.clear(entries.customer);
   request.yar.clear(entries.returnRoute);
+  request.yar.clear(entries.cannotSignInDetails);
 }
 
 export function clearAllOfSession(request) {
@@ -98,4 +100,12 @@ export const setReturnRoute = (request, key, value) => {
 
 export const getReturnRoute = (request, key) => {
   return get(request, entries.returnRoute, key);
+};
+
+export const setCannotSignInDetails = (request, key, value) => {
+  set(request, entries.cannotSignInDetails, key, value);
+};
+
+export const getCannotSignInDetails = (request, key) => {
+  return get(request, entries.cannotSignInDetails, key);
 };
