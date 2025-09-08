@@ -5,9 +5,9 @@ import appInsights from "applicationinsights";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { generateNewCrumb } from "./utils/crumb-cache.js";
 import { retrieveApimAccessToken } from "../auth/client-credential-grant/retrieve-apim-access-token.js";
-import { clearAllOfSession, getCustomer } from "../session/index.js";
+import { getCustomer } from "../session/index.js";
 import { authenticate } from "../auth/authenticate.js";
-import { clearAuthCookie, setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
+import { setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { farmerApply } from "../constants/constants.js";
 import { updateContactHistory } from "../api-requests/contact-history-api.js";
 import { RPA_CONTACT_DETAILS } from 'ffc-ahwr-common-library'
@@ -88,9 +88,6 @@ export const signinRouteHandlers = [
           });
 
           if (redirectCallback) {
-            // log them out on our end, not defra id
-            clearAllOfSession(request);
-            clearAuthCookie(request);
             return redirectCallback;
           }
 

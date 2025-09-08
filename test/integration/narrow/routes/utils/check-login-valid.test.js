@@ -28,6 +28,7 @@ jest.mock("../../../../../app/constants/claim-statuses.js", () => ({
 
 jest.mock("../../../../../app/session", () => ({
   getCustomer: jest.fn().mockReturnValue(124),
+  setCannotSignInDetails: jest.fn()
 }));
 
 jest.mock("../../../../../app/api-requests/rpa-api/cph-check", () => ({

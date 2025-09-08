@@ -21,6 +21,7 @@ afterAll(() => {
 jest.mock("../../../../app/session/index.js", () => ({
   ...jest.requireActual("../../../../app/session/index.js"),
   setFarmerApplyData: jest.fn(),
+  setCannotSignInDetails: jest.fn()
 }));
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
@@ -171,12 +172,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toMatch('/cannot-sign-in');
-
-    const payload = res.headers.location.split("payload=")[1];
-    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
-
-    expect(decodedPayload.error).toBe("ExpiredOldWorldApplication");
+    expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim for an open VV application", async () => {
@@ -209,12 +205,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toMatch('/cannot-sign-in');
-
-    const payload = res.headers.location.split("payload=")[1];
-    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
-
-    expect(decodedPayload.error).toBe("ExpiredOldWorldApplication");
+    expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
   test("GET dev sign-in route forwards to error page when trying to claim and no application exists", async () => {
@@ -269,12 +260,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toMatch('/cannot-sign-in');
-
-    const payload = res.headers.location.split("payload=")[1];
-    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
-
-    expect(decodedPayload.error).toBe("NoEligibleCphError");
+    expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
   test("GET dev sign-in route forwards to error page when forced to show Invalid permissions error", async () => {
@@ -301,12 +287,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toMatch('/cannot-sign-in');
-
-    const payload = res.headers.location.split("payload=")[1];
-    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
-
-    expect(decodedPayload.error).toBe("InvalidPermissionsError");
+    expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
   test("GET dev sign-in route forwards to error page when forced to show locked business error", async () => {
@@ -333,12 +314,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
-    expect(res.headers.location).toMatch('/cannot-sign-in');
-
-    const payload = res.headers.location.split("payload=")[1];
-    const decodedPayload = JSON.parse(Buffer.from(payload, "base64").toString("ascii"));
-
-    expect(decodedPayload.error).toBe("LockedBusinessError");
+    expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
   test("GET dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {

@@ -11,7 +11,7 @@ import HttpStatus from "http-status-codes";
 import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
-import { constructRedirectUri } from "./utils/check-login-valid.js";
+import { setSessionForErrorPage } from "./utils/check-login-valid.js";
 
 const pageUrl = `/dev-sign-in`;
 const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
@@ -106,9 +106,9 @@ export const devLoginHandlers = [
           if (errorNames.includes(error.name)) {
             const hasMultipleBusinesses = sbi.charAt(0) === '1';
             const backLink = requestAuthorizationCodeUrl(request, cameFrom);
-            const uri = constructRedirectUri({ error: error.name, hasMultipleBusinesses, backLink, organisation });
+            setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink, organisation });
 
-            return h.redirect(uri).takeover();
+            return h.redirect('/cannot-sign-in').takeover();
           }
 
           return h

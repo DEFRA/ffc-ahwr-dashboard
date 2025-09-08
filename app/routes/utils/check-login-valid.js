@@ -1,19 +1,18 @@
 import { customerHasAtLeastOneValidCph } from "../../api-requests/rpa-api/cph-check.js";
 import { requestAuthorizationCodeUrl } from "../../auth/auth-code-grant/request-authorization-code-url.js";
 import { raiseIneligibilityEvent } from "../../event/raise-ineligibility-event.js";
-import { getCustomer } from "../../session/index.js";
+import { getCustomer, setCannotSignInDetails } from "../../session/index.js";
 import { sessionKeys } from "../../session/keys.js";
 import { getLatestApplicationsBySbi } from "../../api-requests/application-api.js";
 import { getRedirectPath } from "./get-redirect-path.js";
 import { maybeSuffixLoginRedirectUrl } from "../../lib/suffix-url.js";
 
-export const constructRedirectUri = ({ error, hasMultipleBusinesses, backLink, organisation }) => {
-  const payload = { error, hasMultipleBusinesses, backLink, organisation };
-
-  const base64EncodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64");
-  
-  return encodeURI(`/cannot-sign-in?payload=${base64EncodedPayload}`);
-};
+export const setSessionForErrorPage = ({ request, error, hasMultipleBusinesses, backLink, organisation }) => {
+  setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.error, error);
+  setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.hasMultipleBusinesses, hasMultipleBusinesses);
+  setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.backLink, backLink);
+  setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.organisation, organisation);
+}
 
 export const checkLoginValid = async ({ h, organisation, organisationPermission, request, apimAccessToken, personSummary, loginSource }) => {
   const { logger } = request;
@@ -53,9 +52,9 @@ const returnErrorRouting = async ({ h, error, organisation, request, crn, loginS
 
   const hasMultipleBusinesses = Boolean(getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses));
 
-  const redirectCallbackUri = constructRedirectUri({ error, hasMultipleBusinesses, backLink: requestAuthorizationCodeUrl(request, loginSource), organisation });
+  setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink: requestAuthorizationCodeUrl(request, loginSource), organisation });
 
-  const redirectCallback = h.redirect(redirectCallbackUri).takeover();
+  const redirectCallback = h.redirect('/cannot-sign-in').takeover();
 
   return { redirectPath: null, redirectCallback };
 }
