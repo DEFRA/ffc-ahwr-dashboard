@@ -7,6 +7,7 @@ import globalJsdom from "global-jsdom";
 import { getByRole, queryByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { authConfig } from "../../../../app/config/auth.js";
+import { base64URLEncode } from '../../../../app/auth/auth-code-grant/proof-key-for-code-exchange.js'
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   closedViewStatuses: [2, 10, 7, 9]
@@ -25,6 +26,20 @@ afterEach(() => {
 afterAll(() => {
   mswServer.close();
 });
+
+function setMswHandlers(applicationReference, applications, claims) {
+  const applicationsLatest = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    () => HttpResponse.json(applications),
+  );
+
+  const claimByReference = http.get(
+    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
+    () => HttpResponse.json(claims),
+  );
+
+  mswServer.use(applicationsLatest, claimByReference);
+}
 
 test("get /vet-visits: new world, multiple businesses", async () => {
   const server = await createServer();
@@ -45,18 +60,8 @@ test("get /vet-visits: new world, multiple businesses", async () => {
 
   await setServerState(server, state);
 
-  const applicationReference = "AHWR-TEST-NEW1";
-  const newWorldApplications = [
-    {
-      sbi,
-      type: "EE",
-      reference: applicationReference,
-    },
-  ];
-  const applicationsLatest = http.get(
-    `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
-  );
+  const applicationReference = "IAHW-TEST-NEW1";
+  const newWorldApplications = [{ sbi, type: "EE", reference: applicationReference }];
 
   const claims = [
     {
@@ -70,12 +75,8 @@ test("get /vet-visits: new world, multiple businesses", async () => {
       statusId: "2",
     },
   ];
-  const claimByReference = http.get(
-    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
-    () => HttpResponse.json(claims),
-  );
 
-  mswServer.use(applicationsLatest, claimByReference);
+  setMswHandlers(applicationReference, newWorldApplications, claims);
 
   const { payload } = await server.inject({
     url: "/vet-visits",
@@ -111,7 +112,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
     getByRole(document.body, "button", { name: "Start a new claim" }),
   ).toHaveProperty(
     "href",
-    `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`,
+    `${config.claimServiceUri}/endemics`,
   );
 
   expect(
@@ -144,7 +145,7 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
 
   await setServerState(server, state);
 
-  const applicationReference = "AHWR-TEST-NEW1";
+  const applicationReference = "IAHW-TEST-NEW1";
   const newWorldApplications = [
     {
       sbi,
@@ -152,10 +153,6 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
       reference: applicationReference,
     },
   ];
-  const applicationsLatest = http.get(
-    `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
-  );
 
   const claims = [
     {
@@ -169,12 +166,8 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
       statusId: "2",
     },
   ];
-  const claimByReference = http.get(
-    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
-    () => HttpResponse.json(claims),
-  );
 
-  mswServer.use(applicationsLatest, claimByReference);
+  setMswHandlers(applicationReference, newWorldApplications, claims);
 
   const { payload } = await server.inject({
     url: "/vet-visits",
@@ -216,7 +209,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
 
   await setServerState(server, state);
 
-  const applicationReference = "AHWR-TEST-NEW1";
+  const applicationReference = "IAHW-TEST-NEW1";
   const newWorldApplications = [
     {
       sbi,
@@ -224,10 +217,6 @@ test("get /vet-visits: new world, claim has a herd", async () => {
       reference: applicationReference,
     },
   ];
-  const applicationsLatest = http.get(
-    `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
-  );
 
   const claims = [
     {
@@ -244,12 +233,8 @@ test("get /vet-visits: new world, claim has a herd", async () => {
       statusId: "2",
     },
   ];
-  const claimByReference = http.get(
-    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
-    () => HttpResponse.json(claims),
-  );
 
-  mswServer.use(applicationsLatest, claimByReference);
+  setMswHandlers(applicationReference, newWorldApplications, claims);
 
   const { payload } = await server.inject({
     url: "/vet-visits",
@@ -285,7 +270,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
     getByRole(document.body, "button", { name: "Start a new claim" }),
   ).toHaveProperty(
     "href",
-    `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`,
+    `${config.claimServiceUri}/endemics`,
   );
 
   expect(
@@ -296,6 +281,73 @@ test("get /vet-visits: new world, claim has a herd", async () => {
     "href",
     expect.stringContaining(authConfig.defraId.hostname),
   );
+});
+
+test("get /vet-visits: when in dev environment, start new claim link decorated with org info", async () => {
+  cleanUpFunction();
+  jest.replaceProperty(config, "isDev", true);
+  const server = await createServer();
+
+  const sbi = "106354662";
+  const organisation = {
+    sbi,
+    name: "PARTRIDGES",
+    farmerName: "Janice Harrison",
+  }
+  const state = {
+    customer: {
+      attachedToMultipleBusinesses: true,
+    },
+    endemicsClaim: {
+      organisation
+    },
+  };
+
+  await setServerState(server, state);
+
+  const applicationReference = "IAHW-TEST-NEW1";
+  const newWorldApplications = [
+    {
+      sbi,
+      type: "EE",
+      reference: applicationReference,
+    },
+  ];
+
+  const claims = [
+    {
+      applicationReference,
+      reference: "REBC-A89F-7776",
+      data: {
+        dateOfVisit: "2024-12-29",
+        typeOfLivestock: "beef",
+        claimType: "R",
+      },
+      herd: {
+        herdName: "best beef herd",
+      },
+      statusId: "2",
+    },
+  ];
+
+  setMswHandlers(applicationReference, newWorldApplications, claims);
+
+  const { payload } = await server.inject({
+    url: "/vet-visits",
+    auth: {
+      credentials: {},
+      strategy: "cookie",
+    },
+  });
+  cleanUpFunction = globalJsdom(payload);
+
+  expect(
+    getByRole(document.body, "button", { name: "Start a new claim" })
+  ).toHaveProperty(
+    "href",
+    `${config.claimServiceUri}/endemics?org=${base64URLEncode(Buffer.from(JSON.stringify(organisation)))}`,
+  );
+
 });
 
 test("get /vet-visits: new world, no claims made, show banner", async () => {
@@ -324,21 +376,12 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
     {
       sbi,
       type: "EE",
-      reference: "AHWR-TEST-NEW2",
+      reference: "IAHW-TEST-NEW2",
       createdAt: beforeMultiSpeciesReleaseDate,
     },
   ];
-  const applicationsLatest = http.get(
-    `${config.applicationApi.uri}/applications/latest`,
-    () => HttpResponse.json(newWorldApplications),
-  );
 
-  const claimByReference = http.get(
-    `${config.applicationApi.uri}/claim/get-by-application-reference/AHWR-TEST-NEW2`,
-    () => HttpResponse.json([]),
-  );
-
-  mswServer.use(applicationsLatest, claimByReference);
+  setMswHandlers('IAHW-TEST-NEW2', newWorldApplications, []);
 
   const { payload } = await server.inject({
     url: "/vet-visits",
