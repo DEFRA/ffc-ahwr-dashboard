@@ -40,19 +40,19 @@ const setOrganisationSessionData = (request, personSummary, org, crn) => {
 }
 
 export const getPersonAndOrg = async ({ request, apimAccessToken, crn, logger, accessToken }) => {
-    const personSummaryPromise = getPersonSummary(request, apimAccessToken, crn, logger);
     const organisationId = accessToken.currentRelationshipId;
-    const organisationAuthPromise = getOrganisationAuthorisation(request, organisationId, apimAccessToken);
-    const organisationPromise = getOrganisation(request, organisationId, apimAccessToken);
 
-    // Awaiting here as the next function needs elements of both results
-    const [personSummary, organisationAuthorisation] = await Promise.all([personSummaryPromise, organisationAuthPromise]);
+    const [personSummaryResult, organisationAuthorisationResult, organisationResult] =
+      await Promise.allSettled([getPersonSummary(request, apimAccessToken, crn, logger), getOrganisationAuthorisation(request, organisationId, apimAccessToken), getOrganisation(request, organisationId, apimAccessToken)]);
+    if( personSummaryResult.status === "rejected" || organisationAuthorisationResult.status === "rejected" || organisationResult.status === "rejected") {
+      throw new Error('Failed to retrieve person or organisation details');
+    }
+    const personSummary = personSummaryResult.value;
+    const organisationAuthorisation = organisationAuthorisationResult.value;
+    const organisation = organisationResult.value;
     const organisationPermission = organisationHasPermission({ organisationAuthorisation, personId: personSummary.id });
 
     setCustomer(request, sessionKeys.customer.id, personSummary.id);
-
-    // Awaiting this third promise here as the first two are independent of it
-    const organisation = await organisationPromise;
 
     const personAndOrg = {
       orgDetails: {

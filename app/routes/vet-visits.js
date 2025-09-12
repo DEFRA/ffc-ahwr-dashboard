@@ -15,11 +15,12 @@ import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-aut
 import { claimServiceUri, vetVisits } from "../config/routes.js";
 import { config } from "../config/index.js";
 import { showMultiHerdsBanner } from "./utils/show-multi-herds-banner.js";
+import { base64URLEncode } from '../auth/auth-code-grant/proof-key-for-code-exchange.js'
 
 const { latestTermsAndConditionsUri } = config;
 
 const pageUrl = `/${vetVisits}`;
-const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`;
+const claimServiceRedirectUri = `${claimServiceUri}/endemics`;
 const centringClass = "vertical-middle";
 
 const createRowsForTable = (claims) => {
@@ -216,6 +217,10 @@ export const vetVisitsHandlers = [
 
         const { sheepHeaders, nonSheepHeaders } = buildTableHeaders();
 
+        // This is required to address the weakness in local dev where there is no shared cache so moving between the apps and setting session data
+        // requires a more explicit transfer of the session data. This will not be used in deployed envs as the session cache is shared between apps
+        const devEnvSuffix = config.isDev ? '?org=' + base64URLEncode(Buffer.from(JSON.stringify(getEndemicsClaim(request, sessionKeys.endemicsClaim.organisation)))) : '';
+
         return h.view(vetVisits, {
           beefClaimsRows,
           dairyClaimsRows,
@@ -227,7 +232,7 @@ export const vetVisitsHandlers = [
           },
           showNotificationBanner,
           attachedToMultipleBusinesses,
-          claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
+          claimServiceRedirectUri: claimServiceRedirectUri + devEnvSuffix,
           ...organisation,
           ...(latestEndemicsApplication?.reference && {
             reference: latestEndemicsApplication.reference,
@@ -240,5 +245,5 @@ export const vetVisitsHandlers = [
         });
       },
     },
-  },
+  }
 ];
