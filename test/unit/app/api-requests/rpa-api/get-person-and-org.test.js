@@ -56,6 +56,11 @@ jest.mock("../../../../../app/api-requests/rpa-api/organisation", () => {
 });
 
 describe("getPersonAndOrg", () => {
+  afterEach(() => {
+    jest.resetAllMocks()
+    jest.clearAllMocks()
+  })
+
   test("it builds the returned person and org from the 3 API calls", async () => {
     const request = { stuff: true };
     const apimAccessToken = "Apim1234";
@@ -115,5 +120,62 @@ describe("getPersonAndOrg", () => {
         sbi: "999000",
       }
     );
+  });
+
+  test("An error from any remote call causes an aggregate error to be thrown - org Auth failed", async () => {
+    const request = { stuff: true };
+    const apimAccessToken = "Apim1234";
+    const crn = 123456789;
+    const logger = jest.fn();
+    const accessToken = { currentRelationshipId: "22222" };
+
+    getOrganisationAuthorisation.mockRejectedValueOnce(new Error("Organisation auth error"));
+
+    await expect(getPersonAndOrg({
+      request,
+      apimAccessToken,
+      crn,
+      logger,
+      accessToken,
+    })).rejects.toThrow("Failed to retrieve person or organisation details");
+
+  });
+
+  test("An error from any remote call causes an aggregate error to be thrown - personSummary failed", async () => {
+    const request = { stuff: true };
+    const apimAccessToken = "Apim1234";
+    const crn = 123456789;
+    const logger = jest.fn();
+    const accessToken = { currentRelationshipId: "22222" };
+
+    getPersonSummary.mockRejectedValueOnce(new Error("Person summary error"));
+
+    await expect(getPersonAndOrg({
+      request,
+      apimAccessToken,
+      crn,
+      logger,
+      accessToken,
+    })).rejects.toThrow("Failed to retrieve person or organisation details");
+
+  });
+
+  test("An error from any remote call causes an aggregate error to be thrown - organisation failed", async () => {
+    const request = { stuff: true };
+    const apimAccessToken = "Apim1234";
+    const crn = 123456789;
+    const logger = jest.fn();
+    const accessToken = { currentRelationshipId: "22222" };
+
+    getOrganisation.mockRejectedValueOnce(new Error("Organisation summary error"));
+
+    await expect(getPersonAndOrg({
+      request,
+      apimAccessToken,
+      crn,
+      logger,
+      accessToken,
+    })).rejects.toThrow("Failed to retrieve person or organisation details");
+
   });
 });

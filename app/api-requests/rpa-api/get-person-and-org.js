@@ -44,8 +44,10 @@ export const getPersonAndOrg = async ({ request, apimAccessToken, crn, logger, a
 
     const [personSummaryResult, organisationAuthorisationResult, organisationResult] =
       await Promise.allSettled([getPersonSummary(request, apimAccessToken, crn, logger), getOrganisationAuthorisation(request, organisationId, apimAccessToken), getOrganisation(request, organisationId, apimAccessToken)]);
-    if( personSummaryResult.status === "rejected" || organisationAuthorisationResult.status === "rejected" || organisationResult.status === "rejected") {
-      throw new Error('Failed to retrieve person or organisation details');
+    if(personSummaryResult.status === "rejected" || organisationAuthorisationResult.status === "rejected" || organisationResult.status === "rejected") {
+      throw new AggregateError([personSummaryResult, organisationAuthorisationResult, organisationResult]
+        .filter(x => x.status === "rejected")
+        .map(x => new Error(x.reason)), 'Failed to retrieve person or organisation details');
     }
     const personSummary = personSummaryResult.value;
     const organisationAuthorisation = organisationAuthorisationResult.value;
