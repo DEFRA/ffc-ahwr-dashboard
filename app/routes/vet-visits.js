@@ -219,7 +219,7 @@ export const vetVisitsHandlers = [
 
         // This is required to address the weakness in local dev where there is no shared cache so moving between the apps and setting session data
         // requires a more explicit transfer of the session data. This will not be used in deployed envs as the session cache is shared between apps
-        const devEnvSuffix = config.isDev ? '?org=' + base64URLEncode(Buffer.from(JSON.stringify(getEndemicsClaim(request, sessionKeys.endemicsClaim.organisation)))) : '';
+        const devEnvSuffix = config.isDev ? '?org=' + base64URLEncode(Buffer.from(JSON.stringify(organisation))) : '';
 
         return h.view(vetVisits, {
           beefClaimsRows,
