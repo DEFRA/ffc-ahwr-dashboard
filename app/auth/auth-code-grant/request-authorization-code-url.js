@@ -3,7 +3,7 @@ import { generate as generateNonce } from "../id-token/nonce.js";
 import { generate as generateState } from "./state.js";
 import { generateCodeChallenge } from "./proof-key-for-code-exchange.js";
 
-export const BASE_URL = new URL(`${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`);
+export const BASE_URL = `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`;
 
 export const requestAuthorizationCodeUrl = (request, ssoOrgId) => {
   const url = new URL(BASE_URL);
