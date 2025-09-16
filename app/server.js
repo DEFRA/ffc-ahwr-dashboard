@@ -14,6 +14,7 @@ import { sessionPlugin } from "./plugins/session.js";
 import { viewContextPlugin } from "./plugins/view-context.js";
 import { viewsPlugin } from "./plugins/views.js";
 import { routerPlugin } from "./plugins/router.js";
+import { devRedirectPlugin } from "./plugins/dev-redirect.js";
 
 const cacheConfig = config.useRedis ? config.cache.options : {};
 
@@ -54,6 +55,10 @@ export async function createServer() {
   await server.register(viewContextPlugin);
   await server.register(viewsPlugin);
   await server.register(headerPlugin);
+
+  if (config.devLogin.enabled) {
+    await server.register(devRedirectPlugin);
+  }
 
   return server;
 }

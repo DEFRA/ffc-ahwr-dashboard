@@ -65,7 +65,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: `/dev-sign-in?sbi=${sbi}&tempApplicationId=ABCD-1234`,
     });
 
     expect(res.statusCode).toBe(302);
@@ -100,7 +100,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: `/dev-sign-in?sbi=${sbi}&tempApplicationId=ABCD-1234`,
     });
 
     expect(res.statusCode).toBe(302);
@@ -133,7 +133,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: `/dev-sign-in?sbi=${sbi}&tempApplicationId=ABCD-1234`,
     });
 
     expect(res.statusCode).toBe(302);
@@ -168,7 +168,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: `/dev-sign-in?sbi=${sbi}&tempApplicationId=ABCD-1234`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -201,7 +201,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -228,7 +228,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -256,7 +256,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -283,7 +283,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -310,7 +310,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
@@ -331,7 +331,7 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: `/dev-sign-in?sbi=${sbi}`,
     });
 
     const cleanUpFunction = globalJsdom(res.payload);

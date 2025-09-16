@@ -3,11 +3,10 @@ import { getToken, setToken } from "../../session/index.js";
 import { sessionKeys } from "../../session/keys.js";
 import { config } from "../../config/index.js";
 
-export const generate = (request, source = "dashboard") => {
+export const generate = (request) => {
   const state = {
     id: randomUUID(),
     namespace: config.namespace,
-    source,
   };
 
   const base64EncodedState = Buffer.from(JSON.stringify(state)).toString(

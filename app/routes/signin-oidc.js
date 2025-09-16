@@ -5,26 +5,14 @@ import appInsights from "applicationinsights";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { generateNewCrumb } from "./utils/crumb-cache.js";
 import { retrieveApimAccessToken } from "../auth/client-credential-grant/retrieve-apim-access-token.js";
-import { getCustomer } from "../session/index.js";
+import { clearAllOfSession, getCustomer } from "../session/index.js";
 import { authenticate } from "../auth/authenticate.js";
-import { setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
+import { clearAuthCookie, setAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { farmerApply } from "../constants/constants.js";
 import { updateContactHistory } from "../api-requests/contact-history-api.js";
 import { RPA_CONTACT_DETAILS } from 'ffc-ahwr-common-library'
 import { checkLoginValid } from "./utils/check-login-valid.js";
 import { getPersonAndOrg } from "../api-requests/rpa-api/get-person-and-org.js";
-
-const safelyGetLoginSource = (request) => {
-  try {
-    return JSON.parse(Buffer.from(request.query.state, "base64").toString("ascii")).source;
-  } catch (queryStateError) {
-    request.logger.setBindings({
-      query: request.query,
-      queryStateError,
-    });
-    return null;
-  }
-};
 
 export const signinRouteHandlers = [
   {
@@ -47,7 +35,7 @@ export const signinRouteHandlers = [
 
           return h
             .view("verify-login-failed", {
-              backLink: requestAuthorizationCodeUrl(request, safelyGetLoginSource(request)),
+              backLink: requestAuthorizationCodeUrl(request),
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
             })
             .code(StatusCodes.BAD_REQUEST)
@@ -59,9 +47,7 @@ export const signinRouteHandlers = [
           const { logger } = request;
           await generateNewCrumb(request, h);
 
-          const loginSource = safelyGetLoginSource(request);
-
-          const { accessToken, authRedirectCallback } = await authenticate(request, loginSource, h, logger);
+          const { accessToken, authRedirectCallback } = await authenticate(request, h, logger);
 
           if (authRedirectCallback) {
             return authRedirectCallback;
@@ -71,7 +57,7 @@ export const signinRouteHandlers = [
 
           const crn = getCustomer(request, sessionKeys.customer.crn);
 
-          const { orgDetails, personSummary } = await getPersonAndOrg({ request, apimAccessToken, crn, logger, accessToken })
+          const { orgDetails, personSummary } = await getPersonAndOrg({ request, apimAccessToken, crn, logger, accessToken });
 
           await updateContactHistory(personSummary, orgDetails.organisation, logger);
 
@@ -84,7 +70,6 @@ export const signinRouteHandlers = [
             request,
             apimAccessToken,
             personSummary,
-            loginSource,
           });
 
           if (redirectCallback) {
@@ -102,12 +87,14 @@ export const signinRouteHandlers = [
           return h.redirect(redirectPath);
         } catch (err) {
           request.logger.setBindings({ err });
-          const loginSource = safelyGetLoginSource(request);
           appInsights.defaultClient.trackException({ exception: err });
+
+          clearAllOfSession(request);
+          clearAuthCookie(request);
 
           return h
             .view("verify-login-failed", {
-              backLink: requestAuthorizationCodeUrl(request, loginSource),
+              backLink: requestAuthorizationCodeUrl(request),
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
             })
             .code(StatusCodes.INTERNAL_SERVER_ERROR)

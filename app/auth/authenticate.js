@@ -9,10 +9,10 @@ import { setCustomer, setToken } from "../session/index.js";
 import { sessionKeys } from "../session/keys.js";
 import { requestAuthorizationCodeUrl } from "./auth-code-grant/request-authorization-code-url.js";
 
-export const authenticate = async (request, loginSource, h, logger) => {
+export const authenticate = async (request, h, logger) => {
   if (!verifyState(request)) {
     logger.setBindings({ error: 'Invalid state. Redirecting back to /signin-oidc after resetting state.' });
-    const authRedirectCallback = h.redirect(requestAuthorizationCodeUrl(request, loginSource));
+    const authRedirectCallback = h.redirect(requestAuthorizationCodeUrl(request));
 
     return { authRedirectCallback };
   }

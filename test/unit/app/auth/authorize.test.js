@@ -22,7 +22,7 @@ describe("Generate authentication url test", () => {
   });
 
   test("when requestAuthorizationCodeUrl with pkce false no challenge parameter is added", async () => {
-    const result = requestAuthorizationCodeUrl(undefined, undefined, false);
+    const result = requestAuthorizationCodeUrl(undefined);
     const params = new URL(result).searchParams;
     expect(params.get("code_challenge")).toBeNull();
   });
@@ -38,7 +38,7 @@ describe("Generate authentication url test", () => {
       redirect: mockRedirect
     };
     
-    await authenticate(request, 'claim', mockH, mockLogger);
+    await authenticate(request, mockH, mockLogger);
     expect(mockRedirect).toHaveBeenCalled();
   });
 });

@@ -1,14 +1,16 @@
 import { clearAllOfSession, getToken } from "../session/index.js";
 import { clearAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { authConfig } from "../config/auth.js";
-import { claimServiceUri } from "../config/routes.js";
 import { sessionKeys } from "../session/keys.js";
+import { config } from "../config/index.js";
 
 export const signOutUrl = `${authConfig.defraId.hostname}/${authConfig.defraId.policy}/oauth2/v2.0/logout`;
 
+const signOutRedirectUrl = `${config.serviceUri}sign-in`;
+
 export const getSignOutUrl = (token) => {
   const query = [
-    `post_logout_redirect_uri=${claimServiceUri}`,
+    `post_logout_redirect_uri=${signOutRedirectUrl}`,
     `id_token_hint=${token}`,
   ].join("&");
 

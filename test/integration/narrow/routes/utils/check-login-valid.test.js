@@ -62,7 +62,6 @@ describe("checkLoginValid", () => {
       name: "Farmer Tom",
       email: "farmertomstestemail@test.com.test",
     };
-  const loginSource = "claim";
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -97,7 +96,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toMatch("apply/endemics/check-details");
@@ -147,7 +145,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result).toEqual({
@@ -164,7 +161,7 @@ describe("checkLoginValid", () => {
       organisation.email,
       "LockedBusinessError"
     );
-    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request, loginSource);
+    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
   });
 
   test("it returns a redirect callback if there is no organisation permission", async () => {
@@ -203,7 +200,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result).toEqual({
@@ -220,7 +216,63 @@ describe("checkLoginValid", () => {
       organisation.email,
       "InvalidPermissionsError"
     );
-    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request, loginSource);
+    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
+  });
+
+  test("it returns a redirect callback if there is no valid CPH", async () => {
+    customerHasAtLeastOneValidCph.mockResolvedValue(false);
+    const mockRedirectCallBackAsString = "im a redirect callback";
+    const h = {
+      redirect: jest
+        .fn()
+        .mockReturnValue({
+          takeover: jest.fn().mockReturnValue(mockRedirectCallBackAsString),
+        }),
+    };
+    const organisation = {
+      address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
+      email: "unit@test.email.com.test",
+      name: "Unit test org",
+      sbi: 999000,
+      id: 111
+    };
+    const organisationPermission = true;
+
+    const mockSetBindings = jest.fn();
+
+    const request = {
+      yar: {
+        id: 1,
+      },
+      logger: {
+        setBindings: mockSetBindings,
+      },
+    };
+
+    const result = await checkLoginValid({
+      h,
+      organisation,
+      organisationPermission,
+      request,
+      apimAccessToken,
+      personSummary
+    });
+
+    expect(result).toEqual({
+      redirectPath: null,
+      redirectCallback: mockRedirectCallBackAsString,
+    });
+    expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
+    expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
+    expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
+      request.yar.id,
+      organisation.sbi,
+      124,
+      organisation.email,
+      "NoEligibleCphError"
+    );
+    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
   });
 
   test("it returns a redirect callback if there is no valid CPH", async () => {
@@ -260,7 +312,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result).toEqual({
@@ -277,64 +328,7 @@ describe("checkLoginValid", () => {
       organisation.email,
       "NoEligibleCphError"
     );
-    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request, loginSource);
-  });
-
-  test("it returns a redirect callback if there is no valid CPH", async () => {
-    customerHasAtLeastOneValidCph.mockResolvedValue(false);
-    const mockRedirectCallBackAsString = "im a redirect callback";
-    const h = {
-      redirect: jest
-        .fn()
-        .mockReturnValue({
-          takeover: jest.fn().mockReturnValue(mockRedirectCallBackAsString),
-        }),
-    };
-    const organisation = {
-      address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
-      email: "unit@test.email.com.test",
-      name: "Unit test org",
-      sbi: 999000,
-      id: 111
-    };
-    const organisationPermission = true;
-
-    const mockSetBindings = jest.fn();
-
-    const request = {
-      yar: {
-        id: 1,
-      },
-      logger: {
-        setBindings: mockSetBindings,
-      },
-    };
-
-    const result = await checkLoginValid({
-      h,
-      organisation,
-      organisationPermission,
-      request,
-      apimAccessToken,
-      personSummary,
-      loginSource,
-    });
-
-    expect(result).toEqual({
-      redirectPath: null,
-      redirectCallback: mockRedirectCallBackAsString,
-    });
-    expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
-    expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
-    expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
-      request.yar.id,
-      organisation.sbi,
-      124,
-      organisation.email,
-      "NoEligibleCphError"
-    );
-    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request, loginSource);
+    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
     customerHasAtLeastOneValidCph.mockResolvedValue(true);
   });
 
@@ -375,7 +369,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toMatch("/apply/endemics/check-details");
@@ -430,7 +423,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toEqual("/check-details");
@@ -485,7 +477,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toMatch("/apply/endemics/check-details");
@@ -540,7 +531,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toMatch("/apply/endemics/check-details");
@@ -594,7 +584,6 @@ describe("checkLoginValid", () => {
       request,
       apimAccessToken,
       personSummary,
-      loginSource,
     });
 
     expect(result.redirectPath).toBeNull();

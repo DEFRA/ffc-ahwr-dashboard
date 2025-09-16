@@ -10,8 +10,8 @@ export const entries = {
   pkcecodes: "pkcecodes",
   tokens: "tokens",
   customer: "customer",
-  returnRoute: "returnRoute",
-  cannotSignInDetails: "cannotSignInDetails"
+  cannotSignInDetails: "cannotSignInDetails",
+  signInRedirect: "signInRedirect"
 };
 
 function set(request, entryKey, key, value) {
@@ -38,7 +38,6 @@ export function clear(request) {
   request.yar.clear(entries.answers);
   request.yar.clear(entries.selectYourBusiness);
   request.yar.clear(entries.customer);
-  request.yar.clear(entries.returnRoute);
   request.yar.clear(entries.cannotSignInDetails);
 }
 
@@ -94,18 +93,18 @@ export const getCustomer = (request, key) => {
   return get(request, entries.customer, key);
 };
 
-export const setReturnRoute = (request, key, value) => {
-  set(request, entries.returnRoute, key, value);
-};
-
-export const getReturnRoute = (request, key) => {
-  return get(request, entries.returnRoute, key);
-};
-
 export const setCannotSignInDetails = (request, key, value) => {
   set(request, entries.cannotSignInDetails, key, value);
 };
 
 export const getCannotSignInDetails = (request, key) => {
   return get(request, entries.cannotSignInDetails, key);
+};
+
+export const setSignInRedirect = (request, key, value) => {
+  set(request, entries.signInRedirect, key, value);
+};
+
+export const getSignInRedirect = (request, key) => {
+  return get(request, entries.signInRedirect, key);
 };

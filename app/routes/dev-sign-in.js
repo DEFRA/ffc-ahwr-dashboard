@@ -8,14 +8,9 @@ import { farmerApply } from "../constants/constants.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
 import { getRedirectPath } from "./utils/get-redirect-path.js";
 import HttpStatus from "http-status-codes";
-import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 import { setSessionForErrorPage } from "./utils/check-login-valid.js";
-
-const pageUrl = `/dev-sign-in`;
-const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
-const applyServiceRedirectUri = `${applyServiceUri}/endemics/dev-sign-in`;
 
 const createDevDetails = (sbi) => {
   const organisationSummary = {
@@ -57,13 +52,12 @@ function throwErrorBasedOnSuffix(sbi = "") {
 export const devLoginHandlers = [
   {
     method: "GET",
-    path: pageUrl,
+    path: "/dev-sign-in",
     options: {
       auth: false,
       handler: async (request, h) => {
-        const { sbi, cameFrom } = request.query;
+        const { sbi } = request.query;
 
-        request.logger.info(`dev sign-in came from ${cameFrom}`);
         request.logger.setBindings({ sbi });
 
         const [personSummary, organisationSummary] = createDevDetails(sbi);
@@ -105,15 +99,15 @@ export const devLoginHandlers = [
 
           if (errorNames.includes(error.name)) {
             const hasMultipleBusinesses = sbi.charAt(0) === '1';
-            const backLink = requestAuthorizationCodeUrl(request, cameFrom);
-            setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink, organisation });
+            const backLink = requestAuthorizationCodeUrl(request);
+            setSessionForErrorPage({ request, error: error.name, hasMultipleBusinesses, backLink, organisation });
 
             return h.redirect('/cannot-sign-in').takeover();
           }
 
           return h
             .view("verify-login-failed", {
-              backLink: cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri,
+              backLink: "TODO",
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
@@ -130,8 +124,30 @@ export const devLoginHandlers = [
       auth: false,
       handler: async (request, h) => {
         setFarmerApplyData(request, "sendBackDevValue", "true");
-        return h.redirect(requestAuthorizationCodeUrl(request, "apply"));
+        return h.redirect(requestAuthorizationCodeUrl(request));
       },
     },
   },
+  {
+    method: "GET",
+    path: "/dev-landing-page",
+    options: {
+      auth: false,
+      handler: async (request, h) => {
+        return h.view("dev-landing-page");
+      },
+    },
+  },
+  {
+    method: "POST",
+    path: "/dev-landing-page",
+    options: {
+      auth: false,
+      handler: async (request, h) => {
+        const { sbi } = request.payload;
+
+        return h.redirect(`/dev-sign-in?sbi=${sbi}`);
+      }
+    }
+  }
 ];
