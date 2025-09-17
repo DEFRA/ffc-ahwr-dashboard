@@ -12,6 +12,8 @@ import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-aut
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 import { setSessionForErrorPage } from "./utils/check-login-valid.js";
 
+const devLandingPageUrl = "/dev-landing-page";
+
 const createDevDetails = (sbi) => {
   const organisationSummary = {
     organisationPermission: {},
@@ -107,7 +109,7 @@ export const devLoginHandlers = [
 
           return h
             .view("verify-login-failed", {
-              backLink: "/dev-landing-page",
+              backLink: devLandingPageUrl,
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
@@ -119,28 +121,17 @@ export const devLoginHandlers = [
   },
   {
     method: "GET",
-    path: "/dev-defraid",
+    path: devLandingPageUrl,
     options: {
       auth: false,
-      handler: async (request, h) => {
-        setFarmerApplyData(request, "sendBackDevValue", "true");
-        return h.redirect(requestAuthorizationCodeUrl(request));
-      },
-    },
-  },
-  {
-    method: "GET",
-    path: "/dev-landing-page",
-    options: {
-      auth: false,
-      handler: async (request, h) => {
+      handler: async (_request, h) => {
         return h.view("dev-landing-page");
       },
     },
   },
   {
     method: "POST",
-    path: "/dev-landing-page",
+    path: devLandingPageUrl,
     options: {
       auth: false,
       handler: async (request, h) => {

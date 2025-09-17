@@ -15,17 +15,17 @@ getCustomer.mockReturnValue({ crn: 213313 });
 
 describe("/check-details", () => {
 
-  let server
-  let crumb
+  let server;
+  let crumb;
 
   beforeAll(async () => {
-    server = await createServer()
-    crumb = await getCrumbs(server)
+    server = await createServer();
+    crumb = await getCrumbs(server);
   })
 
   afterAll(async () => {
-    await server.stop()
-    jest.resetAllMocks()
+    await server.stop();
+    jest.resetAllMocks();
   })
 
 

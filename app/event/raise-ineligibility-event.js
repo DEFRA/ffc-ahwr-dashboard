@@ -15,7 +15,7 @@ export const raiseIneligibilityEvent = async (sessionId, sbi, crn, email, except
         crn,
         exception,
         raisedAt: new Date(),
-        journey: "apply",
+        journey: "login",
       },
       status,
     };

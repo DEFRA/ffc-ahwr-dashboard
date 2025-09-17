@@ -3,10 +3,10 @@ import { generate as generateNonce } from "../id-token/nonce.js";
 import { generate as generateState } from "./state.js";
 import { generateCodeChallenge } from "./proof-key-for-code-exchange.js";
 
-export const BASE_URL = `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`;
+export const DEFRA_ID_BASE_URL = `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`;
 
-export const requestAuthorizationCodeUrl = (request, ssoOrgId) => {
-  const url = new URL(BASE_URL);
+export const requestAuthorizationCodeUrl = (request, relationshipId) => {
+  const url = new URL(DEFRA_ID_BASE_URL);
 
   url.searchParams.append("p", authConfig.defraId.policy);
   url.searchParams.append("client_id", authConfig.defraId.clientId);
@@ -18,8 +18,8 @@ export const requestAuthorizationCodeUrl = (request, ssoOrgId) => {
   url.searchParams.append("state", generateState(request));
   url.searchParams.append("forceReselection", true);
 
-  if (ssoOrgId) {
-    url.searchParams.append("relationshipId", ssoOrgId);
+  if (relationshipId) {
+    url.searchParams.append("relationshipId", relationshipId);
   }
   
   // Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE)

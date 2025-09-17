@@ -1,5 +1,5 @@
 import { createServer } from "../../../../app/server.js";
-import { BASE_URL } from "../../../../app/auth/auth-code-grant/request-authorization-code-url.js";
+import { DEFRA_ID_BASE_URL } from "../../../../app/auth/auth-code-grant/request-authorization-code-url.js";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   closedViewStatuses: [2, 10, 7, 9]
@@ -32,7 +32,7 @@ describe('root / path', () => {
     });
   
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location.href).toMatch(BASE_URL.toString());
+    expect(res.headers.location.href).toMatch(DEFRA_ID_BASE_URL);
   });
 })
 
