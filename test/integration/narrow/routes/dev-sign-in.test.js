@@ -5,7 +5,6 @@ import { getByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { StatusCodes } from "http-status-codes";
-import { applyServiceUri } from "../../../../app/config/routes.js";
 
 const mswServer = setupServer();
 mswServer.listen();
@@ -69,9 +68,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(
-      `${config.applyServiceUri}/endemics/check-details`,
-    );
+    expect(res.headers.location).toBe('/check-details');
   });
 
   test("GET dev sign-in route returns redirect to dashboard if already signed up for an EE application", async () => {
@@ -137,9 +134,7 @@ describe("Dev sign in page test", () => {
     });
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(
-      `${config.applyServiceUri}/endemics/check-details`,
-    );
+    expect(res.headers.location).toBe('/check-details');
   });
 
   test("GET dev sign-in route forwards to error page when coming from apply if signed up for an open VV application", async () => {
@@ -233,7 +228,7 @@ describe("Dev sign in page test", () => {
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
-    expect(res.headers.location).toBe(`${applyServiceUri}/endemics/check-details`);
+    expect(res.headers.location).toBe('/check-details');
   });
 
   test("GET dev sign-in route forwards to error page when forced to show CPH error", async () => {

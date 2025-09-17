@@ -1,5 +1,5 @@
 import { checkLoginValid } from "../../../../../app/routes/utils/check-login-valid";
-import { getCustomer } from "../../../../../app/session";
+import { getCustomer, setSignInRedirect } from "../../../../../app/session";
 import { sessionKeys } from "../../../../../app/session/keys";
 import { customerHasAtLeastOneValidCph } from "../../../../../app/api-requests/rpa-api/cph-check";
 import { raiseIneligibilityEvent } from "../../../../../app/event/raise-ineligibility-event";
@@ -28,7 +28,8 @@ jest.mock("../../../../../app/constants/claim-statuses.js", () => ({
 
 jest.mock("../../../../../app/session", () => ({
   getCustomer: jest.fn().mockReturnValue(124),
-  setCannotSignInDetails: jest.fn()
+  setCannotSignInDetails: jest.fn(),
+  setSignInRedirect: jest.fn()
 }));
 
 jest.mock("../../../../../app/api-requests/rpa-api/cph-check", () => ({
@@ -98,9 +99,10 @@ describe("checkLoginValid", () => {
       personSummary,
     });
 
-    expect(result.redirectPath).toMatch("apply/endemics/check-details");
+    expect(result.redirectPath).toEqual("/check-details");
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(
       request,
       apimAccessToken
@@ -152,6 +154,7 @@ describe("checkLoginValid", () => {
       redirectCallback: mockRedirectCallBackAsString,
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).not.toHaveBeenCalled(); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 is locked by RPA" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
@@ -207,6 +210,7 @@ describe("checkLoginValid", () => {
       redirectCallback: mockRedirectCallBackAsString,
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).not.toHaveBeenCalled(); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Person id 12345 does not have the required permissions for organisation id 111" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
@@ -263,6 +267,7 @@ describe("checkLoginValid", () => {
       redirectCallback: mockRedirectCallBackAsString,
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
@@ -319,6 +324,7 @@ describe("checkLoginValid", () => {
       redirectCallback: mockRedirectCallBackAsString,
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
@@ -371,9 +377,10 @@ describe("checkLoginValid", () => {
       personSummary,
     });
 
-    expect(result.redirectPath).toMatch("/apply/endemics/check-details");
+    expect(result.redirectPath).toEqual("/check-details");
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
@@ -428,6 +435,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectPath).toEqual("/check-details");
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
@@ -479,9 +487,10 @@ describe("checkLoginValid", () => {
       personSummary,
     });
 
-    expect(result.redirectPath).toMatch("/apply/endemics/check-details");
+    expect(result.redirectPath).toEqual("/check-details");
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
@@ -533,9 +542,10 @@ describe("checkLoginValid", () => {
       personSummary,
     });
 
-    expect(result.redirectPath).toMatch("/apply/endemics/check-details");
+    expect(result.redirectPath).toEqual("/check-details");
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
@@ -589,6 +599,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectPath).toBeNull();
     expect(result.redirectCallback).toBe(mockRedirectCallBackAsString);
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).toHaveBeenCalled();

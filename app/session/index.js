@@ -39,6 +39,7 @@ export function clear(request) {
   request.yar.clear(entries.selectYourBusiness);
   request.yar.clear(entries.customer);
   request.yar.clear(entries.cannotSignInDetails);
+  request.yar.clear(entries.signInRedirect);
 }
 
 export function clearAllOfSession(request) {

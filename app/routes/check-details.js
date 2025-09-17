@@ -2,10 +2,10 @@ import { getOrganisationModel } from "./models/organisation.js";
 import { sessionKeys } from "../session/keys.js";
 import boom from "@hapi/boom";
 import joi from "joi";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { getEndemicsClaim, getSignInRedirect, setEndemicsClaim } from "../session/index.js";
-import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 import { applyServiceUri } from "../config/routes.js";
+import { config } from "../config/index.js";
 
 const {
   organisation: organisationKey,
@@ -51,7 +51,7 @@ export const checkDetailsHandlers = [
                 "Select if these details are correct",
               ),
             })
-            .code(HttpStatus.BAD_REQUEST)
+            .code(StatusCodes.BAD_REQUEST)
             .takeover();
         },
       },
@@ -63,14 +63,15 @@ export const checkDetailsHandlers = [
           const redirectToApply = getSignInRedirect(request, sessionKeys.signInRedirect);
 
           if (redirectToApply === true) {
-            console.log(`${applyServiceUri}/endemics/you-can-claim-multiple`);
             return h.redirect(`${applyServiceUri}/endemics/you-can-claim-multiple`);
           }
 
           return h.redirect("/vet-visits");
         }
 
-        return h.view("update-details", { ruralPaymentsAgency: RPA_CONTACT_DETAILS });
+        const { organisation } = getEndemicsClaim(request);
+
+        return h.view("update-details", { devMode: config.devLogin.enabled, sfdButtonLink: `/sign-in?relationshipId=${organisation.id}`});
       },
     },
   },

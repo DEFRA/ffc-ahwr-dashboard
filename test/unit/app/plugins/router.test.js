@@ -25,6 +25,7 @@ describe("routes plugin test", () => {
       "/cookies",
       "/healthy",
       "/healthz",
+      "/sign-in",
       "/sign-out",
       "/signin-oidc",
       "/update-details",

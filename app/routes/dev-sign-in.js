@@ -84,7 +84,7 @@ export const devLoginHandlers = [
           setEndemicsClaim(request, sessionKeys.endemicsClaim.organisation, organisation);
           setAuthCookie(request, personSummary.email, farmerApply);
 
-          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi);
+          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi, request);
 
           if (error) {
             const errorToThrow = new Error();
@@ -107,7 +107,7 @@ export const devLoginHandlers = [
 
           return h
             .view("verify-login-failed", {
-              backLink: "TODO",
+              backLink: "/dev-landing-page",
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
