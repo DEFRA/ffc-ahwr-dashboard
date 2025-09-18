@@ -16,7 +16,8 @@ export const errorPagesPlugin = {
             return h.continue
           }
 
-          if (statusCode >= StatusCodes.NOT_FOUND && statusCode < StatusCodes.INTERNAL_SERVER_ERROR) {
+          // Status codes between 400-499 (excluding 404 as that is handled above)
+          if (statusCode >= StatusCodes.BAD_REQUEST && statusCode < StatusCodes.INTERNAL_SERVER_ERROR) {
             return h
               .view("error-pages/4xx", { payload })
               .code(statusCode);

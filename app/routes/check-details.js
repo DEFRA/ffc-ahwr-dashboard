@@ -2,14 +2,11 @@ import { getOrganisationModel } from "./models/organisation.js";
 import { sessionKeys } from "../session/keys.js";
 import joi from "joi";
 import { StatusCodes } from "http-status-codes";
-import { getEndemicsClaim, getSignInRedirect, setEndemicsClaim } from "../session/index.js";
+import { getEndemicsClaim, getSignInRedirect } from "../session/index.js";
 import { applyServiceUri } from "../config/routes.js";
 import { config } from "../config/index.js";
 
-const {
-  organisation: organisationKey,
-  confirmCheckDetails: confirmCheckDetailsKey,
-} = sessionKeys.endemicsClaim;
+const { organisation: organisationKey } = sessionKeys.endemicsClaim;
 
 export const checkDetailsHandlers = [
   {
@@ -58,7 +55,6 @@ export const checkDetailsHandlers = [
       },
       handler: async (request, h) => {
         const { confirmCheckDetails } = request.payload;
-        setEndemicsClaim(request, confirmCheckDetailsKey, confirmCheckDetails);
 
         if (confirmCheckDetails === "yes") {
           const redirectToApply = getSignInRedirect(request, sessionKeys.signInRedirect);

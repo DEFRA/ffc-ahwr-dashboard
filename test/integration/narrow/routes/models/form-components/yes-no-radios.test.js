@@ -11,7 +11,7 @@ describe("getYesNoRadios", () => {
   };
 
   test("should return correct structure with default options", () => {
-    const result = getYesNoRadios(legendText, id, "yes");
+    const result = getYesNoRadios(legendText, id);
 
     expect(result).toEqual({
       radios: {
@@ -29,8 +29,8 @@ describe("getYesNoRadios", () => {
           text: "", // Default empty string
         },
         items: [
-          { value: "yes", text: "Yes", checked: true },
-          { value: "no", text: "No", checked: false },
+          { value: "yes", text: "Yes" },
+          { value: "no", text: "No" },
         ],
       },
     });
@@ -38,7 +38,7 @@ describe("getYesNoRadios", () => {
 
   test("should handle custom options and error text", () => {
     const errorText = "Error message";
-    const result = getYesNoRadios(legendText, id, "no", errorText, options);
+    const result = getYesNoRadios(legendText, id, errorText, options);
 
     expect(result).toEqual({
       radios: {
@@ -56,8 +56,8 @@ describe("getYesNoRadios", () => {
           text: options.hintText,
         },
         items: [
-          { value: "yes", text: "Yes", checked: false },
-          { value: "no", text: "No", checked: true },
+          { value: "yes", text: "Yes" },
+          { value: "no", text: "No" },
         ],
         errorMessage: {
           text: errorText,

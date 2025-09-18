@@ -1,9 +1,6 @@
 import { getYesNoRadios } from "./form-component/yes-no-radios.js";
-import { getCustomer, getEndemicsClaim } from "../../session/index.js";
-import { sessionKeys } from "../../session/keys.js";
+import { getCustomer } from "../../session/index.js";
 import { requestAuthorizationCodeUrl } from "../../auth/auth-code-grant/request-authorization-code-url.js";
-
-const { confirmCheckDetails } = sessionKeys.endemicsClaim;
 
 const labelText = "Are these details correct?";
 
@@ -12,7 +9,6 @@ const formatAddressForDisplay = (organisation) => {
 };
 
 export const getOrganisationModel = (request, organisation, errorText) => {
-  const prevAnswer = getEndemicsClaim(request, confirmCheckDetails);
   const { crn } = getCustomer(request);
   request.logger.setBindings({ crn });
 
@@ -32,7 +28,7 @@ export const getOrganisationModel = (request, organisation, errorText) => {
     },
     organisation,
     listData: { rows },
-    ...getYesNoRadios(labelText, confirmCheckDetails, prevAnswer, errorText, {
+    ...getYesNoRadios(labelText, "confirmCheckDetails", errorText, {
       isPageHeading: false,
       legendClasses: "govuk-fieldset__legend--m",
       inline: true,

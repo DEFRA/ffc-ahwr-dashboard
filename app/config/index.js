@@ -7,6 +7,7 @@ import {
 
 const threeDaysInMs = 1000 * 3600 * 24 * 3;
 const oneYearInMs = 1000 * 60 * 60 * 24 * 365;
+const DEFAULT_REDIT_PORT = 6379;
 
 export const getConfig = () => {
   const schema = joi.object({
@@ -83,7 +84,7 @@ export const getConfig = () => {
         host: process.env.REDIS_HOSTNAME ?? "redis-hostname.default",
         partition: "ffc-ahwr-frontend",
         password: process.env.REDIS_PASSWORD,
-        port: Number.parseInt(process.env.REDIS_PORT ?? "6379", 10),
+        port: Number.parseInt(process.env.REDIS_PORT ?? DEFAULT_REDIT_PORT.toString(), 10),
         tls: process.env.NODE_ENV === "production" ? {} : undefined,
       },
     },

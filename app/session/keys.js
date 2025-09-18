@@ -10,7 +10,6 @@ export const sessionKeys = {
   },
   endemicsClaim: {
     organisation: "organisation",
-    confirmCheckDetails: "confirmCheckDetails",
     vetsName: "vetsName",
     testResult: "testResult",
     typeOfReview: "livestock",

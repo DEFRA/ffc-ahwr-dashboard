@@ -1,5 +1,4 @@
 import { createServer } from "../../../../app/server.js";
-import { config } from "../../../../app/config/index.js";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   closedViewStatuses: [2, 10, 7, 9]
@@ -37,17 +36,5 @@ describe("routes plugin test", () => {
       "/check-details",
       "/cookies"
     ]);
-  });
-
-  test("when isDev is true, dev-sign-in included in routes", async () => {
-    config.devLogin.enabled = true;
-
-    const server = await createServer();
-    const routePaths = [];
-    server.table().forEach((element) => {
-      routePaths.push(element.path);
-    });
-
-    expect(routePaths).toContain("/dev-sign-in");
   });
 });

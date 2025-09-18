@@ -54,11 +54,24 @@ function throwErrorBasedOnSuffix(sbi = "") {
 export const devLoginHandlers = [
   {
     method: "GET",
-    path: "/dev-sign-in",
+    path: devLandingPageUrl,
     options: {
       auth: false,
+      handler: async (_request, h) => {
+        return h.view("dev-landing-page");
+      },
+    },
+  },
+  {
+    method: "POST",
+    path: devLandingPageUrl,
+    options: {
+      auth: false,
+      plugins: {
+        crumb: false,
+      },
       handler: async (request, h) => {
-        const { sbi } = request.query;
+        const { sbi } = request.payload;
 
         request.logger.setBindings({ sbi });
 
@@ -116,28 +129,6 @@ export const devLoginHandlers = [
             .code(HttpStatus.BAD_REQUEST)
             .takeover();
         }
-      },
-    },
-  },
-  {
-    method: "GET",
-    path: devLandingPageUrl,
-    options: {
-      auth: false,
-      handler: async (_request, h) => {
-        return h.view("dev-landing-page");
-      },
-    },
-  },
-  {
-    method: "POST",
-    path: devLandingPageUrl,
-    options: {
-      auth: false,
-      handler: async (request, h) => {
-        const { sbi } = request.payload;
-
-        return h.redirect(`/dev-sign-in?sbi=${sbi}`);
       }
     }
   }
