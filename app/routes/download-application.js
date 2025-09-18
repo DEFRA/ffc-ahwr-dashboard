@@ -1,4 +1,3 @@
-import boom from "@hapi/boom";
 import { getBlob } from "../storage.js";
 import { getEndemicsClaim } from "../session/index.js";
 
@@ -22,6 +21,6 @@ export const downloadApplicationHandlers = {
         .header("Content-type", "application/pdf")
         .header("Content-length", blobBuffer.length);
     }
-    return boom.notFound();
+    throw new Error("Application not found, could not be downloaded.");
   },
 };

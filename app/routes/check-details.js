@@ -1,6 +1,5 @@
 import { getOrganisationModel } from "./models/organisation.js";
 import { sessionKeys } from "../session/keys.js";
-import boom from "@hapi/boom";
 import joi from "joi";
 import { StatusCodes } from "http-status-codes";
 import { getEndemicsClaim, getSignInRedirect, setEndemicsClaim } from "../session/index.js";
@@ -21,7 +20,7 @@ export const checkDetailsHandlers = [
         const organisation = getEndemicsClaim(request, organisationKey);
 
         if (!organisation) {
-          return boom.notFound();
+          throw new Error("Organisation not in session.")
         }
 
         return h.view("check-details", getOrganisationModel(request, organisation));
@@ -39,9 +38,11 @@ export const checkDetailsHandlers = [
         failAction: (request, h, err) => {
           request.logger.setBindings({ err });
           const organisation = getEndemicsClaim(request, organisationKey);
+
           if (!organisation) {
-            return boom.notFound();
+            throw new Error("Organisation not in session.")
           }
+
           return h
             .view("check-details", {
               errorMessage: { text: "Select if these details are correct" },

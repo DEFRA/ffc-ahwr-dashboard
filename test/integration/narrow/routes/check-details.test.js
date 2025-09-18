@@ -29,7 +29,7 @@ describe("/check-details", () => {
   })
 
 
-  test("GET /check-details with no organisation in the session", async () => {
+  test("GET /check-details throws an error if there is no organisation in the session", async () => {
     const res = await server.inject({
       url: '/check-details',
       method: 'GET',
@@ -39,7 +39,7 @@ describe("/check-details", () => {
       },
     });
 
-    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
+    expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 
   test("GET /check-details with organisation in the session, happy path", async () => {

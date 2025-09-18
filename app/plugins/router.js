@@ -13,6 +13,7 @@ import { signOutHandlers } from "../routes/sign-out.js";
 import { config } from "../config/index.js";
 import { cannotSignInExceptionHandlers } from "../routes/cannot-sign-in.js";
 import { defraIdSignInHandlers } from "../routes/sign-in.js";
+import { missingPagesRoutes } from "../routes/missing-routes.js";
 
 const alwaysOnRoutes = [
   healthHandlers,
@@ -27,7 +28,8 @@ const alwaysOnRoutes = [
   vetVisitsHandlers,
   signOutHandlers,
   cannotSignInExceptionHandlers,
-  defraIdSignInHandlers
+  defraIdSignInHandlers,
+  missingPagesRoutes
 ].flat();
 
 let routes;

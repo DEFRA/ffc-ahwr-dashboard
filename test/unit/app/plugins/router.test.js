@@ -31,6 +31,7 @@ describe("routes plugin test", () => {
       "/update-details",
       "/vet-visits",
       "/",
+      "/{any*}",
       "/assets/{path*}",
       "/download-application/{sbi}/{reference}",
       "/check-details",
