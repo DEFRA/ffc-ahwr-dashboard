@@ -12,7 +12,8 @@ jest.mock("../../../../app/constants/claim-statuses.js", () => ({
 }));
 
 describe('Missing routes', () => {
-  let server
+  let server;
+  let cleanupJsdom;
 
   beforeAll(async () => {
     server = await createServer()
@@ -20,7 +21,11 @@ describe('Missing routes', () => {
   })
 
   afterAll(async () => {
-    await server.stop()
+    await server.stop();
+
+    if (cleanupJsdom) {
+      cleanupJsdom();
+    }
   })
 
   test('GET an unregistered route when user is signed out', async () => {
@@ -33,7 +38,7 @@ describe('Missing routes', () => {
 
     expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
 
-    globalJsdom(res.payload);
+    cleanupJsdom = globalJsdom(res.payload);
 
     expect(getByRole(document.body, "link", {
         name: "Go back home",
@@ -45,6 +50,7 @@ describe('Missing routes', () => {
   })
 
   test('GET an unregistered route when user is signed in', async () => {
+    cleanupJsdom();
     getEndemicsClaim.mockReturnValue({ organisation: {} })
 
     const options = {
@@ -54,7 +60,7 @@ describe('Missing routes', () => {
 
     const res = await server.inject(options)
 
-    globalJsdom(res.payload);
+    cleanupJsdom = globalJsdom(res.payload);
 
     expect(getByRole(document.body, "link", {
         name: "Go back home",
