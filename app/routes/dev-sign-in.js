@@ -8,14 +8,11 @@ import { farmerApply } from "../constants/constants.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
 import { getRedirectPath } from "./utils/get-redirect-path.js";
 import HttpStatus from "http-status-codes";
-import { applyServiceUri, claimServiceUri } from "../config/routes.js";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 import { setSessionForErrorPage } from "./utils/check-login-valid.js";
 
-const pageUrl = `/dev-sign-in`;
-const claimServiceRedirectUri = `${claimServiceUri}/endemics/dev-sign-in`;
-const applyServiceRedirectUri = `${applyServiceUri}/endemics/dev-sign-in`;
+const devLandingPageUrl = "/dev-landing-page";
 
 const createDevDetails = (sbi) => {
   const organisationSummary = {
@@ -57,13 +54,25 @@ function throwErrorBasedOnSuffix(sbi = "") {
 export const devLoginHandlers = [
   {
     method: "GET",
-    path: pageUrl,
+    path: devLandingPageUrl,
     options: {
       auth: false,
+      handler: async (_request, h) => {
+        return h.view("dev-landing-page");
+      },
+    },
+  },
+  {
+    method: "POST",
+    path: devLandingPageUrl,
+    options: {
+      auth: false,
+      plugins: {
+        crumb: false,
+      },
       handler: async (request, h) => {
-        const { sbi, cameFrom } = request.query;
+        const { sbi } = request.payload;
 
-        request.logger.info(`dev sign-in came from ${cameFrom}`);
         request.logger.setBindings({ sbi });
 
         const [personSummary, organisationSummary] = createDevDetails(sbi);
@@ -90,7 +99,7 @@ export const devLoginHandlers = [
           setEndemicsClaim(request, sessionKeys.endemicsClaim.organisation, organisation);
           setAuthCookie(request, personSummary.email, farmerApply);
 
-          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi);
+          const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi, request);
 
           if (error) {
             const errorToThrow = new Error();
@@ -105,33 +114,22 @@ export const devLoginHandlers = [
 
           if (errorNames.includes(error.name)) {
             const hasMultipleBusinesses = sbi.charAt(0) === '1';
-            const backLink = requestAuthorizationCodeUrl(request, cameFrom);
-            setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink, organisation });
+            const backLink = requestAuthorizationCodeUrl(request);
+            setSessionForErrorPage({ request, error: error.name, hasMultipleBusinesses, backLink, organisation });
 
             return h.redirect('/cannot-sign-in').takeover();
           }
 
           return h
             .view("verify-login-failed", {
-              backLink: cameFrom === "apply" ? applyServiceRedirectUri : claimServiceRedirectUri,
+              backLink: devLandingPageUrl,
               ruralPaymentsAgency: RPA_CONTACT_DETAILS,
               message: error.data?.payload?.message ?? error.message,
             })
             .code(HttpStatus.BAD_REQUEST)
             .takeover();
         }
-      },
-    },
-  },
-  {
-    method: "GET",
-    path: "/dev-defraid",
-    options: {
-      auth: false,
-      handler: async (request, h) => {
-        setFarmerApplyData(request, "sendBackDevValue", "true");
-        return h.redirect(requestAuthorizationCodeUrl(request, "apply"));
-      },
-    },
-  },
+      }
+    }
+  }
 ];

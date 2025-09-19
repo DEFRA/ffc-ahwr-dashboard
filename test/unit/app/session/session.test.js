@@ -7,14 +7,12 @@ import {
   getEndemicsClaim,
   getFarmerApplyData,
   getPkcecodes,
-  getReturnRoute,
   getToken,
   setApplication,
   setCustomer,
   setEndemicsClaim,
   setFarmerApplyData,
   setPkcecodes,
-  setReturnRoute,
   setToken,
 } from "../../../../app/session/index.js";
 import { sendSessionEvent } from "../../../../app/event/send-session-event.js";
@@ -200,22 +198,6 @@ describe("session", () => {
       const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };
       getCustomer(request, "test key");
       expect(yarMock.get).toHaveBeenCalledWith("customer");
-    });
-  });
-
-  describe("ReturnRoute", () => {
-    test("set called with correct variables", () => {
-      const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };
-      setReturnRoute(request, "setReturnRoute", "test value");
-      expect(yarMock.set).toHaveBeenCalledWith("returnRoute", {
-        setReturnRoute: "test value",
-      });
-    });
-
-    test("get called with correct variables", () => {
-      const request = { yar: yarMock, headers: { "x-forwarded-for": "1,2,3" } };
-      getReturnRoute(request);
-      expect(yarMock.get).toHaveBeenCalledWith("returnRoute");
     });
   });
 });

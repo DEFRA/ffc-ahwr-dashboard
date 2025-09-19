@@ -44,7 +44,6 @@ container:
   messageQueueHost: namespace.servicebus.windows.net
   port: 3000
   redisHostname: redis-hostname.default
-  redisPartition: ffc-ahwr-dashboard
   redisPassword: redis
   redisPort: 6379
   serviceUri:

@@ -5,7 +5,6 @@ import { getByRole } from "@testing-library/dom";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { StatusCodes } from "http-status-codes";
-import { applyServiceUri } from "../../../../app/config/routes.js";
 
 const mswServer = setupServer();
 mswServer.listen();
@@ -44,8 +43,10 @@ jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   }
 }));
 
+const auth = { credentials: {}, strategy: 'cookie' }
+
 describe("Dev sign in page test", () => {
-  test("GET dev sign-in route returns redirect to apply journey if not applied yet", async () => {
+  test("POST dev sign-in route returns redirect to apply journey if not applied yet", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -65,16 +66,18 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST'
     });
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(
-      `${config.applyServiceUri}/endemics/check-details`,
-    );
+    expect(res.headers.location).toBe('/check-details');
   });
 
-  test("GET dev sign-in route returns redirect to dashboard if already signed up for an EE application", async () => {
+  test("POST dev sign-in route returns redirect to dashboard if already signed up for an EE application", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -100,14 +103,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe(`/check-details`);
   });
 
-  test("GET dev sign-in route returns redirect to apply journey if signed up for a closed VV application", async () => {
+  test("POST dev sign-in route returns redirect to apply journey if signed up for a closed VV application", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -133,16 +141,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(
-      `${config.applyServiceUri}/endemics/check-details`,
-    );
+    expect(res.headers.location).toBe('/check-details');
   });
 
-  test("GET dev sign-in route forwards to error page when coming from apply if signed up for an open VV application", async () => {
+  test("POST dev sign-in route forwards to error page when coming from apply if signed up for an open VV application", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -168,14 +179,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=apply&tempApplicationId=ABCD-1234`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
     expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
-  test("GET dev sign-in route forwards to error page when trying to claim for an open VV application", async () => {
+  test("POST dev sign-in route forwards to error page when trying to claim for an open VV application", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -201,14 +217,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
     expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
-  test("GET dev sign-in route forwards to error page when trying to claim and no application exists", async () => {
+  test("POST dev sign-in route forwards to error page when trying to claim and no application exists", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -228,15 +249,20 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
 
-    expect(res.headers.location).toBe(`${applyServiceUri}/endemics/check-details`);
+    expect(res.headers.location).toBe('/check-details');
   });
 
-  test("GET dev sign-in route forwards to error page when forced to show CPH error", async () => {
+  test("POST dev sign-in route forwards to error page when forced to show CPH error", async () => {
     config.devLogin.enabled = true;
     const sbi = "123c";
     const server = await createServer();
@@ -256,14 +282,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
     expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
-  test("GET dev sign-in route forwards to error page when forced to show Invalid permissions error", async () => {
+  test("POST dev sign-in route forwards to error page when forced to show Invalid permissions error", async () => {
     config.devLogin.enabled = true;
     const sbi = "123i";
     const server = await createServer();
@@ -283,14 +314,19 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST',
+      auth
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
     expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
-  test("GET dev sign-in route forwards to error page when forced to show locked business error", async () => {
+  test("POST dev sign-in route forwards to error page when forced to show locked business error", async () => {
     config.devLogin.enabled = true;
     const sbi = "123l";
     const server = await createServer();
@@ -310,14 +346,18 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST'
     });
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
     expect(res.headers.location).toEqual('/cannot-sign-in');
   });
 
-  test("GET dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {
+  test("POST dev sign-in route forwards to cannot login error page when unknown error encountered", async () => {
     config.devLogin.enabled = true;
     const sbi = "123456789";
     const server = await createServer();
@@ -331,7 +371,11 @@ describe("Dev sign in page test", () => {
     mswServer.use(getLatestApplicationsBySbi);
 
     const res = await server.inject({
-      url: `/dev-sign-in?sbi=${sbi}&cameFrom=claim`,
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST'
     });
 
     const cleanUpFunction = globalJsdom(res.payload);
@@ -345,17 +389,5 @@ describe("Dev sign in page test", () => {
     ).toBeDefined();
 
     cleanUpFunction()
-  });
-
-  test("GET dev defraid sign-in route returns redirect to defraId", async () => {
-    config.devLogin.enabled = true;
-    const server = await createServer();
-
-    const res = await server.inject({
-      url: `/dev-defraid`,
-    });
-
-    expect(res.statusCode).toBe(302);
-    expect(res.headers.location.href).toMatch('onmicrosoft.com/oauth2/v2.0/authorize');
   });
 });

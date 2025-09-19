@@ -1,15 +1,12 @@
 import { getOrganisationModel } from "./models/organisation.js";
 import { sessionKeys } from "../session/keys.js";
-import boom from "@hapi/boom";
 import joi from "joi";
-import HttpStatus from "http-status-codes";
-import { getEndemicsClaim, setEndemicsClaim } from "../session/index.js";
-import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
+import { StatusCodes } from "http-status-codes";
+import { getEndemicsClaim, getSignInRedirect } from "../session/index.js";
+import { applyServiceUri } from "../config/routes.js";
+import { config } from "../config/index.js";
 
-const {
-  organisation: organisationKey,
-  confirmCheckDetails: confirmCheckDetailsKey,
-} = sessionKeys.endemicsClaim;
+const { organisation: organisationKey } = sessionKeys.endemicsClaim;
 
 export const checkDetailsHandlers = [
   {
@@ -20,7 +17,7 @@ export const checkDetailsHandlers = [
         const organisation = getEndemicsClaim(request, organisationKey);
 
         if (!organisation) {
-          return boom.notFound();
+          throw new Error("Organisation not in session.")
         }
 
         return h.view("check-details", getOrganisationModel(request, organisation));
@@ -38,9 +35,11 @@ export const checkDetailsHandlers = [
         failAction: (request, h, err) => {
           request.logger.setBindings({ err });
           const organisation = getEndemicsClaim(request, organisationKey);
+
           if (!organisation) {
-            return boom.notFound();
+            throw new Error("Organisation not in session.")
           }
+
           return h
             .view("check-details", {
               errorMessage: { text: "Select if these details are correct" },
@@ -50,19 +49,26 @@ export const checkDetailsHandlers = [
                 "Select if these details are correct",
               ),
             })
-            .code(HttpStatus.BAD_REQUEST)
+            .code(StatusCodes.BAD_REQUEST)
             .takeover();
         },
       },
       handler: async (request, h) => {
         const { confirmCheckDetails } = request.payload;
-        setEndemicsClaim(request, confirmCheckDetailsKey, confirmCheckDetails);
 
         if (confirmCheckDetails === "yes") {
+          const redirectToApply = getSignInRedirect(request, sessionKeys.signInRedirect);
+
+          if (redirectToApply === true) {
+            return h.redirect(`${applyServiceUri}/endemics/you-can-claim-multiple`);
+          }
+
           return h.redirect("/vet-visits");
         }
 
-        return h.view("update-details", { ruralPaymentsAgency: RPA_CONTACT_DETAILS });
+        const { organisation } = getEndemicsClaim(request);
+
+        return h.view("update-details", { devMode: config.devLogin.enabled, sfdButtonLink: `/sign-in?relationshipId=${organisation.id}`});
       },
     },
   },

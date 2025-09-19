@@ -15,16 +15,10 @@ describe("Generate authentication url test", () => {
     jest.resetAllMocks();
   });
 
-  test("when requestAuthorizationCodeUrl with pkce true challenge parameter added", async () => {
-    const result = requestAuthorizationCodeUrl(undefined);
+  test("requestAuthorizationCodeUrl sets a code challenge parameter", async () => {
+    const result = requestAuthorizationCodeUrl();
     const params = new URL(result).searchParams;
     expect(params.get("code_challenge")).not.toBeNull();
-  });
-
-  test("when requestAuthorizationCodeUrl with pkce false no challenge parameter is added", async () => {
-    const result = requestAuthorizationCodeUrl(undefined, undefined, false);
-    const params = new URL(result).searchParams;
-    expect(params.get("code_challenge")).toBeNull();
   });
 
   test("when invalid state occurs", async () => {
@@ -38,7 +32,7 @@ describe("Generate authentication url test", () => {
       redirect: mockRedirect
     };
     
-    await authenticate(request, 'claim', mockH, mockLogger);
+    await authenticate(request, mockH, mockLogger);
     expect(mockRedirect).toHaveBeenCalled();
   });
 });

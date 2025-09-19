@@ -1,5 +1,7 @@
 {% extends './layouts/layout.njk' %}
 
+{% block pageTitle %}Error - {{ serviceName }} - GOV.UK{% endblock %}
+
 {% block content %}
   <div id="_{{ payload.statusCode }}" class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">

@@ -14,32 +14,32 @@ export const setSessionForErrorPage = ({ request, error, hasMultipleBusinesses, 
   setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.organisation, organisation);
 }
 
-export const checkLoginValid = async ({ h, organisation, organisationPermission, request, apimAccessToken, personSummary, loginSource }) => {
+export const checkLoginValid = async ({ h, organisation, organisationPermission, request, apimAccessToken, personSummary }) => {
   const { logger } = request;
   const crn = getCustomer(request, sessionKeys.customer.crn);
 
   if (organisation.locked) {
     logger.setBindings({ error: `Organisation id ${organisation.id} is locked by RPA`, crn })
-    return returnErrorRouting({ h, error: 'LockedBusinessError', organisation, request, crn, loginSource });
+    return returnErrorRouting({ h, error: 'LockedBusinessError', organisation, request, crn });
   }
   
   if (!organisationPermission) {
     logger.setBindings({ error: `Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`, crn })
-    return returnErrorRouting({ h, error: 'InvalidPermissionsError', organisation, request, crn, loginSource });
+    return returnErrorRouting({ h, error: 'InvalidPermissionsError', organisation, request, crn });
   }
 
   const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
 
   if (!hasValidCph) {
     logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
-    return returnErrorRouting({ h, error: 'NoEligibleCphError', organisation, request, crn, loginSource });
+    return returnErrorRouting({ h, error: 'NoEligibleCphError', organisation, request, crn });
   }
 
   const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, logger);
-  const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi);
+  const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi, request);
 
   if (err) {
-    return returnErrorRouting({ h, error: err, organisation, request, crn, loginSource });
+    return returnErrorRouting({ h, error: err, organisation, request, crn });
   }
 
   const redirectPath = maybeSuffixLoginRedirectUrl(request, initialRedirectPath, crn, personSummary.id);
@@ -47,12 +47,12 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
   return { redirectPath, redirectCallback: null };
 };
 
-const returnErrorRouting = async ({ h, error, organisation, request, crn, loginSource }) => {
+const returnErrorRouting = async ({ h, error, organisation, request, crn }) => {
   await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
 
   const hasMultipleBusinesses = Boolean(getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses));
 
-  setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink: requestAuthorizationCodeUrl(request, loginSource), organisation });
+  setSessionForErrorPage({ request, error, hasMultipleBusinesses, backLink: requestAuthorizationCodeUrl(request), organisation });
 
   const redirectCallback = h.redirect('/cannot-sign-in').takeover();
 

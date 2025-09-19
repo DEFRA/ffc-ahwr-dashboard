@@ -16,7 +16,7 @@ export const raiseEvent = async (event, status = "success") => {
         type: event.type,
         message: event.message,
         data: event.data,
-        raisedBy: event.email,
+        raisedBy: event.email ?? 'N/A',
       },
     },
   };

@@ -43,7 +43,7 @@ describe("Send event on inegibile", () => {
         crn,
         exception,
         raisedAt: MOCK_NOW,
-        journey: "apply",
+        journey: "login",
       },
       status: "alert",
     };

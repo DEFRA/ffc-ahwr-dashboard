@@ -1,8 +1,7 @@
 import { setServerState } from "../../../helpers/set-server-state.js";
 import { createServer } from "../../../../app/server.js";
 import { storageConfig } from "../../../../app/config/storage.js";
-import globalJsdom from "global-jsdom";
-import { getByRole } from "@testing-library/dom";
+import { StatusCodes } from "http-status-codes";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   closedViewStatuses: [2, 10, 7, 9]
@@ -62,12 +61,7 @@ test("get /download-application, reference mismatch", async () => {
     },
   });
 
-  globalJsdom(res.payload);
-
-  expect(res.statusCode).toBe(404);
-  expect(
-    getByRole(document.body, "heading", { level: 1, name: "404 - Not Found" }),
-  ).toBeDefined();
+  expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 });
 
 test("get /download-application, sbi mismatch", async () => {
@@ -95,10 +89,5 @@ test("get /download-application, sbi mismatch", async () => {
     },
   });
 
-  globalJsdom(res.payload);
-
-  expect(res.statusCode).toBe(404);
-  expect(
-    getByRole(document.body, "heading", { level: 1, name: "404 - Not Found" }),
-  ).toBeDefined();
+  expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 });

@@ -2,8 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import { createServer } from "../../../../app/server.js";
 import { getToken, clearAllOfSession } from "../../../../app/session/index.js";
 import { clearAuthCookie } from "../../../../app/auth/cookie-auth/cookie-auth.js";
-import { claimServiceUri } from "../../../../app/config/routes.js";
 import { signOutUrl } from "../../../../app/routes/sign-out.js";
+import { config } from "../../../../app/config/index.js";
 
 jest.mock("../../../../app/session/index.js");
 jest.mock("../../../../app/auth/cookie-auth/cookie-auth.js");
@@ -41,7 +41,7 @@ describe("GET /sign-out handler", () => {
 
     expect(url.href).toContain(signOutUrl);
     expect(url.pathname).toMatch(/\/oauth2\/v2\.0\/logout$/);
-    expect(searchParams.get("post_logout_redirect_uri")).toBe(claimServiceUri);
+    expect(searchParams.get("post_logout_redirect_uri")).toBe(`${config.serviceUri}sign-in`);
     expect(searchParams.get("id_token_hint")).toBe(accessToken);
   });
 });

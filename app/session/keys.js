@@ -10,7 +10,6 @@ export const sessionKeys = {
   },
   endemicsClaim: {
     organisation: "organisation",
-    confirmCheckDetails: "confirmCheckDetails",
     vetsName: "vetsName",
     testResult: "testResult",
     typeOfReview: "livestock",
@@ -49,13 +48,11 @@ export const sessionKeys = {
     filterStatus: "status",
     sort: "sort",
   },
-  returnRoute: {
-    returnRoute: "returnRoute",
-  },
   cannotSignInDetails: {
     error: "error",
     hasMultipleBusinesses: "hasMultipleBusinesses",
     backLink: "backLink",
     organisation: "organisation",
   },
+  signInRedirect: "signInRedirect"
 };

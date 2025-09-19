@@ -11,11 +11,6 @@ data:
   {{- if .Values.container.redisHostname }}
   REDIS_HOSTNAME: {{ quote .Values.container.redisHostname }}
   {{- end }}
-  {{- if .Values.pr }}
-  REDIS_PARTITION: {{ .Values.container.redisPartition }}-{{ .Values.pr }}
-  {{ else }}
-  REDIS_PARTITION: {{ quote .Values.container.redisPartition }}
-  {{- end }}
   REDIS_PORT: {{ quote .Values.container.redisPort }}
   SERVICE_URI: {{ quote .Values.container.serviceUri }}
   CLAIM_SERVICE_URI: {{ quote .Values.container.claimServiceUri }}

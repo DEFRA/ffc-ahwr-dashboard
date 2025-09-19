@@ -11,7 +11,7 @@ jest.mock("../../../../app/routes/sign-out.js");
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
     closedViewStatuses: [2, 10, 7, 9]
-  }));
+}));
 
 describe("GET /cannot-sign-in handler", () => {
   let server;

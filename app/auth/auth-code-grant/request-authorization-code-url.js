@@ -3,10 +3,10 @@ import { generate as generateNonce } from "../id-token/nonce.js";
 import { generate as generateState } from "./state.js";
 import { generateCodeChallenge } from "./proof-key-for-code-exchange.js";
 
-export const BASE_URL = `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`;
+export const DEFRA_ID_BASE_URL = `${authConfig.defraId.hostname}${authConfig.defraId.oAuthAuthorisePath}`;
 
-export const requestAuthorizationCodeUrl = (request, source = "dashboard", useProofKeyForCodeExchange = true) => {
-  const url = new URL(BASE_URL);
+export const requestAuthorizationCodeUrl = (request, relationshipId) => {
+  const url = new URL(DEFRA_ID_BASE_URL);
 
   url.searchParams.append("p", authConfig.defraId.policy);
   url.searchParams.append("client_id", authConfig.defraId.clientId);
@@ -15,13 +15,17 @@ export const requestAuthorizationCodeUrl = (request, source = "dashboard", usePr
   url.searchParams.append("scope", authConfig.defraId.scope);
   url.searchParams.append("response_type", "code");
   url.searchParams.append("serviceId", authConfig.defraId.serviceId);
-  url.searchParams.append("state", generateState(request, source));
+  url.searchParams.append("state", generateState(request));
   url.searchParams.append("forceReselection", true);
-  if (useProofKeyForCodeExchange) {
-    // Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE)
-    const codeChallenge = generateCodeChallenge(request);
-    url.searchParams.append("code_challenge", codeChallenge);
-    url.searchParams.append("code_challenge_method", "S256");
+
+  if (relationshipId) {
+    url.searchParams.append("relationshipId", relationshipId);
   }
+  
+  // Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE)
+  const codeChallenge = generateCodeChallenge(request);
+  url.searchParams.append("code_challenge", codeChallenge);
+  url.searchParams.append("code_challenge_method", "S256");
+
   return url;
 };
