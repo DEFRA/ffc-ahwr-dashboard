@@ -390,4 +390,36 @@ describe("Dev sign in page test", () => {
 
     cleanUpFunction()
   });
+
+
+  test("POST dev sign-in route forwards to error page when forced to show agreement redacted error", async () => {
+    config.devLogin.enabled = true;
+    const sbi = "123r";
+    const server = await createServer();
+
+    const getLatestApplicationsBySbi = http.get(
+      `${config.applicationApi.uri}/applications/latest`,
+      ({ request }) => {
+        const url = new URL(request.url);
+
+        if (url.searchParams.get("sbi") !== sbi) {
+          return new HttpResponse(null, { status: 404 });
+        }
+
+        return HttpResponse.json([]);
+      },
+    );
+    mswServer.use(getLatestApplicationsBySbi);
+
+    const res = await server.inject({
+      url: '/dev-landing-page',
+      payload: {
+        sbi
+      },
+      method: 'POST'
+    });
+
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY);
+    expect(res.headers.location).toEqual('/cannot-sign-in');
+  });
 });
