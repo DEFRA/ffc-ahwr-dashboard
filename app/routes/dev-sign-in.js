@@ -105,7 +105,7 @@ export const devLoginHandlers = [
           const { redirectPath, error } = getRedirectPath(latestApplicationsForSbi, request);
 
           if (error) {
-            const errorToThrow = new Error();
+            const errorToThrow = new Error(error);
             errorToThrow.name = error;
 
             throw errorToThrow;
