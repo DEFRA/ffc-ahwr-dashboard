@@ -51,7 +51,7 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
     return returnErrorRouting({ h, error: 'InvalidPermissionsError', organisation, request, crn });
   }
 
-  const hasValidCph = await customerHasAtLeastOneValidCph(cphNumbers);
+  const hasValidCph = customerHasAtLeastOneValidCph(cphNumbers);
 
   if (!hasValidCph) {
     const reason = `Organisation id ${organisation.id} has no valid CPH's associated`;
