@@ -81,6 +81,7 @@ test("get /vet-visits: no agreement throws an error", async () => {
 });
 
 test("get /vet-visits: new world, multiple businesses", async () => {
+  cleanUpFunction();
   const server = await createServer();
 
   const sbi = "106354662";
