@@ -225,7 +225,7 @@ describe("checkLoginValid", () => {
   });
 
   test("it returns a redirect callback if there is no valid CPH", async () => {
-    customerHasAtLeastOneValidCph.mockResolvedValue(false);
+    customerHasAtLeastOneValidCph.mockReturnValue(false);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -282,7 +282,7 @@ describe("checkLoginValid", () => {
   });
 
   test("it returns a redirect callback if there is no valid CPH", async () => {
-    customerHasAtLeastOneValidCph.mockResolvedValue(false);
+    customerHasAtLeastOneValidCph.mockReturnValue(false);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -336,7 +336,7 @@ describe("checkLoginValid", () => {
       "NoEligibleCphError"
     );
     expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
-    customerHasAtLeastOneValidCph.mockResolvedValue(true);
+    customerHasAtLeastOneValidCph.mockReturnValue(true);
   });
 
   test("it returns a redirect path to apply journey if there are no problems and the user has no applications", async () => {
@@ -655,7 +655,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
