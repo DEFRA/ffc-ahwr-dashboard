@@ -1,7 +1,6 @@
 import {
   getCustomer,
   getEndemicsClaim,
-  getToken,
   setEndemicsClaim,
 } from "../session/index.js";
 import { getLatestApplicationsBySbi } from "../api-requests/application-api.js";
@@ -194,9 +193,9 @@ export const vetVisitsHandlers = [
 
         const claims = latestEndemicsApplication
           ? await getClaimsByApplicationReference(
-            latestEndemicsApplication?.reference,
-            request.logger,
-          )
+              latestEndemicsApplication?.reference,
+              request.logger,
+            )
           : [];
 
         const vetVisitApplicationsWithinLastTenMonths =
