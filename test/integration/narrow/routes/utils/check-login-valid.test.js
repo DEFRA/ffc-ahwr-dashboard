@@ -63,10 +63,10 @@ describe("checkLoginValid", () => {
 
   const cphNumbers = ["33/333/3333"];
   const personSummary = {
-      id: 12345,
-      name: "Farmer Tom",
-      email: "farmertomstestemail@test.com.test",
-    };
+    id: 12345,
+    name: "Farmer Tom",
+    email: "farmertomstestemail@test.com.test",
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -390,12 +390,12 @@ describe("checkLoginValid", () => {
 
   test("it returns a redirect path to dashboard entry if there are no problems and the user an agreed new world application", async () => {
     getLatestApplicationsBySbi.mockResolvedValue([
-        {
-          type: "EE",
-          statusId: 1,
-          createdAt: new Date(),
-        },
-      ]);
+      {
+        type: "EE",
+        statusId: 1,
+        createdAt: new Date(),
+      },
+    ]);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -445,12 +445,12 @@ describe("checkLoginValid", () => {
 
   test("it returns a redirect path to apply journey if there are no problems and the user an non-agreed new world application", async () => {
     getLatestApplicationsBySbi.mockResolvedValue([
-        {
-          type: "EE",
-          statusId: 4,
-          createdAt: new Date(),
-        },
-      ]);
+      {
+        type: "EE",
+        statusId: 4,
+        createdAt: new Date(),
+      },
+    ]);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -500,12 +500,12 @@ describe("checkLoginValid", () => {
 
   test("it returns a redirect path to apply journey if there are no problems and the user a closed status old world application", async () => {
     getLatestApplicationsBySbi.mockResolvedValue([
-        {
-          type: "VV",
-          statusId: 2,
-          createdAt: new Date(),
-        },
-      ]);
+      {
+        type: "VV",
+        statusId: 2,
+        createdAt: new Date(),
+      },
+    ]);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -555,12 +555,12 @@ describe("checkLoginValid", () => {
 
   test("it returns a redirect callback if there are no problems but the user has a non-closed status old world application", async () => {
     getLatestApplicationsBySbi.mockResolvedValue([
-        {
-          type: "VV",
-          statusId: 1,
-          createdAt: new Date(),
-        },
-      ]);
+      {
+        type: "VV",
+        statusId: 1,
+        createdAt: new Date(),
+      },
+    ]);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -605,5 +605,75 @@ describe("checkLoginValid", () => {
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).toHaveBeenCalled();
+  });
+
+  test("it returns a redirect callback when the agreement is redacted", async () => {
+    getLatestApplicationsBySbi.mockResolvedValue([
+      {
+        type: "EE",
+        statusId: 1,
+        createdAt: new Date(),
+        reference: 'IAHW-12345',
+        applicationRedacts: [
+          {
+            success: 'Y'
+          }
+        ]
+      },
+    ]);
+    const mockRedirectCallBackAsString = "im a redirect callback";
+    const h = {
+      redirect: jest
+        .fn()
+        .mockReturnValue({
+          takeover: jest.fn().mockReturnValue(mockRedirectCallBackAsString),
+        }),
+    };
+    const organisation = {
+      address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
+      email: "unit@test.email.com.test",
+      name: "Unit test org",
+      sbi: 999000,
+      locked: false,
+      id: 111
+    };
+    const organisationPermission = true;
+
+    const mockSetBindings = jest.fn();
+
+    const request = {
+      yar: {
+        id: 1,
+      },
+      logger: {
+        setBindings: mockSetBindings,
+      },
+    };
+
+    const result = await checkLoginValid({
+      h,
+      organisation,
+      organisationPermission,
+      request,
+      apimAccessToken,
+      personSummary,
+    });
+
+    expect(result).toEqual({
+      redirectPath: null,
+      redirectCallback: mockRedirectCallBackAsString,
+    });
+    expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).not.toHaveBeenCalled();
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalled();
+    expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Agreement IAHW-12345 has been redacted" });
+    expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
+      request.yar.id,
+      organisation.sbi,
+      124,
+      organisation.email,
+      "AgreementRedactedError"
+    );
+    expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
   });
 });

@@ -73,6 +73,7 @@ export const getConfig = () => {
     multiHerds: joi.object({
       releaseDate: joi.string().required(),
     }),
+    privacyPolicyUri: joi.string().uri()
   });
 
   const config = {
@@ -139,6 +140,7 @@ export const getConfig = () => {
     multiHerds: {
       releaseDate: process.env.MULTI_HERDS_RELEASE_DATE || "2025-05-01",
     },
+    privacyPolicyUri: process.env.PRIVACY_POLICY_URI,
   };
 
   const { error } = schema.validate(config, {

@@ -4,6 +4,7 @@ import { clearAllOfSession, getCannotSignInDetails, getToken } from "../session/
 import { sessionKeys } from "../session/keys.js";
 import { clearAuthCookie } from "../auth/cookie-auth/cookie-auth.js";
 import { claimServiceUri } from "../config/routes.js";
+import { config }  from "../config/index.js"
 
 export const cannotSignInExceptionHandlers = [
   {
@@ -39,7 +40,8 @@ export const cannotSignInExceptionHandlers = [
             backLink,
             sbiText: `SBI ${organisation.sbi ?? ""}`,
             organisationName: organisation.name,
-            signOutLink
+            signOutLink,
+            privacyPolicyUri: config.privacyPolicyUri
           });
       },
     },

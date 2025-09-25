@@ -38,4 +38,5 @@ data:
   MULTI_SPECIES_RELEASE_DATE: {{ quote .Values.container.multiSpeciesReleaseDate }}
   CUSTOMER_SURVEY_CLAIM_URI: {{ quote .Values.container.customerSurveyClaimUri }}
   MULTI_HERDS_RELEASE_DATE: {{ quote .Values.container.multiHerdsReleaseDate }}
+  PRIVACY_POLICY_URI: {{ quote .Values.container.privacyPolicyUri }}
 {{- end -}}
