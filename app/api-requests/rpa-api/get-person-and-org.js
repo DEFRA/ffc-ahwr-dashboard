@@ -4,6 +4,7 @@ import {
   setFarmerApplyData,
 } from "../../session/index.js";
 import { sessionKeys } from "../../session/keys.js";
+import { getCphNumbers } from "./cph-numbers.js";
 import {
   getOrganisation,
   getOrganisationAuthorisation,
@@ -59,13 +60,14 @@ const setOrganisationSessionData = (request, personSummary, org, crn) => {
 export const getPersonAndOrg = async ({ request, apimAccessToken, crn, logger, accessToken }) => {
   const organisationId = accessToken.currentRelationshipId;
 
-  const [ personSummaryResult, organisationAuthorisationResult, organisationResult ] = await Promise.allSettled([
+  const [ personSummaryResult, organisationAuthorisationResult, organisationResult, cphNumbersResult ] = await Promise.allSettled([
     getPersonSummary(request, apimAccessToken, crn, logger),
     getOrganisationAuthorisation(request, organisationId, apimAccessToken),
     getOrganisation(request, organisationId, apimAccessToken),
+    getCphNumbers(request, apimAccessToken)
   ]);
 
-  if ([personSummaryResult.status, organisationAuthorisationResult.status, organisationResult.status].includes("rejected")) {
+  if ([personSummaryResult.status, organisationAuthorisationResult.status, organisationResult.status, cphNumbersResult.status].includes("rejected")) {
     throw new AggregateError(
       [personSummaryResult, organisationAuthorisationResult, organisationResult]
         .filter((x) => x.status === "rejected")
@@ -76,6 +78,7 @@ export const getPersonAndOrg = async ({ request, apimAccessToken, crn, logger, a
   const personSummary = personSummaryResult.value;
   const organisationAuthorisation = organisationAuthorisationResult.value;
   const organisation = organisationResult.value;
+  const cphNumbers = cphNumbersResult.value;
   const organisationPermission = organisationHasPermission({
     organisationAuthorisation,
     personId: personSummary.id,
@@ -96,5 +99,5 @@ export const getPersonAndOrg = async ({ request, apimAccessToken, crn, logger, a
 
   setOrganisationSessionData(request, personSummary, personAndOrg.orgDetails.organisation, crn);
 
-  return personAndOrg;
+  return { ...personAndOrg, cphNumbers };
 };

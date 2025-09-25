@@ -40,6 +40,46 @@ function setMswHandlers(applicationReference, applications, claims) {
   mswServer.use(applicationsLatest, claimByReference);
 }
 
+test("get /vet-visits: no agreement throws an error", async () => {
+  const server = await createServer();
+
+  const sbi = "106354662";
+  const state = {
+    customer: {
+      attachedToMultipleBusinesses: true,
+    },
+    endemicsClaim: {
+      organisation: {
+        sbi,
+        name: "PARTRIDGES",
+        farmerName: "Janice Harrison",
+      },
+    },
+  };
+
+  await setServerState(server, state);
+
+  const applicationReference = "";
+  const newWorldApplications = [];
+  const claims = [];
+
+  setMswHandlers(applicationReference, newWorldApplications, claims);
+
+  const { payload } = await server.inject({
+    url: "/vet-visits",
+    auth: {
+      credentials: {},
+      strategy: "cookie",
+    },
+  });
+  cleanUpFunction = globalJsdom(payload);
+
+  expect(getByRole(document.body, "heading", {
+    level: 1,
+    name: "Sorry, there is a problem with the service",
+  })).toBeDefined();
+});
+
 test("get /vet-visits: new world, multiple businesses", async () => {
   const server = await createServer();
 

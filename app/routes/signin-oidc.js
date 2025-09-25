@@ -57,7 +57,7 @@ export const signinRouteHandlers = [
 
           const crn = getCustomer(request, sessionKeys.customer.crn);
 
-          const { orgDetails, personSummary } = await getPersonAndOrg({ request, apimAccessToken, crn, logger, accessToken });
+          const { orgDetails, personSummary, cphNumbers } = await getPersonAndOrg({ request, apimAccessToken, crn, logger, accessToken });
 
           await updateContactHistory(personSummary, orgDetails.organisation, logger);
 
@@ -68,7 +68,7 @@ export const signinRouteHandlers = [
             organisation: orgDetails.organisation,
             organisationPermission: orgDetails.organisationPermission,
             request,
-            apimAccessToken,
+            cphNumbers,
             personSummary,
           });
 

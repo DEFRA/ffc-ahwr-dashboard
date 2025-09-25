@@ -1,5 +1,3 @@
-import { getCphNumbers } from "./cph-numbers.js";
-
 const between = (x, min, max) => {
   return x >= min && x <= max;
 };
@@ -26,15 +24,8 @@ const restrictedToCattlePigAndSheepLivestock = (cphNumber) => {
     slaughterHousesOrPoultry.MAX,
   );
 };
-  
 
-export const customerHasAtLeastOneValidCph = async (request, apimAccessToken) => {
-  const cphNumbers = await getCphNumbers(request, apimAccessToken);
-
-  if (!cphNumbers) {
-    return false;
-  }
-
+export const customerHasAtLeastOneValidCph = (cphNumbers) => {
   const userHasAtLeastOneValidCph = cphNumbers.some((cphNumber) => inEngland(cphNumber) && restrictedToCattlePigAndSheepLivestock(cphNumber));
 
   return userHasAtLeastOneValidCph;

@@ -171,6 +171,10 @@ export const vetVisitsHandlers = [
           request.logger,
         );
 
+        if (applications.length === 0) {
+          throw new Error("User should not be attempting to access this page without an agreement.");
+        }
+
         const vetVisitApplications = applications?.filter(
           (application) => application.type === applicationType.VET_VISITS,
         );

@@ -43,6 +43,10 @@ jest.mock("../../../../app/constants/claim-statuses.js", () => ({
   }
 }));
 
+jest.mock("applicationinsights", () => ({
+  defaultClient: { trackEvent: jest.fn() },
+}));
+
 const auth = { credentials: {}, strategy: 'cookie' }
 
 describe("Dev sign in page test", () => {

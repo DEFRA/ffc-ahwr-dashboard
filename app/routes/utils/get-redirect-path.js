@@ -2,6 +2,7 @@ import { CLAIM_STATUSES, closedViewStatuses } from "../../constants/claim-status
 import { applicationType } from "../../constants/constants.js";
 import { setSignInRedirect } from "../../session/index.js";
 import { sessionKeys } from "../../session/keys.js";
+import appInsights from "applicationinsights";
 
 export function getRedirectPath(latestApplicationsForSbi, request) {
   const checkDetails = "/check-details";
@@ -28,6 +29,15 @@ export function getRedirectPath(latestApplicationsForSbi, request) {
     setSignInRedirect(request, sessionKeys.signInRedirect, true);
     return { redirectPath: checkDetails, error: "" };
   }
+
+  appInsights.defaultClient.trackEvent({
+    name: "unsuccessful-login",
+    properties: {
+      sbi: latestApplication.data?.organisation?.sbi ?? "N/A",
+      crn: latestApplication.data?.organisation?.crn ?? "N/A",
+      reason: "User has an expired old world application"
+    },
+  });
 
   return { redirectPath: "", error: "ExpiredOldWorldApplication" };
 }
