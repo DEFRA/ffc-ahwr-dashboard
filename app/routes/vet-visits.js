@@ -15,6 +15,7 @@ import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-aut
 import { claimServiceUri, vetVisits } from "../config/routes.js";
 import { config } from "../config/index.js";
 import { showMultiHerdsBanner } from "./utils/show-multi-herds-banner.js";
+import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 
 const { latestTermsAndConditionsUri } = config;
 
@@ -173,6 +174,13 @@ export const vetVisitsHandlers = [
 
         if (applications.length === 0) {
           throw new Error("User should not be attempting to access this page without an agreement.");
+        }
+        
+        if (applications[0]?.applicationRedacts?.length) {
+          return h.view("agreement-redacted", {
+            ruralPaymentsAgency: RPA_CONTACT_DETAILS,
+            privacyPolicyUri: config.privacyPolicyUri
+          });
         }
 
         const vetVisitApplications = applications?.filter(
