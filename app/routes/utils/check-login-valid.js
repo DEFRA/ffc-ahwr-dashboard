@@ -87,7 +87,7 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
 };
 
 const returnErrorRouting = async ({ h, error, organisation, request, crn }) => {
-  await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
+  // await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
 
   const hasMultipleBusinesses = Boolean(getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses));
 

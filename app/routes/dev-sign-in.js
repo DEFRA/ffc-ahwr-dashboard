@@ -11,11 +11,10 @@ import HttpStatus from "http-status-codes";
 import { requestAuthorizationCodeUrl } from "../auth/auth-code-grant/request-authorization-code-url.js";
 import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 import { setSessionForErrorPage } from "./utils/check-login-valid.js";
-import { AgreementRedactedError } from "../exceptions/AgreementRedactedError.js";
 
 const devLandingPageUrl = "/dev-landing-page";
 
-export const createDevDetails = (sbi) => {
+const createDevDetails = (sbi) => {
   const organisationSummary = {
     organisationPermission: {},
     organisation: {
@@ -47,8 +46,6 @@ function throwErrorBasedOnSuffix(sbi = "") {
     );
   } else if (sbi.toUpperCase().endsWith("C")) {
     throw new NoEligibleCphError("Customer must have at least one valid CPH");
-  }  else if (sbi.toUpperCase().endsWith("R")) {
-    throw new AgreementRedactedError("Agreement redacted");
   } else {
     return '';
   }
@@ -113,7 +110,7 @@ export const devLoginHandlers = [
 
           return h.redirect(redirectPath);
         } catch (error) {
-          const errorNames = ["LockedBusinessError", "InvalidPermissionsError", "NoEligibleCphError", "ExpiredOldWorldApplication", "AgreementRedactedError"];
+          const errorNames = ["LockedBusinessError", "InvalidPermissionsError", "NoEligibleCphError", "ExpiredOldWorldApplication"];
 
           if (errorNames.includes(error.name)) {
             const hasMultipleBusinesses = sbi.charAt(0) === '1';
