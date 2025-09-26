@@ -442,7 +442,7 @@ test("get /vet-visits: old world application only", async () => {
   ]);
 });
 
-test("get /vet-visits: new world, no claims made, show banner", async () => {
+test("get /vet-visits: shows agreement redacted", async () => {
   cleanUpFunction();
   const server = await createServer();
   jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
@@ -470,6 +470,9 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
       type: "EE",
       reference: "IAHW-TEST-NEW2",
       createdAt: beforeMultiSpeciesReleaseDate,
+      applicationRedacts: [{
+        success: 'Y'
+      }]
     },
   ];
 
@@ -484,8 +487,9 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
   });
   cleanUpFunction = globalJsdom(payload);
 
-  const banner = getByRole(document.body, "region", { name: "Important" });
-  expect(getByRole(banner, "paragraph").textContent.trim()).toBe(
-    "You can now claim for more than one herd or flock of any species.",
+  const heading = getByRole(document.body, "heading", { level: 1 });
+  expect(heading).not.toBeNull();
+  expect(heading.textContent.trim()).toBe(
+    "Your Improve Animal Health and Welfare (IAHW) agreement has been removed"
   );
 });
