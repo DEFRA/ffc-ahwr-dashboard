@@ -63,11 +63,6 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
 
   const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, logger);
 
-  if(latestApplicationsForSbi[0]?.applicationRedacts?.length) {
-    logger.setBindings({ error: `Agreement ${latestApplicationsForSbi[0].reference} has been redacted`, crn })
-    return returnErrorRouting({ h, error: 'AgreementRedactedError', organisation, request, crn });
-  }
-
   const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi, request);
 
   if (err) {
@@ -80,7 +75,7 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
 };
 
 const returnErrorRouting = async ({ h, error, organisation, request, crn }) => {
-  await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
+  // await raiseIneligibilityEvent(request.yar.id, organisation.sbi, crn, organisation.email, error);
 
   const hasMultipleBusinesses = Boolean(getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses));
 

@@ -441,3 +441,51 @@ test("get /vet-visits: old world application only", async () => {
     ],
   ]);
 });
+
+test("get /vet-visits: new world, no claims made, show banner", async () => {
+  cleanUpFunction();
+  const server = await createServer();
+  jest.replaceProperty(config.multiSpecies, "releaseDate", "2024-12-04");
+
+  const sbi = "123123123";
+  const state = {
+    customer: {
+      attachedToMultipleBusinesses: true,
+    },
+    endemicsClaim: {
+      organisation: {
+        sbi,
+        name: "TEST FARM",
+        farmerName: "Farmer Joe",
+      },
+    },
+  };
+
+  await setServerState(server, state);
+
+  const beforeMultiSpeciesReleaseDate = "2024-12-03";
+  const newWorldApplications = [
+    {
+      sbi,
+      type: "EE",
+      reference: "IAHW-TEST-NEW2",
+      createdAt: beforeMultiSpeciesReleaseDate,
+    },
+  ];
+
+  setMswHandlers('IAHW-TEST-NEW2', newWorldApplications, []);
+
+  const { payload } = await server.inject({
+    url: "/vet-visits",
+    auth: {
+      credentials: {},
+      strategy: "cookie",
+    },
+  });
+  cleanUpFunction = globalJsdom(payload);
+
+  const banner = getByRole(document.body, "region", { name: "Important" });
+  expect(getByRole(banner, "paragraph").textContent.trim()).toBe(
+    "You can now claim for more than one herd or flock of any species.",
+  );
+});

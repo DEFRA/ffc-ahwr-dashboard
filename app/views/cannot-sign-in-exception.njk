@@ -83,26 +83,6 @@
         {% endif %}
       {% endif %}
 
-      {% if error === "AgreementRedactedError" %}
-        <h1 class="govuk-heading-l">Your Improve Animal Health and Welfare (IAHW) agreement has been removed</h1>
-        <p class="govuk-body">
-          Your agreement has been removed in line with the <a href='{{ privacyPolicyUri }}'>IAHW privacy policy.</a> You can no longer make claims on this agreement.
-        </p>
-        <p class="govuk-body">
-          If you're eligible, you can apply for a new agreement.
-        </p>
-        <h2 class="govuk-heading-m">Get help with your agreement</h2>
-        <p>Contact us if you are not sure why you can no longer access your agreement.</p>
-        <p class="govuk-body">
-          You should:
-        </p>
-        <ul class="govuk-list govuk-list--bullet">
-          <li>use 'IAHW' in the email subject heading</li>
-          <li>put your SBI on everything you send to us</li>
-        </ul>
-        {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
-      {% endif %}
-
       <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Sign out of your account</h2>
       <p class="govuk-body">You can <a href='{{ signOutLink }}'>sign out of your account.</a> This will sign you out of all of your Defra accounts.</p>
     </div>

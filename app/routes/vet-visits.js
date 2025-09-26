@@ -178,7 +178,6 @@ export const vetVisitsHandlers = [
         
         if (applications[0]?.applicationRedacts?.length) {
           return h.view("agreement-redacted", {
-            error: 'AgreementRedactedError',
             ruralPaymentsAgency: RPA_CONTACT_DETAILS,
             privacyPolicyUri: config.privacyPolicyUri
           });
@@ -193,9 +192,9 @@ export const vetVisitsHandlers = [
 
         const claims = latestEndemicsApplication
           ? await getClaimsByApplicationReference(
-              latestEndemicsApplication?.reference,
-              request.logger,
-            )
+            latestEndemicsApplication?.reference,
+            request.logger,
+          )
           : [];
 
         const vetVisitApplicationsWithinLastTenMonths =
