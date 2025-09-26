@@ -10,6 +10,7 @@ import {
   setFarmerApplyData,
 } from "../../../../../app/session";
 import { sessionKeys } from "../../../../../app/session/keys";
+import { getCphNumbers } from "../../../../../app/api-requests/rpa-api/cph-numbers";
 
 jest.mock("../../../../../app/session");
 
@@ -19,6 +20,10 @@ jest.mock("../../../../../app/api-requests/rpa-api/person", () => ({
     name: "Farmer Tom",
     email: "farmertomstestemail@test.com.test",
   }),
+}));
+
+jest.mock("../../../../../app/api-requests/rpa-api/cph-numbers", () => ({
+  getCphNumbers: jest.fn().mockResolvedValue([1,2,3])
 }));
 
 jest.mock("../../../../../app/api-requests/rpa-api/organisation", () => {
@@ -91,6 +96,7 @@ describe("getPersonAndOrg", () => {
         name: "Farmer Tom",
         email: "farmertomstestemail@test.com.test",
       },
+      cphNumbers: [1, 2, 3]
     });
     expect(getPersonSummary).toHaveBeenCalledWith(request, apimAccessToken, crn, logger);
     expect(getOrganisationAuthorisation).toHaveBeenCalledWith(request, accessToken.currentRelationshipId, apimAccessToken);
@@ -120,6 +126,7 @@ describe("getPersonAndOrg", () => {
         sbi: "999000",
       }
     );
+    expect(getCphNumbers).toHaveBeenCalledWith(request, apimAccessToken);
   });
 
   test("An error from any remote call causes an aggregate error to be thrown - org Auth failed", async () => {

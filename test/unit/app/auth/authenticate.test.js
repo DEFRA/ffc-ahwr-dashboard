@@ -11,6 +11,7 @@ import {
   setToken,
 } from "../../../../app/session/index.js";
 import { verify } from "jsonwebtoken";
+import { authConfig } from "../../../../app/config/auth.js";
 const { when, resetAllWhenMocks } = require("jest-when");
 
 const MOCK_NOW = new Date();
@@ -79,7 +80,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          }
+          },
         },
       },
       when: {
@@ -98,10 +99,24 @@ describe("authenticate", () => {
             statusCode: HttpStatus.OK,
           },
           payload: {
-            access_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vand0aXNzdWVyaWQvdjIuMC8iLCJyb2xlcyI6WyI1Mzg0NzY5OkFnZW50OjMiXSwiY29udGFjdElkIjoiMTIzNDU2Nzg5MCIsImN1cnJlbnRSZWxhdGlvbnNoaXBJZCI6IjEyMzQ1Njc4OSJ9.pYC2VTlSnlIsLn4MknJl0YhLPCn2oW6K73FKFgzvAqE",
-            id_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk",
+            access_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              firstName: "John",
+              lastName: "Doe",
+              email: "john.doe@email.com",
+              iat: 1516239022,
+              iss: `https://${authConfig.defraId.tenantName}.b2clogin.com/${authConfig.defraId.jwtIssuerId}/v2.0/`,
+              roles: ["5384769:Agent:3"],
+              contactId: "1234567890",
+              currentRelationshipId: "123456789",
+            },
+            id_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              iat: 1516239022,
+              nonce: "123",
+            },
             expires_in: 10,
           },
         },
@@ -123,7 +138,7 @@ describe("authenticate", () => {
             log: jest.fn(),
             error: jest.fn(),
             setBindings: jest.fn(),
-          }
+          },
         },
       },
       when: {
@@ -142,17 +157,31 @@ describe("authenticate", () => {
             statusCode: HttpStatus.OK,
           },
           payload: {
-            access_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vV1JPTkdfSldUX0lTU1VFUl9JRC92Mi4wLyIsInJvbGVzIjpbIjUzODQ3Njk6QWdlbnQ6MyJdLCJjb250YWN0SWQiOiIxMjM0NTY3ODkwIiwiY3VycmVudFJlbGF0aW9uc2hpcElkIjoiMTIzNDU2Nzg5In0.CIzX3BNGBXDLfDbZ0opb3N9jFJv5tYQjQsB_Nrn-6jI",
-            id_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk",
+            access_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              firstName: "John",
+              lastName: "Doe",
+              email: "john.doe@email.com",
+              iat: 1516239022,
+              iss: "https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/",
+              roles: ["5384769:Agent:3"],
+              contactId: "1234567890",
+              currentRelationshipId: "123456789",
+            },
+            id_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              iat: 1516239022,
+              nonce: "123",
+            },
             expires_in: 10,
           },
         },
       },
       expect: {
         error: new Error(
-          "Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/",
+          "Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/"
         ),
       },
     },
@@ -188,10 +217,24 @@ describe("authenticate", () => {
             statusCode: HttpStatus.OK,
           },
           payload: {
-            access_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5jb20iLCJpYXQiOjE1MTYyMzkwMjIsImlzcyI6Imh0dHBzOi8vdGVuYW50bmFtZS5iMmNsb2dpbi5jb20vV1JPTkdfSldUX0lTU1VFUl9JRC92Mi4wLyIsInJvbGVzIjpbIjUzODQ3Njk6QWdlbnQ6MyJdLCJjb250YWN0SWQiOiIxMjM0NTY3ODkwIiwiY3VycmVudFJlbGF0aW9uc2hpcElkIjoiMTIzNDU2Nzg5In0.CIzX3BNGBXDLfDbZ0opb3N9jFJv5tYQjQsB_Nrn-6jI",
-            id_token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJub25jZSI6IjEyMyJ9.EFgheK9cJjMwoszwDYbf9n_XF8NJ3qBvLYqUB8uRrzk",
+            access_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              firstName: "John",
+              lastName: "Doe",
+              email: "john.doe@email.com",
+              iat: 1516239022,
+              iss: "https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/",
+              roles: ["5384769:Agent:3"],
+              contactId: "1234567890",
+              currentRelationshipId: "123456789",
+            },
+            id_token: {
+              sub: "1234567890",
+              name: "John Doe",
+              iat: 1516239022,
+              nonce: "123",
+            },
             expires_in: 10,
           },
         },
@@ -202,9 +245,12 @@ describe("authenticate", () => {
     },
   ])("%s", async (testCase) => {
     if (testCase.toString().includes("jwtVerify error")) {
-      verify.mockReturnValue(false);
+      verify.mockReturnValue(null);
     } else {
-      verify.mockReturnValue(true);
+      verify.mockReturnValueOnce(
+        testCase.when.redeemResponse.payload.access_token
+      );
+      verify.mockReturnValueOnce(testCase.when.redeemResponse.payload.id_token);
       verifyState.mockReturnValue(true);
     }
 
@@ -240,7 +286,7 @@ describe("authenticate", () => {
 
     if (testCase.expect.error) {
       await expect(authenticate(testCase.given.request)).rejects.toEqual(
-        testCase.expect.error,
+        testCase.expect.error
       );
 
       expect(setToken).toHaveBeenCalledTimes(0);
@@ -251,27 +297,22 @@ describe("authenticate", () => {
       expect(setToken).toHaveBeenCalledWith(
         testCase.given.request,
         sessionKeys.tokens.accessToken,
-        testCase.when.redeemResponse.payload.access_token,
-      );
-      expect(setToken).toHaveBeenCalledWith(
-        testCase.given.request,
-        sessionKeys.tokens.tokenExpiry,
-        new Date(MOCK_NOW.getTime() + 10 * 1000).toISOString(),
+        testCase.when.redeemResponse.payload.access_token
       );
       expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
         sessionKeys.customer.crn,
-        "1234567890",
+        "1234567890"
       );
       expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
         sessionKeys.customer.organisationId,
-        "123456789",
+        "123456789"
       );
       expect(setCustomer).toHaveBeenCalledWith(
         testCase.given.request,
         sessionKeys.customer.attachedToMultipleBusinesses,
-        false,
+        false
       );
     }
   });

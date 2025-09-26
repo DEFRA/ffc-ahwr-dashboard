@@ -30,28 +30,8 @@ function get(request, entryKey, key) {
   return key ? request.yar?.get(entryKey)?.[key] : request.yar?.get(entryKey);
 }
 
-export function clear(request) {
-  request.yar.clear(entries.endemicsClaim);
-  request.yar.clear(entries.farmerApplyData);
-  request.yar.clear(entries.application);
-  request.yar.clear(entries.organisation);
-  request.yar.clear(entries.answers);
-  request.yar.clear(entries.selectYourBusiness);
-  request.yar.clear(entries.customer);
-  request.yar.clear(entries.cannotSignInDetails);
-  request.yar.clear(entries.signInRedirect);
-}
-
 export function clearAllOfSession(request) {
   Object.values(entries).forEach(value => request.yar.clear(value))
-}
-
-export function setApplication(request, key, value) {
-  set(request, entries.application, key, value);
-}
-
-export function getApplication(request, key) {
-  return get(request, entries.application, key);
 }
 
 export function setEndemicsClaim(request, key, value) {

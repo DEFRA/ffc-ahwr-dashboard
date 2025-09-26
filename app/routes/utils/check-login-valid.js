@@ -6,6 +6,7 @@ import { sessionKeys } from "../../session/keys.js";
 import { getLatestApplicationsBySbi } from "../../api-requests/application-api.js";
 import { getRedirectPath } from "./get-redirect-path.js";
 import { maybeSuffixLoginRedirectUrl } from "../../lib/suffix-url.js";
+import appInsights from "applicationinsights";
 
 export const setSessionForErrorPage = ({ request, error, hasMultipleBusinesses, backLink, organisation }) => {
   setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.error, error);
@@ -14,24 +15,49 @@ export const setSessionForErrorPage = ({ request, error, hasMultipleBusinesses, 
   setCannotSignInDetails(request, sessionKeys.cannotSignInDetails.organisation, organisation);
 }
 
-export const checkLoginValid = async ({ h, organisation, organisationPermission, request, apimAccessToken, personSummary }) => {
+const logReasonAndEmitEvent = ({ logger, reason, sbi, crn }) => {
+  logger.setBindings({ error: reason, crn });
+
+  appInsights.defaultClient.trackEvent({
+    name: "unsuccessful-login",
+    properties: {
+      sbi,
+      crn,
+      reason,
+    },
+  });
+};
+
+export const checkLoginValid = async ({ h, organisation, organisationPermission, request, cphNumbers, personSummary }) => {
   const { logger } = request;
   const crn = getCustomer(request, sessionKeys.customer.crn);
 
   if (organisation.locked) {
-    logger.setBindings({ error: `Organisation id ${organisation.id} is locked by RPA`, crn })
+    logReasonAndEmitEvent({logger, reason: `Organisation id ${organisation.id} is locked by RPA`, sbi: organisation.sbi, crn});
     return returnErrorRouting({ h, error: 'LockedBusinessError', organisation, request, crn });
   }
   
   if (!organisationPermission) {
-    logger.setBindings({ error: `Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`, crn })
+    logReasonAndEmitEvent({
+      logger, 
+      reason: `Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`, 
+      sbi: organisation.sbi, 
+      crn
+    });
+
     return returnErrorRouting({ h, error: 'InvalidPermissionsError', organisation, request, crn });
   }
 
-  const hasValidCph = await customerHasAtLeastOneValidCph(request, apimAccessToken);
+  const hasValidCph = customerHasAtLeastOneValidCph(cphNumbers);
 
   if (!hasValidCph) {
-    logger.setBindings({ error: `Organisation id ${organisation.id} has no valid CPH's associated`, crn })
+    logReasonAndEmitEvent({
+      logger, 
+      reason: `Organisation id ${organisation.id} has no valid CPH's associated`, 
+      sbi: organisation.sbi, 
+      crn
+    });
+
     return returnErrorRouting({ h, error: 'NoEligibleCphError', organisation, request, crn });
   }
 

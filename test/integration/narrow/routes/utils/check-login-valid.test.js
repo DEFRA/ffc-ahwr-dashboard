@@ -6,6 +6,10 @@ import { raiseIneligibilityEvent } from "../../../../../app/event/raise-ineligib
 import { requestAuthorizationCodeUrl } from "../../../../../app/auth/auth-code-grant/request-authorization-code-url";
 import { getLatestApplicationsBySbi } from "../../../../../app/api-requests/application-api";
 
+jest.mock("applicationinsights", () => ({
+  defaultClient: { trackEvent: jest.fn() },
+}));
+
 jest.mock("../../../../../app/constants/claim-statuses.js", () => ({
   closedViewStatuses: [2, 10, 7, 9],
   CLAIM_STATUSES: {
@@ -57,7 +61,7 @@ jest.mock(
 
 describe("checkLoginValid", () => {
 
-  const apimAccessToken = "Bearer 123dff";
+  const cphNumbers = ["33/333/3333"];
   const personSummary = {
     id: 12345,
     name: "Farmer Tom",
@@ -95,7 +99,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -103,10 +107,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(
-      request,
-      apimAccessToken
-    );
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
   });
 
@@ -145,7 +146,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -201,7 +202,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -224,7 +225,7 @@ describe("checkLoginValid", () => {
   });
 
   test("it returns a redirect callback if there is no valid CPH", async () => {
-    customerHasAtLeastOneValidCph.mockResolvedValue(false);
+    customerHasAtLeastOneValidCph.mockReturnValue(false);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -258,7 +259,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary
     });
 
@@ -268,7 +269,7 @@ describe("checkLoginValid", () => {
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
       request.yar.id,
@@ -281,7 +282,7 @@ describe("checkLoginValid", () => {
   });
 
   test("it returns a redirect callback if there is no valid CPH", async () => {
-    customerHasAtLeastOneValidCph.mockResolvedValue(false);
+    customerHasAtLeastOneValidCph.mockReturnValue(false);
     const mockRedirectCallBackAsString = "im a redirect callback";
     const h = {
       redirect: jest
@@ -315,7 +316,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -325,7 +326,7 @@ describe("checkLoginValid", () => {
     });
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken); // only gets called if an error hasnt been found yet
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers); // only gets called if an error hasnt been found yet
     expect(mockSetBindings).toHaveBeenCalledWith({ crn: 124, error: "Organisation id 111 has no valid CPH's associated" });
     expect(raiseIneligibilityEvent).toHaveBeenCalledWith(
       request.yar.id,
@@ -335,7 +336,7 @@ describe("checkLoginValid", () => {
       "NoEligibleCphError"
     );
     expect(requestAuthorizationCodeUrl).toHaveBeenCalledWith(request);
-    customerHasAtLeastOneValidCph.mockResolvedValue(true);
+    customerHasAtLeastOneValidCph.mockReturnValue(true);
   });
 
   test("it returns a redirect path to apply journey if there are no problems and the user has no applications", async () => {
@@ -373,7 +374,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -381,7 +382,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
@@ -428,7 +429,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -436,7 +437,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
@@ -483,7 +484,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -491,7 +492,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
@@ -538,7 +539,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -546,7 +547,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBeNull();
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
@@ -592,7 +593,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
@@ -600,7 +601,7 @@ describe("checkLoginValid", () => {
     expect(result.redirectCallback).toBe(mockRedirectCallBackAsString);
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
-    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(request, apimAccessToken);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
     expect(mockSetBindings).not.toHaveBeenCalled();
     expect(raiseIneligibilityEvent).toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).toHaveBeenCalled();
@@ -654,7 +655,7 @@ describe("checkLoginValid", () => {
       organisation,
       organisationPermission,
       request,
-      apimAccessToken,
+      cphNumbers,
       personSummary,
     });
 
