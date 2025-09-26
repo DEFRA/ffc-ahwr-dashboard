@@ -192,9 +192,9 @@ export const vetVisitsHandlers = [
 
         const claims = latestEndemicsApplication
           ? await getClaimsByApplicationReference(
-            latestEndemicsApplication?.reference,
-            request.logger,
-          )
+              latestEndemicsApplication?.reference,
+              request.logger,
+            )
           : [];
 
         const vetVisitApplicationsWithinLastTenMonths =
