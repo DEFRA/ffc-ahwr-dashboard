@@ -7,7 +7,7 @@ import { requestAuthorizationCodeUrl } from "../../../../../app/auth/auth-code-g
 import { getLatestApplicationsBySbi } from "../../../../../app/api-requests/application-api";
 
 jest.mock("applicationinsights", () => ({
-  defaultClient: { trackEvent: jest.fn() },
+  defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
 }));
 
 jest.mock("../../../../../app/constants/claim-statuses.js", () => ({
@@ -602,7 +602,7 @@ describe("checkLoginValid", () => {
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
-    expect(mockSetBindings).not.toHaveBeenCalled();
+    expect(mockSetBindings).toHaveBeenCalledWith({ error: "User has an expired old world application", crn: 124 })
     expect(raiseIneligibilityEvent).toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).toHaveBeenCalled();
   });
