@@ -160,10 +160,7 @@ export const vetVisitsHandlers = [
         request.logger.setBindings({ sbi: organisation.sbi });
 
         const { attachedToMultipleBusinesses } = getCustomer(request);
-        const applications = await getLatestApplicationsBySbi(
-          organisation.sbi,
-          request.logger,
-        );
+        const applications = await getLatestApplicationsBySbi(organisation.sbi, request.logger);
 
         if (applications.length === 0) {
           throw new Error("User should not be attempting to access this page without an agreement.");
@@ -176,12 +173,8 @@ export const vetVisitsHandlers = [
           });
         }
 
-        const vetVisitApplications = applications?.filter(
-          (application) => application.type === applicationType.VET_VISITS,
-        );
-        const latestEndemicsApplication = applications?.find(
-          (application) => application.type === applicationType.ENDEMICS,
-        );
+        const vetVisitApplications = applications?.filter(application => application.type === applicationType.VET_VISITS);
+        const latestEndemicsApplication = applications?.find((application) => application.type === applicationType.ENDEMICS);
 
         const claims = latestEndemicsApplication
           ? await getClaimsByApplicationReference(
@@ -190,15 +183,8 @@ export const vetVisitsHandlers = [
             )
           : [];
 
-        const vetVisitApplicationsWithinLastTenMonths =
-          vetVisitApplications.filter((application) =>
-            isWithinLastTenMonths(application?.data?.visitDate),
-          );
-        const allClaims = [
-          ...claims,
-          ...vetVisitApplicationsWithinLastTenMonths,
-        ];
-
+        const vetVisitApplicationsWithinLastTenMonths = vetVisitApplications.filter((application) => isWithinLastTenMonths(application?.data?.visitDate));
+        const allClaims = [...claims, ...vetVisitApplicationsWithinLastTenMonths];
         const isOldWorld = !latestEndemicsApplication;
 
         const {
