@@ -39,15 +39,8 @@ const createRowsForTable = (claims) => {
       year: "numeric",
     });
 
-    const claimTypeText =
-      (claim.data.claimType ?? claimType.review) === "R"
-        ? "Review"
-        : "Follow-up";
-    const herdName =
-      claim.herd?.herdName ??
-      (claim.data.typeOfLivestock === "sheep"
-        ? "Unnamed flock"
-        : "Unnamed herd");
+    const claimTypeText = (claim.data.claimType ?? claimType.review) === "R" ? "Review" : "Follow-up";
+    const herdName = claim.herd?.herdName ?? (claim.data.typeOfLivestock === "sheep" ? "Unnamed flock" : "Unnamed herd");
 
     return [
       {
