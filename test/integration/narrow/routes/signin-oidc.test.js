@@ -19,7 +19,7 @@ jest.mock("../../../../app/session/index.js", () => ({
 }));
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
-  closedViewStatuses: [2, 10, 7, 9],
+  closedViewStatuses: [2, 10, 7, 9, 8],
   CLAIM_STATUSES: {
     AGREED: 1,
     WITHDRAWN: 2,

@@ -4,7 +4,7 @@ import { storageConfig } from "../../../../app/config/storage.js";
 import { StatusCodes } from "http-status-codes";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
-  closedViewStatuses: [2, 10, 7, 9]
+  closedViewStatuses: [2, 10, 7, 9, 8]
 }));
 
 test("get /download-application", async () => {

@@ -3,7 +3,7 @@ import { getByRole } from "@testing-library/dom";
 import globalJsdom from "global-jsdom";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
-  closedViewStatuses: [2, 10, 7, 9]
+  closedViewStatuses: [2, 10, 7, 9, 8]
 }));
 
 test("get /update-details", async () => {
