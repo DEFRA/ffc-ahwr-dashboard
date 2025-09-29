@@ -7,11 +7,11 @@ import { requestAuthorizationCodeUrl } from "../../../../../app/auth/auth-code-g
 import { getLatestApplicationsBySbi } from "../../../../../app/api-requests/application-api";
 
 jest.mock("applicationinsights", () => ({
-  defaultClient: { trackEvent: jest.fn() },
+  defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
 }));
 
 jest.mock("../../../../../app/constants/claim-statuses.js", () => ({
-  closedViewStatuses: [2, 10, 7, 9],
+  closedViewStatuses: [2, 10, 7, 9, 8],
   CLAIM_STATUSES: {
     AGREED: 1,
     WITHDRAWN: 2,
@@ -498,11 +498,66 @@ describe("checkLoginValid", () => {
     expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
   });
 
-  test("it returns a redirect path to apply journey if there are no problems and the user a closed status old world application", async () => {
+  test("it returns a redirect path to apply journey if there are no problems and the user has a closed status old world application", async () => {
     getLatestApplicationsBySbi.mockResolvedValue([
       {
         type: "VV",
         statusId: 2,
+        createdAt: new Date(),
+      },
+    ]);
+    const mockRedirectCallBackAsString = "im a redirect callback";
+    const h = {
+      redirect: jest
+        .fn()
+        .mockReturnValue({
+          takeover: jest.fn().mockReturnValue(mockRedirectCallBackAsString),
+        }),
+    };
+    const organisation = {
+      address: "1 Brown Lane,Smithering,West Sussex,England,UK,Thompsons,Sisterdene,1-30,Grey Building,Brown Lane,Grenwald,West Sussex,WS11 2DS,GBR",
+      email: "unit@test.email.com.test",
+      name: "Unit test org",
+      sbi: 999000,
+      id: 111
+    };
+    const organisationPermission = true;
+
+    const mockSetBindings = jest.fn();
+
+    const request = {
+      yar: {
+        id: 1,
+      },
+      logger: {
+        setBindings: mockSetBindings,
+      },
+    };
+
+    const result = await checkLoginValid({
+      h,
+      organisation,
+      organisationPermission,
+      request,
+      cphNumbers,
+      personSummary,
+    });
+
+    expect(result.redirectPath).toEqual("/check-details");
+    expect(result.redirectCallback).toBeNull();
+    expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
+    expect(setSignInRedirect).toHaveBeenCalledWith(request, sessionKeys.signInRedirect, true);
+    expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
+    expect(mockSetBindings).not.toHaveBeenCalled();
+    expect(raiseIneligibilityEvent).not.toHaveBeenCalled();
+    expect(requestAuthorizationCodeUrl).not.toHaveBeenCalled();
+  });
+
+  test("it returns a redirect path to apply journey if there are no problems and the user has a closed status old world application specifially in the PAID state", async () => {
+    getLatestApplicationsBySbi.mockResolvedValue([
+      {
+        type: "VV",
+        statusId: 8,
         createdAt: new Date(),
       },
     ]);
@@ -602,7 +657,7 @@ describe("checkLoginValid", () => {
     expect(getCustomer).toHaveBeenCalledWith(request, sessionKeys.customer.crn);
     expect(setSignInRedirect).not.toHaveBeenCalled();
     expect(customerHasAtLeastOneValidCph).toHaveBeenCalledWith(cphNumbers);
-    expect(mockSetBindings).not.toHaveBeenCalled();
+    expect(mockSetBindings).toHaveBeenCalledWith({ error: "User has an expired old world application", crn: 124 })
     expect(raiseIneligibilityEvent).toHaveBeenCalled();
     expect(requestAuthorizationCodeUrl).toHaveBeenCalled();
   });

@@ -18,13 +18,13 @@ export const setSessionForErrorPage = ({ request, error, hasMultipleBusinesses, 
 const logReasonAndEmitEvent = ({ logger, reason, sbi, crn }) => {
   logger.setBindings({ error: reason, crn });
 
-  appInsights.defaultClient.trackEvent({
-    name: "unsuccessful-login",
+  appInsights.defaultClient.trackException({
+    exception: new Error('Login attempt has failed'),
     properties: {
       sbi,
       crn,
       reason,
-    },
+    }
   });
 };
 
@@ -33,7 +33,7 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
   const crn = getCustomer(request, sessionKeys.customer.crn);
 
   if (organisation.locked) {
-    logReasonAndEmitEvent({logger, reason: `Organisation id ${organisation.id} is locked by RPA`, sbi: organisation.sbi, crn});
+    logReasonAndEmitEvent({ logger, reason: `Organisation id ${organisation.id} is locked by RPA`, sbi: organisation.sbi, crn });
     return returnErrorRouting({ h, error: 'LockedBusinessError', organisation, request, crn });
   }
   
@@ -63,7 +63,7 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
 
   const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, logger);
 
-  if(latestApplicationsForSbi[0]?.applicationRedacts?.length) {
+  if (latestApplicationsForSbi[0]?.applicationRedacts?.length) {
     logger.setBindings({ error: `Agreement ${latestApplicationsForSbi[0].reference} has been redacted`, crn })
     return returnErrorRouting({ h, error: 'AgreementRedactedError', organisation, request, crn });
   }
@@ -71,6 +71,13 @@ export const checkLoginValid = async ({ h, organisation, organisationPermission,
   const { redirectPath: initialRedirectPath, error: err } = getRedirectPath(latestApplicationsForSbi, request);
 
   if (err) {
+    logReasonAndEmitEvent({
+      logger, 
+      reason: "User has an expired old world application", 
+      sbi: organisation.sbi, 
+      crn
+    });
+
     return returnErrorRouting({ h, error: err, organisation, request, crn });
   }
 

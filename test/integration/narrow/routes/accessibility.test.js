@@ -4,7 +4,7 @@ import globalJsdom from "global-jsdom";
 import "@testing-library/jest-dom";
 
 jest.mock("../../../../app/constants/claim-statuses.js", () => ({
-  closedViewStatuses: [2, 10, 7, 9]
+  closedViewStatuses: [2, 10, 7, 9, 8]
 }));
 
 describe("GET /accessibility", () => {
