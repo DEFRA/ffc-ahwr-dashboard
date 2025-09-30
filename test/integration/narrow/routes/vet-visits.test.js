@@ -101,7 +101,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   await setServerState(server, state);
 
   const applicationReference = "IAHW-TEST-NEW1";
-  const newWorldApplications = [{ sbi, type: "EE", reference: applicationReference }];
+  const newWorldApplications = [{ sbi, type: "EE", reference: applicationReference, applicationRedacts: [] }];
 
   const claims = [
     {
@@ -191,6 +191,7 @@ test("get /vet-visits: new world, multiple businesses, for sheep (flock not herd
       sbi,
       type: "EE",
       reference: applicationReference,
+      applicationRedacts: []
     },
   ];
 
@@ -255,6 +256,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
       sbi,
       type: "EE",
       reference: applicationReference,
+      applicationRedacts: []
     },
   ];
 
@@ -351,6 +353,7 @@ test("get /vet-visits: new world, no claims made, show banner", async () => {
       type: "EE",
       reference: "IAHW-TEST-NEW2",
       createdAt: beforeMultiSpeciesReleaseDate,
+      applicationRedacts: []
     },
   ];
 
@@ -408,6 +411,7 @@ test("get /vet-visits: old world application only", async () => {
         whichReview: "dairy",
       },
       statusId: "5",
+      applicationRedacts: []
     },
   ];
   const applicationsLatest = http.get(
