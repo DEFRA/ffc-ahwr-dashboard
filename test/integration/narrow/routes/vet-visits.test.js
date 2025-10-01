@@ -496,4 +496,8 @@ test("get /vet-visits: shows agreement redacted", async () => {
   expect(heading.textContent.trim()).toBe(
     "Your Improve Animal Health and Welfare (IAHW) agreement has been removed"
   );
+
+  const applyLink = getByRole(document.body, "link", { name: "Apply for a new agreement" });
+  expect(applyLink).not.toBeNull();
+  expect(applyLink.getAttribute("href")).toBe("http://localhost:3000/apply/endemics/you-can-claim-multiple");
 });

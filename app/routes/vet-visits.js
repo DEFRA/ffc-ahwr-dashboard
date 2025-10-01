@@ -169,7 +169,8 @@ export const vetVisitsHandlers = [
         if (applications[0].applicationRedacts.length) {
           return h.view("agreement-redacted", {
             ruralPaymentsAgency: RPA_CONTACT_DETAILS,
-            privacyPolicyUri: config.privacyPolicyUri
+            privacyPolicyUri: config.privacyPolicyUri,
+            applyServiceUri: `${config.applyServiceUri}/endemics/you-can-claim-multiple`,
           });
         }
 
