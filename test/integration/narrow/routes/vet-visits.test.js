@@ -142,7 +142,7 @@ test("get /vet-visits: new world, multiple businesses", async () => {
   ]);
 
   expect(
-    getByRole(document.body, "link", { name: "agreement summary" }),
+    getByRole(document.body, "link", { name: "Download agreement summary" }),
   ).toHaveProperty(
     "href",
     `${document.location.href}download-application/${sbi}/${applicationReference}`,
@@ -302,7 +302,7 @@ test("get /vet-visits: new world, claim has a herd", async () => {
   ]);
 
   expect(
-    getByRole(document.body, "link", { name: "agreement summary" }),
+    getByRole(document.body, "link", { name: "Download agreement summary" }),
   ).toHaveProperty(
     "href",
     `${document.location.href}download-application/${sbi}/${applicationReference}`,
