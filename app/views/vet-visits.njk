@@ -1,4 +1,6 @@
 {% extends './layouts/layout.njk' %}
+{% set mainClasses = "govuk-!-padding-top-2" %}
+
 {% block pageTitle %}Manage your claims - {{ serviceName }} - GOV.UK{% endblock %}
 
 {% set spanText = "(column headers with buttons are sortable by ascending or descending order)." %}
@@ -6,17 +8,36 @@
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
-      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</h2>
-      <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{ sbi }}</p>
+      <h2 class="govuk-heading-m govuk-!-static-margin-bottom-1">{{ name }}</h2>
+      <p class="govuk-body govuk-!-static-margin-bottom-1" id="SBI">
+        <span class="govuk-!-font-weight-bold">Single Business Identifier (SBI):</span> {{ sbi }}</br>
+        <span class="govuk-!-font-weight-bold">Agreement holder:</span> {{farmerName }}
+      </p>
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
-      <h2 class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</h2>
       {% if attachedToMultipleBusinesses %}
         <p class="govuk-!-text-align-right">
           <a id="MBILink" href={{ hostname }}>Claim for a different business</a>
         </p>
       {% endif %}
     </div>
+  </div>
+  <hr/>
+
+  <div class="govuk-grid-row govuk-width-container">
+    <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
+      <p class="govuk-body govuk-!-static-margin-bottom-1">
+        <span class="govuk-!-font-weight-bold">Agreement number:</span> <span class="govuk-body">{{ reference }}</span>
+      </p>
+    </div>
+    <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
+      <p class="govuk-!-text-align-right govuk-!-static-margin-bottom-1">
+        <a class="govuk-link" rel="external noopener noreferrer govuk-!-text-align-right" target={{ downloadedDocument | default('_self') }} href={{ downloadedDocument | default('#') }}>
+          Download agreement summary
+        </a>
+      </p>
+    </div>
+
   </div>
   <hr/>
   <div class="govuk-grid-row govuk-width-container govuk-!-static-margin-top-6">
@@ -33,20 +54,13 @@
     </div>
     {% endif %}
 
-    <h1 class="govuk-heading-xl">Manage your claims</h1>
+    <h1 class="govuk-heading-xl govuk-!-static-margin-bottom-4">Manage your claims</h1>
 
-    <div class="govuk-grid-column-two-thirds govuk-!-padding-0">
+    <div class="govuk-grid-column-full govuk-!-padding-0">
       <p>
         Start a new claim or view and manage your current claims.
         We recommend you claim in order of the visits.
       <p>
-      <p>Download your
-        <a class="govuk-link" rel="external noopener noreferrer" target={{ downloadedDocument | default('_self') }} href={{ downloadedDocument | default('#') }}>
-          agreement summary
-        </a>.</p>
-      <h2 class="govuk-heading-s govuk-!-static-margin-bottom-4">
-        Agreement number: <span class="govuk-body">{{ reference }}</span>
-      </h2>
 
       {{ govukButton({
         text: 'Start a new claim',
