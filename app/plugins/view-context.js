@@ -26,6 +26,7 @@ export const viewContextPlugin = {
           ctx.serviceUri = serviceUri;
           ctx.customerSurveyUri = customerSurvey.uri;
           ctx.userIsSignedIn = request.auth.isAuthenticated;
+          ctx.dashboardLink = `${serviceUri}vet-visits`;
 
           response.source.context = ctx;
         }
