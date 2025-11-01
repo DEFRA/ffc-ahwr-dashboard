@@ -73,7 +73,11 @@ export const getConfig = () => {
     multiHerds: joi.object({
       releaseDate: joi.string().required(),
     }),
-    privacyPolicyUri: joi.string().uri()
+    privacyPolicyUri: joi.string().uri(),
+    lfsUpdate: {
+      enabled: joi.boolean(),
+      uri: joi.string().uri().optional(),
+    },
   });
 
   const config = {
@@ -85,7 +89,10 @@ export const getConfig = () => {
         host: process.env.REDIS_HOSTNAME ?? "redis-hostname.default",
         partition: "ffc-ahwr-frontend",
         password: process.env.REDIS_PASSWORD,
-        port: Number.parseInt(process.env.REDIS_PORT ?? DEFAULT_REDIT_PORT.toString(), 10),
+        port: Number.parseInt(
+          process.env.REDIS_PORT ?? DEFAULT_REDIT_PORT.toString(),
+          10,
+        ),
         tls: process.env.NODE_ENV === "production" ? {} : undefined,
       },
     },
@@ -141,6 +148,10 @@ export const getConfig = () => {
       releaseDate: process.env.MULTI_HERDS_RELEASE_DATE || "2025-05-01",
     },
     privacyPolicyUri: process.env.PRIVACY_POLICY_URI,
+    lfsUpdate: {
+      enabled: process.env.LFS_UPDATE_ENABLED === "true",
+      uri: process.env.LFS_UPDATE_URI,
+    },
   };
 
   const { error } = schema.validate(config, {
