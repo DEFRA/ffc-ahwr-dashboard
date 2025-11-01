@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import { getEndemicsClaim, getSignInRedirect } from "../session/index.js";
 import { applyServiceUri } from "../config/routes.js";
 import { config } from "../config/index.js";
+import { RPA_CONTACT_DETAILS } from "ffc-ahwr-common-library";
 
 const { organisation: organisationKey } = sessionKeys.endemicsClaim;
 
@@ -17,10 +18,13 @@ export const checkDetailsHandlers = [
         const organisation = getEndemicsClaim(request, organisationKey);
 
         if (!organisation) {
-          throw new Error("Organisation not in session.")
+          throw new Error("Organisation not in session.");
         }
 
-        return h.view("check-details", getOrganisationModel(request, organisation));
+        return h.view(
+          "check-details",
+          getOrganisationModel(request, organisation),
+        );
       },
     },
   },
@@ -37,7 +41,7 @@ export const checkDetailsHandlers = [
           const organisation = getEndemicsClaim(request, organisationKey);
 
           if (!organisation) {
-            throw new Error("Organisation not in session.")
+            throw new Error("Organisation not in session.");
           }
 
           return h
@@ -57,18 +61,26 @@ export const checkDetailsHandlers = [
         const { confirmCheckDetails } = request.payload;
 
         if (confirmCheckDetails === "yes") {
-          const redirectToApply = getSignInRedirect(request, sessionKeys.signInRedirect);
+          const redirectToApply = getSignInRedirect(
+            request,
+            sessionKeys.signInRedirect,
+          );
 
           if (redirectToApply === true) {
-            return h.redirect(`${applyServiceUri}/endemics/you-can-claim-multiple`);
+            return h.redirect(
+              `${applyServiceUri}/endemics/you-can-claim-multiple`,
+            );
           }
 
           return h.redirect("/vet-visits");
         }
 
         const { organisation } = getEndemicsClaim(request);
-
-        return h.view("update-details", { devMode: config.devLogin.enabled, sfdButtonLink: `/sign-in?relationshipId=${organisation.id}`});
+        return h.view("update-details", {
+          lfsUpdateEnabled: config.lfsUpdate.enabled,
+          ruralPaymentsAgency: RPA_CONTACT_DETAILS,
+          lfsUpdateDetailsLink: `${config.lfsUpdate.uri}${organisation.id}`,
+        });
       },
     },
   },

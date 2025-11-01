@@ -78,6 +78,8 @@ container:
   multiHerdsReleaseDate: "3000-01-01"
   customerSurveyClaimUri: https://forms.office.com/Pages/ResponsePage.aspx?id=UCQKdycCYkyQx044U38RAsIdAEqqafZCk2LjifrI4h1UOVJKOVRUWlBLMEpFQVdERzA3QVRFWUM2NS4u
   privacyPolicyUri: https://www.gov.uk/government/publications/get-funding-to-improve-animal-health-and-welfare-privacy-notice
+  lfsUpdateEnabled: true
+  lfsUpdateUri: https://fcp-sfd-frontend.dev.cdp-int.defra.cloud/home?ssoOrgId=
 
 ingress:
   class: nginx
