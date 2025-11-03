@@ -41,7 +41,7 @@ export const checkDetailsHandlers = [
           const organisation = getEndemicsClaim(request, organisationKey);
 
           if (!organisation) {
-            throw new Error("Organisation not in session.");
+            throw new Error("Organisation not in session.")
           }
 
           return h
