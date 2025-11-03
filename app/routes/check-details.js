@@ -75,11 +75,10 @@ export const checkDetailsHandlers = [
           return h.redirect("/vet-visits");
         }
 
-        const { organisation } = getEndemicsClaim(request);
         return h.view("update-details", {
           lfsUpdateEnabled: config.lfsUpdate.enabled,
           ruralPaymentsAgency: RPA_CONTACT_DETAILS,
-          lfsUpdateDetailsLink: `${config.lfsUpdate.uri}${organisation.id}`,
+          lfsUpdateDetailsLink: "/update-details",
         });
       },
     },

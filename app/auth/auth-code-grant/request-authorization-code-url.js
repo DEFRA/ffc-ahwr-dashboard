@@ -19,7 +19,7 @@ export const requestAuthorizationCodeUrl = (request, ssoOrgId) => {
   url.searchParams.append("forceReselection", true);
 
   if (ssoOrgId) {
-    url.searchParams.append("ssoOrgId", ssoOrgId);
+    url.searchParams.append("relationshipId", ssoOrgId);
   }
   
   // Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE)
