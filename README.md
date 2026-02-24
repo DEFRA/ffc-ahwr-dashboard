@@ -1,3 +1,5 @@
+# ⚠️ Note this repository is being archived, and is replaced by the combined frontend service at https://github.com/DEFRA/ahwr-public-user-ui/ ⚠️
+
 # FFC AHWR Dashboard
 
 FFC AHWR Dashboard service, looks after giving easy access through dashboard function to customer.
